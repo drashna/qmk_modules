@@ -1,4 +1,4 @@
-# @tzarc's QMK Community Modules
+# @drashna's QMK Community Modules
 
 These rely on QMK Firmware 0.28.0 or later, merged in 2025q1.
 
@@ -6,7 +6,7 @@ In order to use these community modules with a build of QMK, this repo should be
 
 ```sh
 cd /path/to/your/external/userspace
-git submodule add https://github.com/tzarc/qmk_modules.git modules/tzarc
+git submodule add https://github.com/drashna/qmk_modules.git modules/drashna
 git submodule update --init --recursive
 ```
 

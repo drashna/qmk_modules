@@ -17,7 +17,7 @@ And adding the following to the list of modules in your `keymap.json`:
 
 ```json
 {
-    "modules": ["tzarc/socd_cleaner"]
+    "modules": ["drashna/socd_cleaner"]
 }
 ```
 

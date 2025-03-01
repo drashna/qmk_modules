@@ -5,7 +5,7 @@ Add the following to the list of modules in your `keymap.json` to enable this mo
 
 ```json
 {
-    "modules": ["tzarc/globe_key"]
+    "modules": ["drashna/globe_key"]
 }
 ```
 
