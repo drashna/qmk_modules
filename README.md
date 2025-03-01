@@ -12,7 +12,8 @@ git submodule update --init --recursive
 
 Each child directory is a separate module, and has instructions on how to add it to your build.
 
-| Module                          | Description                                                       |
-|---------------------------------|-------------------------------------------------------------------|
-| [Globe Key](./globe_key/)       | Adds a cut-down version of the macOS Globe Key to your build.     |
-| [SOCD Cleaner](./socd_cleaner/) | Adds support for @getreuer's SOCD Cleaner, as a community module. |
+| Module                              | Description                                                           |
+|-------------------------------------|-----------------------------------------------------------------------|
+| [Globe Key](./globe_key/)           | Adds a cut-down version of the macOS Globe Key to your build.         |
+| [SOCD Cleaner](./socd_cleaner/)     | Adds support for @getreuer's SOCD Cleaner, as a community module.     |
+| [Unicode Typing](./unicode_typing/) | Adds support for communal unicode typing modes as a community module. |

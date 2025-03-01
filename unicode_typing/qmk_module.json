@@ -1,0 +1,72 @@
+{
+    "module_name": "Unicode Typing Mode",
+    "maintainer": "drashna",
+    "keycodes": [
+        {
+            "key": "KC_NOMODE",
+            "aliases": [
+                "KC_NORM"
+            ]
+        },
+        {
+            "key": "KC_WIDE",
+            "aliases": [
+                "KC_WIDE"
+            ]
+        },
+        {
+            "key": "KC_SCRIPT",
+            "aliases": [
+                "KC_SCPT"
+            ]
+        },
+        {
+            "key": "KC_BLOCKS",
+            "aliases": [
+                "KC_BLCK"
+            ]
+        },
+        {
+            "key": "KC_REGIONAL",
+            "aliases": [
+                "KC_REG"
+            ]
+        },
+        {
+            "key": "KC_AUSSIE",
+            "aliases": [
+                "KC_AUSS"
+            ]
+        },
+        {
+            "key": "KC_ZALGO",
+            "aliases": [
+                "KC_ZALG"
+            ]
+        },
+        {
+            "key": "KC_SUPER",
+            "aliases": [
+                "KC_SUPER"
+            ]
+        },
+        {
+            "key": "KC_COMIC",
+            "aliases": [
+                "KC_COMC"
+            ]
+        },
+        {
+            "key": "KC_FRAKTUR",
+            "aliases": [
+                "KC_FRAK"
+            ]
+        },
+        {
+            "key": "KC_DOUBLE_STRUCK",
+            "aliases": [
+                "KC_DBSK"
+            ]
+        }
+    ]
+}
