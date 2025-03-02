@@ -25,6 +25,14 @@ static void tap_unicode_glyph_nomods(uint32_t glyph) {
     set_mods(temp_mod);
 }
 
+static void tap_code16_nomods(uint16_t kc) {
+    uint8_t temp_mod = get_mods();
+    clear_mods();
+    clear_oneshot_mods();
+    tap_code16(kc);
+    set_mods(temp_mod);
+}
+
 typedef uint32_t (*translator_function_t)(bool is_shifted, uint32_t keycode);
 
 #define DEFINE_UNICODE_RANGE_TRANSLATOR(translator_name, lower_alpha, upper_alpha, zero_glyph, number_one, \
@@ -74,7 +82,7 @@ static bool process_record_glyph_replacement(uint16_t keycode, keyrecord_t *reco
             return false;
         } else if (KC_1 <= keycode && keycode <= KC_0) {
             if (is_shifted) { // skip shifted numbers, so that we can still use symbols etc.
-                return process_record_keymap(keycode, record);
+                return process_record_unicode_typing_kb(keycode, record);
             }
             if (record->event.pressed) {
                 register_unicode(translator(is_shifted, keycode));
@@ -404,7 +412,6 @@ bool process_record_unicode_typing(uint16_t keycode, keyrecord_t *record) {
 void set_unicode_tying_mode(uint8_t mode) {
     typing_mode = mode;
 }
-
 
 /**
  * @brief Get the unicode typing mode object

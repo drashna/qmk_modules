@@ -10,9 +10,6 @@
         },
         {
             "key": "KC_WIDE",
-            "aliases": [
-                "KC_WIDE"
-            ]
         },
         {
             "key": "KC_SCRIPT",
@@ -47,7 +44,7 @@
         {
             "key": "KC_SUPER",
             "aliases": [
-                "KC_SUPER"
+                "KC_SUPR"
             ]
         },
         {
