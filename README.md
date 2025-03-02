@@ -16,6 +16,7 @@ Each child directory is a separate module, and has instructions on how to add it
 |-------------------------------------------|------------------------------------------------------------------------------------|
 | [Custom Shift Keys](./custom_shift_keys/) | Adds support for getrueur's Custom Shift keys, as a community module               |
 | [Globe Key](./globe_key/)                 | Adds a cut-down version of the macOS Globe Key to your build.                      |
+| [I2C Scanner](./i2c_scanner/)             | Adds an i2c scanner as a community module.                                         |
 | [Sentence Case](./sentence_case/)         | Adds support for @getrueur's Sentence Case, as a community module.                 |
 | [SOCD Cleaner](./socd_cleaner/)           | Adds support for @getreuer's SOCD Cleaner, as a community module.                  |
 | [Unicode Typing](./unicode_typing/)       | Adds support for communal unicode typing modes as a community module.              |
