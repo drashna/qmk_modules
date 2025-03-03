@@ -4,6 +4,6 @@ It can be integrated into your keymap by adding the following to your `keymap.js
 
 ```json
 {
-    "modules": ["drashna/i2c_watchdog"]
+    "modules": ["drashna/i2c_scanner"]
 }
 ```
