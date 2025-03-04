@@ -1,0 +1,12 @@
+{
+    "module_name": "Keyboard Lock",
+    "maintainer": "drashna",
+    "keycodes": [
+        {
+            "key": "CM_KEYBOARD_LOCK_TOGGLE",
+            "aliases": [
+                "KEYLOCK"
+            ]
+        }
+    ]
+}
