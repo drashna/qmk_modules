@@ -22,6 +22,8 @@
 
 #include "select_word.h"
 
+ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(0, 1, 0);
+
 __attribute__((weak)) uint16_t SELECT_WORD_KEYCODE     = KC_NO;
 static int8_t                  selection_dir           = 0;
 static bool                    reset_before_next_event = false;
@@ -72,6 +74,7 @@ __attribute__((weak)) bool select_word_host_is_mac(void) {
 // representable timeout is 32768 ms, rounded here to 30000 ms = half a minute.
 #        error "select_word: SELECT_WORD_TIMEOUT must be between 100 and 30000 ms"
 #    endif
+ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(1, 0, 0);
 
 static uint16_t idle_timer = 0;
 

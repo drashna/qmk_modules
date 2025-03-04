@@ -4,6 +4,8 @@
 #include "keyboard_lock.h"
 #include "quantum.h"
 
+ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(0, 1, 0);
+
 static host_driver_t *host_driver          = 0;
 static bool           host_driver_disabled = false;
 

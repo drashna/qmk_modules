@@ -1,10 +1,10 @@
 // Copyright 2023 Christopher Courtney, aka Drashna Jael're  (@drashna) <drashna@live.com>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-#include "action.h"
-#include "keymap_common.h"
-#include "action_layer.h"
+#include "quantum.h"
 #include "layer_map.h"
+
+ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(1, 0, 0);
 
 volatile uint16_t layer_map[LAYER_MAP_ROWS][LAYER_MAP_COLS] = {0};
 static bool       layer_map_set                             = true;
