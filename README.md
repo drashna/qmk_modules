@@ -19,6 +19,7 @@ Each child directory is a separate module, and has instructions on how to add it
 | [I2C Scanner](./i2c_scanner/)               | Adds an i2c scanner as a community module.                                         |
 | [Keyboard Lock](./keyboard_lock/)           | Adds a module that allows for disabling USB complete. Eg, a "cat mode".            |
 | [Layer Map](./layer_map/)                   | Adds support for display rendering of active keyboard layout.                      |
+| [Orbital Mouse](./orbital_mouse/)           | Adds support for @getreuer's Orbital Mouse, as a community module.                 |
 | [Select Word](./select_word/)               | Adds support for @getreuer's Select word, as a community module.                   |
 | [Sentence Case](./sentence_case/)           | Adds support for @getrueur's Sentence Case, as a community module.                 |
 | [Unicode Typing](./unicode_typing/)         | Adds support for communal unicode typing modes as a community module.              |

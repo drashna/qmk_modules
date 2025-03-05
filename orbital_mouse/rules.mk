@@ -1,0 +1,1 @@
+MOUSE_ENABLE = yes
