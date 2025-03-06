@@ -9,7 +9,19 @@
 extern menu_state_runtime_t menu_state_runtime;
 extern menu_state_t         menu_state;
 
-bool oled_render_menu(uint8_t col, uint8_t line, uint8_t num_of_lines, bool is_left) {
+/**
+ * @brief Helper function for rendering menu on OLED driver feature.
+ + Note that this assumes a screen that it 128 pixels wide.
+ *
+ * @param col Start column to render the menu
+ * @param line Start line to render the menu
+ * @param num_of_lines Number of lines to use for rendering
+ * @param menu_render_side bitmask for rendering side, 1 for left, 2 for right, 3 for both
+ * @return true
+ * @return false
+ */
+
+bool oled_render_menu(uint8_t col, uint8_t line, uint8_t num_of_lines, uint8_t menu_render_side) {
     uint8_t     scroll_offset   = 0;
     char        text_buffer[21] = {0};
     static bool last_state      = false;
@@ -27,7 +39,7 @@ bool oled_render_menu(uint8_t col, uint8_t line, uint8_t num_of_lines, bool is_l
         menu_state_runtime.dirty = false;
     }
 
-    if (!(menu_render_side & (1 << (uint8_t)!is_left))) {
+    if (!(menu_render_side & (1 << (uint8_t)!is_keyboard_left()))) {
         return false;
     }
 

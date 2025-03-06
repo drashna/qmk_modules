@@ -67,8 +67,23 @@ static char* truncate_text(const char* text, uint16_t max_width, painter_font_ha
     return truncated_text;
 }
 
+/**
+ * @brief Hepler function to render the on screen menu
+ *
+ * @param display qp display device to render to
+ * @param font font to use for text
+ * @param start_x start x position for menu (left side)
+ * @param start_y start y position for menu (top/start)
+ * @param end_x end x position for menu (right side)
+ * @param end_y end y position for menu (bottom/end)
+ * @param is_verbose do we use short text (good for narrow screens) or full text
+ * @param hsv dual hsv color scheme for primary and secondary color
+ * @return true if menu is rendered
+ * @return false if menu is not rendered
+ */
+
 bool painter_render_menu(painter_device_t display, painter_font_handle_t font, uint16_t start_x, uint16_t start_y,
-                         uint16_t width, uint16_t height, bool is_thicc, dual_hsv_t hsv) {
+                         uint16_t end_x, uint16_t end_y, bool is_verbose, dual_hsv_t hsv) {
     static menu_state_t last_state;
     uint8_t             scroll_offset = 0;
 
@@ -80,10 +95,10 @@ bool painter_render_menu(painter_device_t display, painter_font_handle_t font, u
     menu_state_runtime.dirty = false;
     memcpy(&last_state, &menu_state, sizeof(menu_state_t));
 
-    uint16_t render_width = width - start_x;
+    uint16_t render_width = end_x - start_x;
 
     if (menu_state.is_in_menu) {
-        qp_rect(display, start_x, start_y, render_width - 1, height - 1, 0, 0, 0, true);
+        qp_rect(display, start_x, start_y, render_width - 1, end_y - 1, 0, 0, 0, true);
 
         menu_entry_t *menu     = get_current_menu();
         menu_entry_t *selected = get_selected_menu_item();
@@ -95,7 +110,7 @@ bool painter_render_menu(painter_device_t display, painter_font_handle_t font, u
                             hsv.primary.v);
         y += font->line_height + 8;
 
-        uint8_t visible_entries = (height - y) / (font->line_height + 5);
+        uint8_t visible_entries = (end_y - y) / (font->line_height + 5);
 
         scroll_offset = get_menu_scroll_offset(menu, visible_entries);
 
@@ -111,8 +126,8 @@ bool painter_render_menu(painter_device_t display, painter_font_handle_t font, u
                                     hsv.secondary.v);
                 x += qp_drawtext_recolor(
                     display, x, y, font,
-                    truncate_text(is_thicc ? child->text : child->short_text, render_width, font, false, true), 0, 0, 0,
-                    hsv.secondary.h, hsv.secondary.s, hsv.secondary.v);
+                    truncate_text(is_verbose ? child->text : child->short_text, render_width, font, false, true), 0, 0,
+                    0, hsv.secondary.h, hsv.secondary.s, hsv.secondary.v);
             } else {
                 if ((i == scroll_offset && scroll_offset > 0) ||
                     (i == scroll_offset + visible_entries - 1 &&
@@ -122,7 +137,7 @@ bool painter_render_menu(painter_device_t display, painter_font_handle_t font, u
                 }
                 x += qp_drawtext_recolor(
                     display, x, y, font,
-                    truncate_text(is_thicc ? child->text : child->short_text, render_width - x, font, false, true),
+                    truncate_text(is_verbose ? child->text : child->short_text, render_width - x, font, false, true),
                     hsv.primary.h, hsv.primary.s, hsv.primary.v, 0, 255, 0);
             }
             if (child->flags & menu_flag_is_value) {
