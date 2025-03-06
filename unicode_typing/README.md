@@ -1,5 +1,6 @@
-This is adds a "cut-down" version of the macOS Globe Key to your build.
-As the full Globe Key functionality requires an Apple vendor/product ID pair, this isn't completely functional and things like F-key support may not work.
+# Unicode Typing modes
+
+This enables the ability to type in unicode text, without using custom keycodes.  This intercepts and replaces keypresses and uses the Unicode system to output the text.
 
 Add the following to the list of modules in your `keymap.json` to enable this module:
 
@@ -10,6 +11,35 @@ Add the following to the list of modules in your `keymap.json` to enable this mo
 ```
 
 After this, your keymap can add one of the many typing modes to type in unicode text.
+
+!> Note that this enables the shared Unicode code, but not any of the main features.
+
+## Functions
+
+* `set_unicode_tying_mode(uint8_t mode)` - sets the unicode typing mode.  See below for list of modes.
+* `get_unicode_tying_mode()` - Gets the current unicode typing mode.
+
+## Information
+
+The list of unicode modes:
+
+```c
+enum {
+    UCTM_NO_MODE,
+    UCTM_WIDE,
+    UCTM_SCRIPT,
+    UCTM_BLOCKS,
+    UCTM_REGIONAL,
+    UCTM_AUSSIE,
+    UCTM_ZALGO,
+    UCTM_SUPER,
+    UCTM_COMIC,
+    UCTM_FRAKTUR,
+    UCTM_DOUBLE_STRUCK,
+};
+```c
+
+## Keycodes
 
 | Keycode            | Alias     | Description                                                 |
 |--------------------|-----------|-------------------------------------------------------------|
