@@ -83,7 +83,7 @@ static char* truncate_text(const char* text, uint16_t max_width, painter_font_ha
  */
 
 bool painter_render_menu(painter_device_t display, painter_font_handle_t font, uint16_t start_x, uint16_t start_y,
-                         uint16_t end_x, uint16_t end_y, bool is_verbose, dual_hsv_t hsv) {
+                         uint16_t end_x, uint16_t end_y, bool is_verbose, hsv_t primary, hsv_t secondary) {
     static menu_state_t last_state;
     uint8_t             scroll_offset = 0;
 
@@ -104,10 +104,9 @@ bool painter_render_menu(painter_device_t display, painter_font_handle_t font, u
         menu_entry_t *selected = get_selected_menu_item();
 
         uint16_t y = start_y;
-        qp_rect(display, start_x, y, render_width, y + 6 + font->line_height + 2, hsv.primary.h, hsv.primary.s,
-                hsv.primary.v, true);
-        qp_drawtext_recolor(display, start_x + 4, y + 4, font, menu->text, 0, 0, 0, hsv.primary.h, hsv.primary.s,
-                            hsv.primary.v);
+        qp_rect(display, start_x, y, render_width, y + 6 + font->line_height + 2, primary.h, primary.s, primary.v,
+                true);
+        qp_drawtext_recolor(display, start_x + 4, y + 4, font, menu->text, 0, 0, 0, primary.h, primary.s, primary.v);
         y += font->line_height + 8;
 
         uint8_t visible_entries = (end_y - y) / (font->line_height + 5);
@@ -120,25 +119,23 @@ bool painter_render_menu(painter_device_t display, painter_font_handle_t font, u
             menu_entry_t *child = &menu->parent.children[i];
             uint16_t      x     = start_x + 2 + qp_textwidth(font, ">");
             if (child == selected) {
-                qp_rect(display, start_x, y - 2, render_width, y + font->line_height + 1, hsv.secondary.h,
-                        hsv.secondary.s, hsv.secondary.v, true);
-                qp_drawtext_recolor(display, start_x + 1, y, font, ">", 0, 0, 0, hsv.secondary.h, hsv.secondary.s,
-                                    hsv.secondary.v);
+                qp_rect(display, start_x, y - 2, render_width, y + font->line_height + 1, secondary.h, secondary.s,
+                        secondary.v, true);
+                qp_drawtext_recolor(display, start_x + 1, y, font, ">", 0, 0, 0, secondary.h, secondary.s, secondary.v);
                 x += qp_drawtext_recolor(
                     display, x, y, font,
                     truncate_text(is_verbose ? child->text : child->short_text, render_width, font, false, true), 0, 0,
-                    0, hsv.secondary.h, hsv.secondary.s, hsv.secondary.v);
+                    0, secondary.h, secondary.s, secondary.v);
             } else {
                 if ((i == scroll_offset && scroll_offset > 0) ||
                     (i == scroll_offset + visible_entries - 1 &&
                      scroll_offset + visible_entries < menu->parent.child_count)) {
-                    qp_drawtext_recolor(display, start_x + 1, y, font, "+", hsv.primary.h, hsv.primary.s, hsv.primary.v,
-                                        0, 255, 0);
+                    qp_drawtext_recolor(display, start_x + 1, y, font, "+", primary.h, primary.s, primary.v, 0, 255, 0);
                 }
                 x += qp_drawtext_recolor(
                     display, x, y, font,
                     truncate_text(is_verbose ? child->text : child->short_text, render_width - x, font, false, true),
-                    hsv.primary.h, hsv.primary.s, hsv.primary.v, 0, 255, 0);
+                    primary.h, primary.s, primary.v, 0, 255, 0);
             }
             if (child->flags & menu_flag_is_value) {
                 char buf[32] = {0}, val[29] = {0};
@@ -152,23 +149,23 @@ bool painter_render_menu(painter_device_t display, painter_font_handle_t font, u
                 // TODO: fix text truncation with elipses for super short values
                 if (child == selected) {
                     qp_drawtext_recolor(display, x, y, font, truncate_text(buf, render_width - x, font, false, false),
-                                        0, 0, 0, hsv.secondary.h, hsv.secondary.s, hsv.secondary.v);
+                                        0, 0, 0, secondary.h, secondary.s, secondary.v);
                 } else {
                     qp_drawtext_recolor(display, x, y, font, truncate_text(buf, render_width - x, font, false, false),
-                                        hsv.primary.h, hsv.primary.s, hsv.primary.v, 0, 0, 0);
+                                        primary.h, primary.s, primary.v, 0, 0, 0);
                 }
             }
             if (child->flags & menu_flag_is_parent) {
                 if (child == selected) {
                     qp_drawtext_recolor(display, render_width - (qp_textwidth(font, ">") + 2), y, font, ">", 0, 0, 0,
-                                        hsv.secondary.h, hsv.secondary.s, hsv.secondary.v);
+                                        secondary.h, secondary.s, secondary.v);
                 } else {
-                    qp_drawtext_recolor(display, render_width - (qp_textwidth(font, ">") + 2), y, font, ">",
-                                        hsv.primary.h, hsv.primary.s, hsv.primary.v, 0, 0, 0);
+                    qp_drawtext_recolor(display, render_width - (qp_textwidth(font, ">") + 2), y, font, ">", primary.h,
+                                        primary.s, primary.v, 0, 0, 0);
                 }
             }
             y += font->line_height + 2;
-            qp_rect(display, start_x, y, render_width, y, hsv.primary.h, hsv.primary.s, hsv.primary.v, true);
+            qp_rect(display, start_x, y, render_width, y, primary.h, primary.s, primary.v, true);
         }
         return true;
     }

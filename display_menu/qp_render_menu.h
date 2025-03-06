@@ -6,10 +6,5 @@
 #include "quantum/color.h"
 #include "qp.h"
 
-typedef struct _dual_hsv_t {
-    hsv_t primary;
-    hsv_t secondary;
-} dual_hsv_t;
-
 bool painter_render_menu(painter_device_t display, painter_font_handle_t font, uint16_t start_x, uint16_t start_y,
-                         uint16_t end_x, uint16_t end_y, bool is_verbose, dual_hsv_t hsv);
+                         uint16_t end_x, uint16_t end_y, bool is_verbose, hsv_t primary, hsv_t secondary);
