@@ -43,8 +43,7 @@ __attribute__((weak)) void display_handler_unicode(char *text_buffer, size_t buf
     strncpy(text_buffer, "Unknown", buffer_len);
 }
 
-
 menu_entry_t unicode_entries[] = {
-    MENU_ENTRY_CHILD("Unicode mode", "Mode", unicode),
+    DISPLAY_MENU_ENTRY_CHILD("Unicode mode", "Mode", unicode),
 };
 #endif // UNICODE_COMMON_ENABLE

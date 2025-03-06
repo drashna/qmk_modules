@@ -71,9 +71,9 @@ __attribute__((weak)) void display_handler_audio_clicky_freq(char *text_buffer, 
 }
 
 menu_entry_t audio_entries[] = {
-    MENU_ENTRY_CHILD("Audio", "Audio", audio_enabled),
-    MENU_ENTRY_CHILD("Music Mode", "Music", music_enabled),
-    MENU_ENTRY_CHILD("Clicky", "Clicky", audio_clicky_enabled),
-    MENU_ENTRY_CHILD("Clicky Frequency", "Freq", audio_clicky_freq),
+    DISPLAY_MENU_ENTRY_CHILD("Audio", "Audio", audio_enabled),
+    DISPLAY_MENU_ENTRY_CHILD("Music Mode", "Music", music_enabled),
+    DISPLAY_MENU_ENTRY_CHILD("Clicky", "Clicky", audio_clicky_enabled),
+    DISPLAY_MENU_ENTRY_CHILD("Clicky Frequency", "Freq", audio_clicky_freq),
 };
 #endif // AUDIO_ENABLE

@@ -111,12 +111,12 @@ __attribute__((weak)) void display_handler_rm_speed(char *text_buffer, size_t bu
 }
 
 menu_entry_t rgb_matrix_entries[] = {
-    MENU_ENTRY_CHILD("RGB Enabled", "Enabled", rm_enabled),
-    MENU_ENTRY_CHILD("RGB Mode", "Mode", rm_mode),
-    MENU_ENTRY_CHILD("RGB Hue", "Hue", rm_hue),
-    MENU_ENTRY_CHILD("RGB Saturation", "Sat", rm_sat),
-    MENU_ENTRY_CHILD("RGB Value", "Val", rm_val),
-    MENU_ENTRY_CHILD("RGB Speed", "Speed", rm_speed),
+    DISPLAY_MENU_ENTRY_CHILD("RGB Enabled", "Enabled", rm_enabled),
+    DISPLAY_MENU_ENTRY_CHILD("RGB Mode", "Mode", rm_mode),
+    DISPLAY_MENU_ENTRY_CHILD("RGB Hue", "Hue", rm_hue),
+    DISPLAY_MENU_ENTRY_CHILD("RGB Saturation", "Sat", rm_sat),
+    DISPLAY_MENU_ENTRY_CHILD("RGB Value", "Val", rm_val),
+    DISPLAY_MENU_ENTRY_CHILD("RGB Speed", "Speed", rm_speed),
 };
 #endif // RGB_MATRIX_ENABLE
 
@@ -230,11 +230,11 @@ __attribute__((weak)) void display_handler_rgbspeed(char *text_buffer, size_t bu
 }
 
 menu_entry_t rgb_light_entries[] = {
-    MENU_ENTRY_CHILD("RGB Enabled", "Enabled", rgbenabled),
-    MENU_ENTRY_CHILD("RGB Mode", "Mode", rgbmode),
-    MENU_ENTRY_CHILD("RGB Hue", "Hue", rgbhue),
-    MENU_ENTRY_CHILD("RGB Saturation", "Sat", rgbsat),
-    MENU_ENTRY_CHILD("RGB Value", "Val", rgbval),
-    MENU_ENTRY_CHILD("RGB Speed", "Speed", rgbspeed),
+    DISPLAY_MENU_ENTRY_CHILD("RGB Enabled", "Enabled", rgbenabled),
+    DISPLAY_MENU_ENTRY_CHILD("RGB Mode", "Mode", rgbmode),
+    DISPLAY_MENU_ENTRY_CHILD("RGB Hue", "Hue", rgbhue),
+    DISPLAY_MENU_ENTRY_CHILD("RGB Saturation", "Sat", rgbsat),
+    DISPLAY_MENU_ENTRY_CHILD("RGB Value", "Val", rgbval),
+    DISPLAY_MENU_ENTRY_CHILD("RGB Speed", "Speed", rgbspeed),
 };
 #endif // RGBLIGHT_ENABLE

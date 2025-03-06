@@ -3,6 +3,7 @@
 
 #include "display_menu.h"
 #include "oled_driver.h"
+#include "print.h"
 
 #define snprintf_nowarn(...) (snprintf(__VA_ARGS__) < 0 ? abort() : (void)0)
 

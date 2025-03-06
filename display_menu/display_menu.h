@@ -9,6 +9,7 @@
 #include <stdint.h>
 #include <string.h>
 #include "action.h"
+#include "util.h"
 
 #define DISPLAY_MENU_ENTRY_CHILD(display_text, short_display, name) \
     {                                                       \

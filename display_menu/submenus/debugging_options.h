@@ -63,8 +63,8 @@ __attribute__((weak)) void display_handler_mouse_debugging(char *text_buffer, si
 }
 
 menu_entry_t debug_entries[] = {
-    MENU_ENTRY_CHILD("Debugging", "Enabled", debugging_enable), // force formatting
-    MENU_ENTRY_CHILD("Keyboard Debugging", "Keeb", keyboard_debugging),
-    MENU_ENTRY_CHILD("Matrix Debugging", "Matrix", matrix_debugging),
-    MENU_ENTRY_CHILD("Mouse Debugging", "Mouse", mouse_debugging),
+    DISPLAY_MENU_ENTRY_CHILD("Debugging", "Enabled", debugging_enable), // force formatting
+    DISPLAY_MENU_ENTRY_CHILD("Keyboard Debugging", "Keeb", keyboard_debugging),
+    DISPLAY_MENU_ENTRY_CHILD("Matrix Debugging", "Matrix", matrix_debugging),
+    DISPLAY_MENU_ENTRY_CHILD("Mouse Debugging", "Mouse", mouse_debugging),
 };
