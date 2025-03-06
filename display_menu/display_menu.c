@@ -6,7 +6,7 @@
 #include "display_menu.h"
 #include "deferred_exec.h"
 
-#include "menu.inc"
+#include DISPLAY_MENU_ENTRY_H
 
 #ifndef DISPLAY_MENU_TIMEOUT
 #    define DISPLAY_MENU_TIMEOUT 30000

@@ -11,6 +11,10 @@
 #include "action.h"
 #include "util.h"
 
+#ifndef DISPLAY_MENU_ENTRY_H
+#    define DISPLAY_MENU_ENTRY_H "menu.inc"
+#endif
+
 #define DISPLAY_MENU_ENTRY_CHILD(display_text, short_display, name) \
     {                                                       \
         .flags                 = menu_flag_is_value,        \
