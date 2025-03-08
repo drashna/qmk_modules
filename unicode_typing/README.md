@@ -37,7 +37,7 @@ enum {
     UCTM_FRAKTUR,
     UCTM_DOUBLE_STRUCK,
 };
-```c
+```
 
 ## Keycodes
 
