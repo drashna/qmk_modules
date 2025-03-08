@@ -1,0 +1,51 @@
+{
+    "module_name": "Real Time Clock",
+    "maintainer": "drashna",
+    "keycodes": [
+        {
+            "key": "RTC_YEAR_INCREASE"
+        },
+        {
+            "key": "RTC_YEAR_DECREASE"
+        },
+        {
+            "key": "RTC_MONTH_INCREASE"
+        },
+        {
+            "key": "RTC_MONTH_DECREASE"
+        },
+        {
+            "key": "RTC_DATE_INCREASE"
+        },
+        {
+            "key": "RTC_DATE_DECREASE"
+        },
+        {
+            "key": "RTC_HOUR_INCREASE"
+        },
+        {
+            "key": "RTC_HOUR_DECREASE"
+        },
+        {
+            "key": "RTC_MINUTE_INCREASE"
+        },
+        {
+            "key": "RTC_MINUTE_DECREASE"
+        },
+        {
+            "key": "RTC_SECOND_INCREASE"
+        },
+        {
+            "key": "RTC_SECOND_DECREASE"
+        },
+        {
+            "key": "RTC_AM_PM_TOGGLE"
+        },
+        {
+            "key": "RTC_FORMAT_TOGGLE"
+        },
+        {
+            "key": "RTC_DST_TOGGLE"
+        }
+    ]
+}
