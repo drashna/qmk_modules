@@ -1,11 +1,10 @@
-
-#include "modules/drashna/display_menu/submenus/unicode_options.h"
-#include "modules/drashna/display_menu/submenus/rgb_options.h"
-#include "modules/drashna/display_menu/submenus/backlight_options.h"
-#include "modules/drashna/display_menu/submenus/audio_options.h"
-#include "modules/drashna/display_menu/submenus/haptic_options.h"
-#include "modules/drashna/display_menu/submenus/keymap_config_options.h"
-#include "modules/drashna/display_menu/submenus/debugging_options.h"
+#include "submenus/unicode_options.h"
+#include "submenus/rgb_options.h"
+#include "submenus/backlight_options.h"
+#include "submenus/audio_options.h"
+#include "submenus/haptic_options.h"
+#include "submenus/keymap_config_options.h"
+#include "submenus/debugging_options.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Root menu

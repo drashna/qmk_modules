@@ -30,7 +30,7 @@ You can see this with the kyria:
 
 ```c
 #ifdef COMMUNITY_MODULE_LAYER_MAP_ENABLE
-#    include "modules/drashna/layer_map/layer_map.h"
+#    include "layer_map.h"
 keypos_t layer_remap[LAYER_MAP_ROWS][LAYER_MAP_COLS] = {
     { { 255, 255 }, { 255, 255 }, { 255, 255 }, { 255, 255 }, { 255, 255 }, { 255, 255 }, { 255, 255 }, { 255, 255 }, { 255, 255 }, { 255, 255 }, { 255, 255 }, { 255, 255 }, { 255, 255 }, { 255, 255 }, { 255, 255 }, { 255, 255 }, { 255, 255 }, { 255, 255 } },
     { {   6,   0 }, {   5,   0 }, {   4,   0 }, {   3,   0 }, {   2,   0 }, {   1,   0 }, { 255, 255 }, { 255, 255 }, { 255, 255 }, { 255, 255 }, { 255, 255 }, { 255, 255 }, {   1,   4 }, {   2,   4 }, {   3,   4 }, {   4,   4 }, {   5,   4 }, {   6,   4 } },
@@ -48,7 +48,7 @@ An example of this in action.  This would also need the `code_to_name` array for
 
 ```c
 #ifdef COMMUNITY_MODULE_LAYER_MAP_ENABLE
-#    include "modules/drashna/layer_map/layer_map.h"
+#    include "nlayer_map.h"
 #endif // COMMUNITY_MODULE_LAYER_MAP_ENABLE
 
 bool oled_task_user(void) {
