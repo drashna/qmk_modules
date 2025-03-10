@@ -1,1 +1,0 @@
-MOUSE_ENABLE = yes

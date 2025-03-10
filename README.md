@@ -15,13 +15,9 @@ Each child directory is a separate module, and has instructions on how to add it
 | Module                                      | Description                                                                        |
 |---------------------------------------------|------------------------------------------------------------------------------------|
 | [Console Keylogging](./console_keylogging/) | Adds the FAQ Debugging console code as a module.                                   |
-| [Custom Shift Keys](./custom_shift_keys/)   | Adds support for @getrueur's Custom Shift keys, as a community module              |
 | [Display Menu](./display_menu/)             | Adds support for @drashna's custom on-screen display code.                         |
 | [I2C Scanner](./i2c_scanner/)               | Adds an i2c scanner as a community module.                                         |
 | [Keyboard Lock](./keyboard_lock/)           | Adds a module that allows for disabling USB complete. Eg, a "cat mode".            |
 | [Layer Map](./layer_map/)                   | Adds support for display rendering of active keyboard layout.                      |
-| [Orbital Mouse](./orbital_mouse/)           | Adds support for @getreuer's Orbital Mouse, as a community module.                 |
-| [Select Word](./select_word/)               | Adds support for @getreuer's Select word, as a community module.                   |
-| [Sentence Case](./sentence_case/)           | Adds support for @getrueur's Sentence Case, as a community module.                 |
 | [Unicode Typing](./unicode_typing/)         | Adds support for communal unicode typing modes as a community module.              |
 | [Watchdog](./watchdog/)                     | Adds hardware watchdog support as a community module.  Additional config required. |
