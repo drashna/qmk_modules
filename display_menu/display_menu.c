@@ -234,10 +234,18 @@ uint8_t get_menu_scroll_offset(menu_entry_t *menu, uint8_t visible_entries) {
     return l_scroll_offset;
 }
 
+__attribute__((weak)) bool display_menu_set_dirty_user(bool state) {
+    return true;
+}
+
+__attribute__((weak)) bool display_menu_set_dirty_kb(bool state) {
+    return display_menu_set_dirty_user(state);
+}
+
 void display_menu_set_dirty(bool state) {
     menu_state_runtime.dirty        = state;
     menu_state_runtime.has_rendered = !state;
-    menu_state_runtime = menu_state_runtime;
+    display_menu_set_dirty_kb(state);
 }
 
 void keyboard_task_display_menu_pre(void) {
