@@ -22,6 +22,12 @@ menu_state_t        menu_state          = (menu_state_t){
     .selected_child = 0xFF,
     .menu_stack = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF},
 };
+
+/**
+ * @brief Get the current active menu object
+ *
+ * @return menu_entry_t*
+ */
 menu_entry_t *get_current_menu(void) {
 
     if (menu_state.menu_stack[0] == 0xFF) {
@@ -39,16 +45,35 @@ menu_entry_t *get_current_menu(void) {
     return entry;
 }
 
+/**
+ * @brief Get the currently selected menu item
+ *
+ * @return menu_entry_t*
+ */
 menu_entry_t *get_selected_menu_item(void) {
     return &(get_current_menu()->parent.children[menu_state.selected_child]);
 }
 
+/**
+ * @brief deffered function to handle menu timeout
+ *
+ * @param trigger_time
+ * @param cb_arg
+ * @return uint32_t
+ */
 uint32_t display_menu_timeout_handler(uint32_t trigger_time, void *cb_arg) {
     /* do something */
     menu_handle_input(menu_input_exit);
     return 0;
 }
 
+/**
+ * @brief Handle menu navigation inputs
+ *
+ * @param input type of input, cardinal directions, enter, exit, etc.
+ * @return true
+ * @return false
+ */
 bool menu_handle_input(menu_input_t input) {
     menu_entry_t *menu     = get_current_menu();
     menu_entry_t *selected = get_selected_menu_item();
@@ -125,6 +150,15 @@ bool menu_handle_input(menu_input_t input) {
     }
 }
 
+/**
+ * @brief Maps keycodes to specific menu inputs. Used for allowing users to navigate menus with different keycodes,
+ *        such as arrow keys, space, enter, vim-style hjkl, etc.
+ *
+ * @param keycode processed keycode (adjusted from LT/MT/etc)
+ * @param keep_processing whether or not to continue processing the keycode in function above this
+ * @return true
+ * @return false
+ */
 __attribute__((weak)) bool process_record_display_menu_handling_user(uint16_t keycode, bool keep_processing) {
     switch (keycode) {
         case DISPLAY_MENU:
@@ -150,6 +184,14 @@ __attribute__((weak)) bool process_record_display_menu_handling_user(uint16_t ke
     }
 }
 
+/**
+ * @brief Process the keycode and record for the display menu
+ *
+ * @param keycode raw keycodes to hangle
+ * @param record keyrecord_t struct
+ * @return true
+ * @return false
+ */
 bool process_record_display_menu(uint16_t keycode, keyrecord_t *record) {
     if (keycode == DISPLAY_MENU && record->event.pressed && !menu_state.is_in_menu) {
         menu_state.is_in_menu     = true;
@@ -208,6 +250,15 @@ bool process_record_display_menu(uint16_t keycode, keyrecord_t *record) {
     return true;
 }
 
+/**
+ * @brief Get the menu scroll offset for the menu.
+ *        This is used to determine how many entries to scroll through when displaying the menu, while
+ *        not selecting the last entry if there are more entries to scroll to.
+ *
+ * @param menu menu item to scroll through
+ * @param visible_entries how many entries are visible and will be displayed
+ * @return uint8_t what the offset should be
+ */
 uint8_t get_menu_scroll_offset(menu_entry_t *menu, uint8_t visible_entries) {
     static uint8_t l_scroll_offset = 0;
 
@@ -246,6 +297,11 @@ __attribute__((weak)) bool display_menu_set_dirty_kb(bool state) {
     return display_menu_set_dirty_user(state);
 }
 
+/**
+ * @brief Sets the menu as dirty, forcing a redraw on the next housekeeping task
+ *
+ * @param state
+ */
 void display_menu_set_dirty(bool state) {
     menu_state_runtime.dirty        = state;
     menu_state_runtime.has_rendered = !state;
