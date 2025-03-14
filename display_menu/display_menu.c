@@ -11,6 +11,10 @@
 #ifndef DISPLAY_MENU_TIMEOUT
 #    define DISPLAY_MENU_TIMEOUT 30000
 #endif // !DISPLAY_MENU_TIMEOUT
+#ifndef DISPLAY_MENU_UPDATE_INTERVAL
+#    define DISPLAY_MENU_UPDATE_INTERVAL 500
+#endif // !DISPLAY_MENU_UPDATE_INTERVAL
+
 menu_state_runtime_t menu_state_runtime  = {.dirty = true, .has_rendered = false};
 deferred_token       menu_deferred_token = INVALID_DEFERRED_TOKEN;
 menu_state_t        menu_state          = (menu_state_t){
@@ -250,7 +254,7 @@ void display_menu_set_dirty(bool state) {
 
 void keyboard_task_display_menu_pre(void) {
     if (menu_state_runtime.dirty) {
-        display_menu_set_dirty(true);
+        menu_state_runtime.has_rendered = false;
     }
 
 }
@@ -261,6 +265,15 @@ void keyboard_task_display_menu_post(void) {
 }
 
 void housekeeping_task_display_menu(void) {
+    static uint16_t last_time = 0;
+    // We want to update the menu every DISPLAY_MENU_UPDATE_INTERVAL milliseconds if the menu is open,
+    // even if there hasn't been any updates to force an update.  Assuming using a framebuffer of some
+    // sort to make sure that the updates are too costly.
+    if (menu_state.is_in_menu && timer_elapsed(last_time) > DISPLAY_MENU_UPDATE_INTERVAL) {
+        last_time                = timer_read();
+        menu_state_runtime.dirty = true;
+    }
+
     keyboard_task_display_menu_pre();
     housekeeping_task_display_menu_kb();
     keyboard_task_display_menu_post();
