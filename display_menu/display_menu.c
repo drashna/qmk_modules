@@ -265,6 +265,7 @@ void keyboard_task_display_menu_post(void) {
 }
 
 void housekeeping_task_display_menu(void) {
+#if DISPLAY_MENU_UPDATE_INTERVAL > 0
     static uint16_t last_time = 0;
     // We want to update the menu every DISPLAY_MENU_UPDATE_INTERVAL milliseconds if the menu is open,
     // even if there hasn't been any updates to force an update.  Assuming using a framebuffer of some
@@ -273,7 +274,7 @@ void housekeeping_task_display_menu(void) {
         last_time                = timer_read();
         menu_state_runtime.dirty = true;
     }
-
+#endif
     keyboard_task_display_menu_pre();
     housekeeping_task_display_menu_kb();
     keyboard_task_display_menu_post();
