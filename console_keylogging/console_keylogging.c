@@ -7,13 +7,16 @@ ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(0, 1, 0);
 
 static bool console_keylogger_enable = true;
 
+__attribute__((weak)) void console_keylogging_print_handler(uint16_t keycode, keyrecord_t *record) {
+    xprintf("KL: 0x%04X, col: %2u, row: %2u, pressed: %1d, time: %5u, int: %1d, count: %u\n", keycode,
+            record->event.key.col, record->event.key.row, record->event.pressed, record->event.time,
+            record->tap.interrupted, record->tap.count);
+}
+
 bool process_record_console_keylogging(uint16_t keycode, keyrecord_t *record) {
     if (console_keylogger_enable) {
-        xprintf("KL: 0x%04X, col: %2u, row: %2u, pressed: %1d, time: %5u, int: %1d, count: %u\n", keycode,
-                record->event.key.col, record->event.key.row, record->event.pressed, record->event.time,
-                record->tap.interrupted, record->tap.count);
+        console_keylogging_print_handler(keycode, record);
     }
-
     return true;
 }
 
