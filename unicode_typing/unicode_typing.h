@@ -17,6 +17,7 @@ enum unicode_typing_modes {
     UCTM_COMIC,
     UCTM_FRAKTUR,
     UCTM_DOUBLE_STRUCK,
+    UCTM_SCREAM,
     UNCODES_MODE_END,
 };
 
