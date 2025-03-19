@@ -444,7 +444,7 @@ bool process_record_unicode_typing(uint16_t keycode, keyrecord_t *record) {
         return process_record_aussie(keycode, record);
     } else if (typing_mode == UCTM_ZALGO) {
         return process_record_zalgo(keycode, record);
-    } else if (typing_mode == MODE_SCREAM) {
+    } else if (typing_mode == UCTM_SCREAM_CYPHER) {
         return process_record_screamcipher(keycode, record);
     }
     return true;
@@ -466,4 +466,39 @@ void set_unicode_tying_mode(uint8_t mode) {
  */
 uint8_t get_unicode_typing_mode(void) {
     return typing_mode;
+}
+
+/**
+ * @brief Generate a string representing the Unicode typing mode.
+ *
+ */
+__attribute__((weak)) const char *get_unicode_typing_mode_str(uint8_t mode) {
+    switch (mode) {
+        case UCTM_NO_MODE:
+            return "Normal";
+        case UCTM_WIDE:
+            return "Wide";
+        case UCTM_SCRIPT:
+            return "Script";
+        case UCTM_BLOCKS:
+            return "Blocks";
+        case UCTM_REGIONAL:
+            return "Regional";
+        case UCTM_AUSSIE:
+            return "Aussie";
+        case UCTM_ZALGO:
+            return "Zalgo";
+        case UCTM_SUPER:
+            return "Super Script";
+        case UCTM_COMIC:
+            return "Comic";
+        case UCTM_FRAKTUR:
+            return "Fraktur";
+        case UCTM_DOUBLE_STRUCK:
+            return "DoubleStruck";
+        case UCTM_SCREAM_CYPHER:
+            return "Scream Cypher";
+        default:
+            return "Unknown";
+    }
 }

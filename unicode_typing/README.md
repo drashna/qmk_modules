@@ -18,6 +18,7 @@ After this, your keymap can add one of the many typing modes to type in unicode 
 
 * `set_unicode_tying_mode(uint8_t mode)` - sets the unicode typing mode.  See below for list of modes.
 * `get_unicode_tying_mode()` - Gets the current unicode typing mode.
+* `get_unicode_typing_mode_str(uint8_t mode)` - Returns the corresponding mode as a string. Set weakly so it can be overriden.
 
 ## Information
 
@@ -36,6 +37,7 @@ enum {
     UCTM_COMIC,
     UCTM_FRAKTUR,
     UCTM_DOUBLE_STRUCK,
+    UCTM_SCREAM_CYPHER,
 };
 ```
 
@@ -54,3 +56,4 @@ enum {
 | `KC_COMIC`         | `KC_COMC` | ₸ℽℙℇ ⅈℕ ℂℴmⅈℂÅ⅃ ₷ℂℛⅈℙ₸.                                  |
 | `KC_FRAKTUR`       | `KC_FRAK` | 𝔱𝔶𝔭𝔢 𝔦𝔫 𝔣𝔞𝔫𝔠𝔶 𝔣𝔯𝔞𝔨𝔱𝔲𝔯 𝔰𝔠𝔯𝔦𝔭𝔱.                                 |
 | `KC_DOUBLE_STRUCK` | `KC_DBSK` | 𝕋𝕪𝕡𝕖 𝕚𝕟 𝔻𝕠𝕦𝕓𝕝𝕖𝕤𝕥𝕦𝕔𝕥𝕜 𝕤𝕔𝕣𝕚𝕡𝕥.                                |
+| `KC_SCREAM_CYPHER` | `KC_SCRM` | AÃA̱ĂẠǍA̧ĂAẢÁǍA̱AaÅÃẢA̋A̓ÅẢǍAA̱d                                |

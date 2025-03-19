@@ -17,9 +17,10 @@ enum unicode_typing_modes {
     UCTM_COMIC,
     UCTM_FRAKTUR,
     UCTM_DOUBLE_STRUCK,
-    UCTM_SCREAM,
+    UCTM_SCREAM_CYPHER,
     UNCODES_MODE_END,
 };
 
 void set_unicode_tying_mode(uint8_t mode);
 uint8_t get_unicode_typing_mode(void);
+const char *get_unicode_typing_mode_str(uint8_t mode);

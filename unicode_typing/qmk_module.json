@@ -64,6 +64,12 @@
             "aliases": [
                 "KC_DBSK"
             ]
+        },
+        {
+            "key": "KC_SCRAEM_CYPHER",
+            "aliases": [
+                "KC_SCRM"
+            ]
         }
     ]
 }
