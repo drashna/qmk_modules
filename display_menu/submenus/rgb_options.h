@@ -2,8 +2,6 @@
 // RGB Matrix
 
 #ifdef RGB_MATRIX_ENABLE
-#    include "rgb/rgb_matrix_stuff.h"
-
 bool menu_handler_rm_enabled(menu_input_t input) {
     switch (input) {
         case menu_input_left:
@@ -124,8 +122,6 @@ menu_entry_t rgb_matrix_entries[] = {
 // RGB Light
 
 #ifdef RGBLIGHT_ENABLE
-#    include "rgb/rgb_stuff.h"
-
 bool menu_handler_rgbenabled(menu_input_t input) {
     switch (input) {
         case menu_input_left:
