@@ -31,7 +31,7 @@ bool menu_handler_rm_mode(menu_input_t input) {
 }
 
 __attribute__((weak)) void display_handler_rm_mode(char *text_buffer, size_t buffer_len) {
-    snprintf(text_buffer, buffer_len - 1, "%s", rgb_matrix_get_effect_name());
+    snprintf(text_buffer, buffer_len - 1, "%u", rgb_matrix_get_mode());
 }
 
 bool menu_handler_rm_hue(menu_input_t input) {
