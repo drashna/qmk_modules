@@ -23,7 +23,9 @@ static void tap_unicode_glyph_nomods(uint32_t glyph) {
     }
     uint8_t temp_mod = get_mods();
     clear_mods();
+#ifndef NO_ACTION_ONESHOT
     clear_oneshot_mods();
+#endif // NO_ACTION_ONESHOT
     register_unicode(glyph);
     set_mods(temp_mod);
 }
@@ -31,7 +33,9 @@ static void tap_unicode_glyph_nomods(uint32_t glyph) {
 static void tap_code16_nomods(uint16_t kc) {
     uint8_t temp_mod = get_mods();
     clear_mods();
+#ifndef NO_ACTION_ONESHOT
     clear_oneshot_mods();
+#endif // NO_ACTION_ONESHOT
     tap_code16(kc);
     set_mods(temp_mod);
 }
@@ -74,10 +78,14 @@ typedef uint32_t (*translator_function_t)(bool is_shifted, uint32_t keycode);
  * @return false Replace keycode, and do not send to host
  */
 static bool process_record_glyph_replacement(uint16_t keycode, keyrecord_t *record, translator_function_t translator) {
-    uint8_t temp_mod   = get_mods();
-    uint8_t temp_osm   = get_oneshot_mods();
-    bool    is_shifted = (temp_mod | temp_osm) & MOD_MASK_SHIFT;
-    if (((temp_mod | temp_osm) & (MOD_MASK_CTRL | MOD_MASK_ALT | MOD_MASK_GUI)) == 0) {
+#ifdef NO_ACTION_ONESHOT
+    uint8_t temp_mods = get_mods();
+#else  // NO_ACTION_ONESHOT
+    uint8_t temp_mods = get_mods() | get_oneshot_mods();
+#endif // NO_ACTION_ONESHOT
+    bool is_shifted = temp_mods & MOD_MASK_SHIFT;
+
+    if (((temp_mods) & (MOD_MASK_CTRL | MOD_MASK_ALT | MOD_MASK_GUI)) == 0) {
         if (KC_A <= keycode && keycode <= KC_Z) {
             if (record->event.pressed) {
                 tap_unicode_glyph_nomods(translator(is_shifted, keycode));
@@ -295,7 +303,13 @@ DEFINE_UNICODE_LUT_TRANSLATOR(unicode_lut_translator_screamcipher,
 );
 
 static bool process_record_aussie(uint16_t keycode, keyrecord_t *record) {
-    bool is_shifted = (get_mods() | get_oneshot_mods()) & MOD_MASK_SHIFT;
+#ifdef NO_ACTION_ONESHOT
+    uint8_t temp_mods = get_mods();
+#else  // NO_ACTION_ONESHOT
+    uint8_t temp_mods = get_mods() | get_oneshot_mods();
+#endif // NO_ACTION_ONESHOT
+
+    bool is_shifted = temp_mods & MOD_MASK_SHIFT;
     if ((KC_A <= keycode) && (keycode <= KC_0)) {
         if (record->event.pressed) {
             if (!process_record_glyph_replacement(keycode, record, unicode_lut_translator_aussie)) {
@@ -393,7 +407,12 @@ bool process_record_unicode_typing(uint16_t keycode, keyrecord_t *record) {
             break;
     }
 
-    if (((get_mods() | get_oneshot_mods()) & ~MOD_MASK_SHIFT) != 0) {
+#ifdef NO_ACTION_ONESHOT
+    if ((get_mods() & ~MOD_MASK_SHIFT) != 0)
+#else  // NO_ACTION_ONESHOT
+    if (((get_mods() | get_oneshot_mods()) & ~MOD_MASK_SHIFT) != 0)
+#endif // NO_ACTION_ONESHOT
+    {
         return true;
     }
 
