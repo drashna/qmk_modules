@@ -389,14 +389,14 @@ static bool process_record_screamcipher(uint16_t keycode, keyrecord_t *record) {
  * @brief Main handler for unicode input
  *
  * @param keycode Keycode from switch matrix
- * @param record keyrecord_t data struture
+ * @param record keyrecord_t data structure
  * @return true Send keycode from matrix to host
  * @return false Stop processing and do not send to host
  */
 
 bool process_record_unicode_typing(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
-        case KC_NOMODE ... KC_COMIC:
+        case KC_NOMODE ... KC_SCREAM_CYPHER:
             if (record->event.pressed) {
                 if (typing_mode != keycode - KC_NOMODE) {
                     typing_mode = keycode - KC_NOMODE;
@@ -474,7 +474,7 @@ bool process_record_unicode_typing(uint16_t keycode, keyrecord_t *record) {
  *
  * @param mode
  */
-void set_unicode_tying_mode(uint8_t mode) {
+void set_unicode_typing_mode(uint8_t mode) {
     typing_mode = mode;
 }
 

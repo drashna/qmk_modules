@@ -16,8 +16,8 @@ After this, your keymap can add one of the many typing modes to type in unicode 
 
 ## Functions
 
-* `set_unicode_tying_mode(uint8_t mode)` - sets the unicode typing mode.  See below for list of modes.
-* `get_unicode_tying_mode()` - Gets the current unicode typing mode.
+* `set_unicode_typing_mode(uint8_t mode)` - sets the unicode typing mode.  See below for list of modes.
+* `get_unicode_typing_mode()` - Gets the current unicode typing mode.
 * `get_unicode_typing_mode_str(uint8_t mode)` - Returns the corresponding mode as a string. Set weakly so it can be overriden.
 
 ## Information
