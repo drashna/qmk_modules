@@ -53,7 +53,7 @@
 #    define ANIM_FRAME_RATIO 2.5
 #endif // ANIM_FRAME_RATIO
 
-#define ANIM_SIZE 636 // number of bytes in array, minimize for adequate firmware size, max is 1024
+#define ANIM_SIZE 512 // number of bytes in array, minimize for adequate firmware size, max is 1024
 
 uint32_t curr_anim_duration = 0; // variable animation duration
 uint32_t bongo_timer        = 0;
