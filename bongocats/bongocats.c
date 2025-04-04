@@ -27,7 +27,7 @@
 #    define IDLE_SPEED 10
 #endif // IDLE_SPEED
 #ifndef PREP_FRAMES
-#    define PREP_FRAMES 0
+#    define PREP_FRAMES 1
 #endif // PREP_FRAMES
 #ifndef TAP_FRAMES
 #    define TAP_FRAMES 2
@@ -116,4 +116,9 @@ void render_bongocat(void) {
             }
         }
     }
+}
+
+__attribute__((weak)) bool oled_task_user(void) {
+    render_bongocat();
+    return false;
 }
