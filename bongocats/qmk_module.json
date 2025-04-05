@@ -2,7 +2,6 @@
     "module_name": "Bongocats",
     "maintainer": "drashna",
     "features": {
-        "deferred_exec": true,
         "oled": true,
         "wpm": true
     }
