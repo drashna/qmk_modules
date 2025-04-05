@@ -14,6 +14,7 @@ Each child directory is a separate module, and has instructions on how to add it
 
 | Module                                      | Description                                                                        |
 |---------------------------------------------|------------------------------------------------------------------------------------|
+| [Bongocats](./bongocats)                    | Gods, help me.                                                                     |
 | [Console Keylogging](./console_keylogging/) | Adds the FAQ Debugging console code as a module.                                   |
 | [Display Menu](./display_menu/)             | Adds support for @drashna's custom on-screen display code.                         |
 | [I2C Scanner](./i2c_scanner/)               | Adds an i2c scanner as a community module.                                         |
