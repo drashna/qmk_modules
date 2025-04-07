@@ -138,7 +138,7 @@ __attribute__((weak)) void pointing_device_config_read(pointing_device_accel_con
     via_read_custom_config(config, 0, sizeof(pointing_device_accel_config_t));
 }
 
-void via_custom_value_command_kb(uint8_t *data, uint8_t length) {
+__attribute__((weak, alias("via_custom_value_command_accel"))) void via_custom_value_command_kb(uint8_t *data, uint8_t length) {
     uint8_t *command_id     = &(data[0]);
     uint8_t *channel_id     = &(data[1]);
     uint8_t *value_and_data = &(data[2]);

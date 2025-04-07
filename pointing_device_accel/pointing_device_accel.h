@@ -69,3 +69,4 @@ void  pointing_device_accel_set_limit_increment(void);
 
 void pointing_device_accel_config_update(pointing_device_accel_config_t *config);
 void pointing_device_accel_config_read(pointing_device_accel_config_t *config);
+
