@@ -20,13 +20,16 @@ static bool set_scrolling = false;
 static float scroll_accumulated_h = 0;
 static float scroll_accumulated_v = 0;
 
+static float scroll_divisor_h = 0;
+static float scroll_divisor_v = 0;
+
 // Function to handle mouse reports and perform drag scrolling
 report_mouse_t pointing_device_task_drag_scroll(report_mouse_t mouse_report) {
     // Check if drag scrolling is active
     if (set_scrolling) {
         // Calculate and accumulate scroll values based on mouse movement and divisors
-        scroll_accumulated_h += (float)mouse_report.x / SCROLL_DIVISOR_H;
-        scroll_accumulated_v += (float)mouse_report.y / SCROLL_DIVISOR_V;
+        scroll_accumulated_h += (float)mouse_report.x / scroll_divisor_h;
+        scroll_accumulated_v += (float)mouse_report.y / scroll_divisor_h;
 
         // Assign integer parts of accumulated scroll values to the mouse report
         mouse_report.h = (int8_t)scroll_accumulated_h;
@@ -66,3 +69,31 @@ bool process_record_drag_scroll(uint16_t keycode, keyrecord_t *record) {
     return true;
 }
 #endif // POINTING_DEVICE_ENABLE
+
+float get_drag_scroll_h_divisor(void) {
+    return scroll_divisor_h;
+}
+
+float get_drag_scroll_v_divisor(void) {
+    return scroll_divisor_v;
+}
+
+void set_drag_scroll_h_divisor(float divisor) {
+    scroll_divisor_h = divisor;
+}
+
+void set_drag_scroll_v_divisor(float divisor) {
+    scroll_divisor_v = divisor;
+}
+
+void set_drag_scroll_divisor(float divisor) {
+    scroll_divisor_h = divisor;
+    scroll_divisor_v = divisor;
+}
+
+bool get_drag_scroll_scrolling(void) {
+    return set_scrolling;
+}
+void set_drag_scroll_scrolling(bool scrolling) {
+    set_scrolling = scrolling;
+}

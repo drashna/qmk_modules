@@ -27,10 +27,9 @@ Each child directory is a separate module, and has instructions on how to add it
 
 ## In development
 
-These modules are either not working properly yet (and are listed here for visibility) or are unsupported while waiting on PR merges/code changes. 
+These modules are either not working properly yet (and are listed here for visibility) or are unsupported while waiting on PR merges/code changes.  While it may be possible to rework these to function currently, .... eh.
 
-
-| Module                                            | Status      |Description                                                                        |
-|---------------------------------------------------|-------------|---------------------------------------------------------------------------------------------------|
+| Module                                            | Status      |Description                                                                                                                                                            |
+|---------------------------------------------------|-----------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------|
 | [Pointing Device Accel](./pointing_device_accel/) | Waiting on [PR 25050](https://github.com/qmk/qmk_firmware/pull/25050) | Adds maccel/pointing device acceleration support, ported directly from Burkfers and Wimad's implementation. |
-| [Drag Scroll](./drag_scroll/)                     | Waiting on qmk/qmk_firmware#25050 | Adds Drag Scrolling support as a module.                     |
+| [Drag Scroll](./drag_scroll/)                     | Waiting on [PR 25050](https://github.com/qmk/qmk_firmware/pull/25050) | Adds Drag Scrolling support as a module.                                                                    |
