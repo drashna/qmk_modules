@@ -23,6 +23,8 @@ If using without PR25050 merged, then you need to add this to your config.h:
 And you'll need to add `pointing_device_task_pointing_device_accel` to your `keymap.c`.  Eg:
 
 ```c
+report_mouse_t pointing_device_task_pointing_device_accel(report_mouse_t mouse_report);
+
 report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
     mouse_report = pointing_device_task_pointing_device_accel(mouse_report);
     return mouse_report;
