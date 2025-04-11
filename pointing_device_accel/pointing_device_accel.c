@@ -8,7 +8,11 @@
 #include "pointing_device_accel.h"
 #include "math.h"
 
+#ifdef POINTING_DEVICE_ACCEL_SHIM
+ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(1, 0, 0);
+#else  // POINTING_DEVICE_ACCEL_SHIM
 ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(1, 1, 0);
+#endif // POINTING_DEVICE_ACCEL_SHIM
 
 static uint32_t pointing_device_accel_timer;
 
@@ -97,7 +101,7 @@ report_mouse_t pointing_device_task_pointing_device_accel(report_mouse_t mouse_r
     if (pointing_device_accel_config == NULL) {
         return mouse_report;
     }
-    
+
     // rounding carry to recycle dropped floats from int mouse reports, to smoothen low speed movements (credit
     // @ankostis)
     static float rounding_carry_x = 0;
@@ -166,7 +170,11 @@ report_mouse_t pointing_device_task_pointing_device_accel(report_mouse_t mouse_r
     mouse_report.x = x;
     mouse_report.y = y;
 
+#ifdef POINTING_DEVICE_ACCEL_SHIM
+    return mouse_report;
+#else  // POINTING_DEVICE_ACCEL_SHIM
     return pointing_device_task_pointing_device_accel_kb(mouse_report);
+#endif // POINTING_DEVICE_ACCEL_SHIM
 }
 
 float pointing_device_accel_get_mod_step(float step) {

@@ -10,10 +10,26 @@ It can be integrated into your keymap by adding the following to your `keymap.js
 
 This enables extended mouse reports, as well as float printing, automatically.  Floats are used, but shouldn't significantly impact performance.  However, the extended mouse reports are enabled so that it reduces the likelihood that the pointing device reports will get maxed out by the acceleration. (+/- 127 vs +/- 32,767)
 
-
 Note that a majority of this readme is taken straight from [here](https://github.com/burkfers/qmk_userspace_features/blob/main/maccel/readme.md).   Massive credit goes to Wimads (@wimads) and burkfers (@burkfers), whom wrote the code.
 
+## Caveats
+
+If using without PR25050 merged, then you need to add this to your config.h:
+
+```c
+#define POINTING_DEVICE_ACCEL_SHIM
+```
+
+And you'll need to add `pointing_device_task_pointing_device_accel` to your `keymap.c`.  Eg:
+
+```c
+report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
+    mouse_report = pointing_device_task_pointing_device_accel(mouse_report);
+    return mouse_report;
+}
+
 ## Configuration
+
 Before configuring maccel, make sure you have turned off your OS acceleration settings: On Windows, this setting is called "Enhance pointer precision". And make sure there isn't any 3rd party mouse acceleration software running.
 
 Several characteristics of the acceleration curve can be tweaked by adding relevant defines to `config.h`:
