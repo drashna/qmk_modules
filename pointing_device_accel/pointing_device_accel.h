@@ -36,12 +36,12 @@
 #    define POINTING_DEVICE_ACCEL_ROUNDING_CARRY_TIMEOUT_MS 200
 #endif // POINTING_DEVICE_ACCEL_ROUNDING_CARRY_TIMEOUT_MS
 
-typedef struct PACKED pointing_device_accel_config_t {
+typedef struct pointing_device_accel_config_t {
+    bool  enabled : 1;
     float growth_rate;
     float offset;
     float limit;
     float takeoff;
-    bool  enabled;
 } pointing_device_accel_config_t;
 
 void                            set_pointing_device_accel_config_pointer(pointing_device_accel_config_t *config);
@@ -69,4 +69,3 @@ void  pointing_device_accel_set_limit_increment(void);
 
 void pointing_device_accel_config_update(pointing_device_accel_config_t *config);
 void pointing_device_accel_config_read(pointing_device_accel_config_t *config);
-
