@@ -73,9 +73,6 @@ void pointing_device_accel_toggle_enabled(void) {
     pointing_device_accel_enabled(!pointing_device_accel_get_enabled());
 }
 
-#define _CONSTRAIN(amt, low, high) ((amt) < (low) ? (low) : ((amt) > (high) ? (high) : (amt)))
-#define CONSTRAIN_REPORT(val)      (mouse_xy_report_t) _CONSTRAIN(val, XY_REPORT_MIN, XY_REPORT_MAX)
-
 report_mouse_t pointing_device_task_pointing_device_accel(report_mouse_t mouse_report) {
     // rounding carry to recycle dropped floats from int mouse reports, to smoothen low speed movements (credit
     // @ankostis)
@@ -127,8 +124,8 @@ report_mouse_t pointing_device_task_pointing_device_accel(report_mouse_t mouse_r
     rounding_carry_x = new_x - (int)new_x;
     rounding_carry_y = new_y - (int)new_y;
     // clamp values
-    const mouse_xy_report_t x = CONSTRAIN_REPORT(new_x);
-    const mouse_xy_report_t y = CONSTRAIN_REPORT(new_y);
+    const mouse_xy_report_t x = CONSTRAIN_HID_XY(new_x);
+    const mouse_xy_report_t y = CONSTRAIN_HID_XY(new_y);
 
 #ifdef POINTING_DEVICE_DEBUG
     // console output for debugging (enable/disable in config.h)
@@ -140,8 +137,8 @@ report_mouse_t pointing_device_task_pointing_device_accel(report_mouse_t mouse_r
                "d.out: %3i\n",
                device_cpi, g_pointing_device_accel_config.takeoff, g_pointing_device_accel_config.growth_rate,
                g_pointing_device_accel_config.offset, g_pointing_device_accel_config.limit,
-               pointing_device_accel_factor, velocity, velocity_out, CONSTRAIN_REPORT(distance),
-               CONSTRAIN_REPORT(distance_out));
+               pointing_device_accel_factor, velocity, velocity_out, CONSTRAIN_HID_XY(distance),
+               CONSTRAIN_HID_XY(distance_out));
 #endif // POINTING_DEVICE_DEBUG
     // report back accelerated values
     mouse_report.x = x;
