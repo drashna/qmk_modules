@@ -36,6 +36,19 @@
 #    define POINTING_DEVICE_ACCEL_ROUNDING_CARRY_TIMEOUT_MS 200
 #endif // POINTING_DEVICE_ACCEL_ROUNDING_CARRY_TIMEOUT_MS
 
+#ifndef POINTING_DEVICE_ACCEL_TAKEOFF_STEP
+#    define POINTING_DEVICE_ACCEL_TAKEOFF_STEP 0.01f
+#endif
+#ifndef POINTING_DEVICE_ACCEL_GROWTH_RATE_STEP
+#    define POINTING_DEVICE_ACCEL_GROWTH_RATE_STEP 0.01f
+#endif
+#ifndef POINTING_DEVICE_ACCEL_OFFSET_STEP
+#    define POINTING_DEVICE_ACCEL_OFFSET_STEP 0.1f
+#endif
+#ifndef POINTING_DEVICE_ACCEL_LIMIT_STEP
+#    define POINTING_DEVICE_ACCEL_LIMIT_STEP 0.01f
+#endif
+
 typedef struct pointing_device_accel_config_t {
     bool  enabled : 1;
     float growth_rate;
@@ -45,6 +58,8 @@ typedef struct pointing_device_accel_config_t {
 } pointing_device_accel_config_t;
 
 extern pointing_device_accel_config_t g_pointing_device_accel_config;
+
+float pointing_device_accel_get_mod_step(float step);
 
 void pointing_device_accel_enabled(bool enable);
 bool pointing_device_accel_get_enabled(void);

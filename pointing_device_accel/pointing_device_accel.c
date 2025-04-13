@@ -18,18 +18,6 @@ static uint32_t pointing_device_accel_timer;
 
 pointing_device_accel_config_t g_pointing_device_accel_config;
 
-#ifndef POINTING_DEVICE_ACCEL_TAKEOFF_STEP
-#    define POINTING_DEVICE_ACCEL_TAKEOFF_STEP 0.01f
-#endif
-#ifndef POINTING_DEVICE_ACCEL_GROWTH_RATE_STEP
-#    define POINTING_DEVICE_ACCEL_GROWTH_RATE_STEP 0.01f
-#endif
-#ifndef POINTING_DEVICE_ACCEL_OFFSET_STEP
-#    define POINTING_DEVICE_ACCEL_OFFSET_STEP 0.1f
-#endif
-#ifndef POINTING_DEVICE_ACCEL_LIMIT_STEP
-#    define POINTING_DEVICE_ACCEL_LIMIT_STEP 0.01f
-#endif
 
 float pointing_device_accel_get_takeoff(void) {
     return g_pointing_device_accel_config.takeoff;
@@ -144,18 +132,16 @@ report_mouse_t pointing_device_task_pointing_device_accel(report_mouse_t mouse_r
     const mouse_xy_report_t y = CONSTRAIN_REPORT(new_y);
 
 // console output for debugging (enable/disable in config.h)
-#ifdef POINTING_DEVICE_DEBUG
     const float distance_out = sqrtf(x * x + y * y);
     const float velocity_out = velocity * pointing_device_accel_factor;
     (void)distance_out;
     (void)velocity_out;
-    pd_dprintf("MACCEL: DPI:%4i Tko: %.3f Grw: %.3f Ofs: %.3f Lmt: %.3f | Fct: %.3f v.in: %.3f v.out: %.3f d.in: %3i "
+    xprintf("MACCEL: DPI:%4i Tko: %.3f Grw: %.3f Ofs: %.3f Lmt: %.3f | Fct: %.3f v.in: %.3f v.out: %.3f d.in: %3i "
                "d.out: %3i\n",
                device_cpi, g_pointing_device_accel_config.takeoff, g_pointing_device_accel_config.growth_rate,
                g_pointing_device_accel_config.offset, g_pointing_device_accel_config.limit,
                pointing_device_accel_factor, velocity, velocity_out, CONSTRAIN_REPORT(distance),
                CONSTRAIN_REPORT(distance_out));
-#endif // POINTING_DEVICE_ACCEL_DEBUG
 
     // report back accelerated values
     mouse_report.x = x;
