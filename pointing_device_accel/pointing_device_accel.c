@@ -18,7 +18,6 @@ static uint32_t pointing_device_accel_timer;
 
 pointing_device_accel_config_t g_pointing_device_accel_config;
 
-
 float pointing_device_accel_get_takeoff(void) {
     return g_pointing_device_accel_config.takeoff;
 }
@@ -63,7 +62,7 @@ void pointing_device_accel_set_limit(float val) {
 void pointing_device_accel_enabled(bool enable) {
     g_pointing_device_accel_config.enabled = enable;
     pointing_device_config_update(&g_pointing_device_accel_config);
-    pd_dprintf("maccel: enabled: %d\n", g_pointing_device_accel_config.enabled);
+    pd_dprintf("PDACCEL: enabled: %d\n", g_pointing_device_accel_config.enabled);
 }
 
 bool pointing_device_accel_get_enabled(void) {
@@ -131,18 +130,19 @@ report_mouse_t pointing_device_task_pointing_device_accel(report_mouse_t mouse_r
     const mouse_xy_report_t x = CONSTRAIN_REPORT(new_x);
     const mouse_xy_report_t y = CONSTRAIN_REPORT(new_y);
 
-// console output for debugging (enable/disable in config.h)
+#ifdef POINTING_DEVICE_DEBUG
+    // console output for debugging (enable/disable in config.h)
     const float distance_out = sqrtf(x * x + y * y);
     const float velocity_out = velocity * pointing_device_accel_factor;
     (void)distance_out;
     (void)velocity_out;
-    xprintf("MACCEL: DPI:%4i Tko: %.3f Grw: %.3f Ofs: %.3f Lmt: %.3f | Fct: %.3f v.in: %.3f v.out: %.3f d.in: %3i "
+    pd_dprintf("PDACCEL: DPI:%4i Tko: %.3f Grw: %.3f Ofs: %.3f Lmt: %.3f | Fct: %.3f v.in: %.3f v.out: %.3f d.in: %3i "
                "d.out: %3i\n",
                device_cpi, g_pointing_device_accel_config.takeoff, g_pointing_device_accel_config.growth_rate,
                g_pointing_device_accel_config.offset, g_pointing_device_accel_config.limit,
                pointing_device_accel_factor, velocity, velocity_out, CONSTRAIN_REPORT(distance),
                CONSTRAIN_REPORT(distance_out));
-
+#endif // POINTING_DEVICE_DEBUG
     // report back accelerated values
     mouse_report.x = x;
     mouse_report.y = y;
@@ -168,7 +168,7 @@ float pointing_device_accel_get_mod_step(float step) {
 void pointing_device_accel_takeoff_increment(void) {
     pointing_device_accel_set_takeoff(pointing_device_accel_get_takeoff() +
                                       pointing_device_accel_get_mod_step(POINTING_DEVICE_ACCEL_TAKEOFF_STEP));
-    pd_dprintf("MACCEL:keycode: TKO: %.3f gro: %.3f ofs: %.3f lmt: %.3f\n", g_pointing_device_accel_config.takeoff,
+    pd_dprintf("PDACCEL:keycode: TKO: %.3f gro: %.3f ofs: %.3f lmt: %.3f\n", g_pointing_device_accel_config.takeoff,
                g_pointing_device_accel_config.growth_rate, g_pointing_device_accel_config.offset,
                g_pointing_device_accel_config.limit);
 }
@@ -176,7 +176,7 @@ void pointing_device_accel_takeoff_increment(void) {
 void pointing_device_accel_growth_rate_increment(void) {
     pointing_device_accel_set_growth_rate(pointing_device_accel_get_growth_rate() +
                                           pointing_device_accel_get_mod_step(POINTING_DEVICE_ACCEL_GROWTH_RATE_STEP));
-    pd_dprintf("MACCEL:keycode: tko: %.3f GRO: %.3f ofs: %.3f lmt: %.3f\n", g_pointing_device_accel_config.takeoff,
+    pd_dprintf("PDACCEL:keycode: tko: %.3f GRO: %.3f ofs: %.3f lmt: %.3f\n", g_pointing_device_accel_config.takeoff,
                g_pointing_device_accel_config.growth_rate, g_pointing_device_accel_config.offset,
                g_pointing_device_accel_config.limit);
 }
@@ -184,7 +184,7 @@ void pointing_device_accel_growth_rate_increment(void) {
 void pointing_device_accel_offset_increment(void) {
     pointing_device_accel_set_offset(pointing_device_accel_get_offset() +
                                      pointing_device_accel_get_mod_step(POINTING_DEVICE_ACCEL_OFFSET_STEP));
-    pd_dprintf("MACCEL:keycode: tko: %.3f gro: %.3f OFS: %.3f lmt: %.3f\n", g_pointing_device_accel_config.takeoff,
+    pd_dprintf("PDACCEL:keycode: tko: %.3f gro: %.3f OFS: %.3f lmt: %.3f\n", g_pointing_device_accel_config.takeoff,
                g_pointing_device_accel_config.growth_rate, g_pointing_device_accel_config.offset,
                g_pointing_device_accel_config.limit);
 }
@@ -192,7 +192,7 @@ void pointing_device_accel_offset_increment(void) {
 void pointing_device_accel_set_limit_increment(void) {
     pointing_device_accel_set_limit(pointing_device_accel_get_limit() +
                                     pointing_device_accel_get_mod_step(POINTING_DEVICE_ACCEL_LIMIT_STEP));
-    pd_dprintf("MACCEL:keycode: tko: %.3f gro: %.3f ofs: %.3f LMT: %.3f\n", g_pointing_device_accel_config.takeoff,
+    pd_dprintf("PDACCEL:keycode: tko: %.3f gro: %.3f ofs: %.3f LMT: %.3f\n", g_pointing_device_accel_config.takeoff,
                g_pointing_device_accel_config.growth_rate, g_pointing_device_accel_config.offset,
                g_pointing_device_accel_config.limit);
 }
