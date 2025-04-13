@@ -14,13 +14,7 @@ Note that a majority of this readme is taken straight from [here](https://github
 
 ## Caveats
 
-If using without PR25050 merged, then you need to add this to your config.h:
-
-```c
-#define POINTING_DEVICE_ACCEL_SHIM
-```
-
-And you'll need to add `pointing_device_task_pointing_device_accel` to your `keymap.c`.  Eg:
+If using without PR25050 merged, you'll need to add `pointing_device_task_pointing_device_accel` to your `keymap.c`.  Eg:
 
 ```c
 report_mouse_t pointing_device_task_pointing_device_accel(report_mouse_t mouse_report);

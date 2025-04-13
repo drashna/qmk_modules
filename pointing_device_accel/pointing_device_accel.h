@@ -59,6 +59,8 @@ typedef struct pointing_device_accel_config_t {
 
 extern pointing_device_accel_config_t g_pointing_device_accel_config;
 
+report_mouse_t pointing_device_task_pointing_device_accel(report_mouse_t mouse_report);
+
 float pointing_device_accel_get_mod_step(float step);
 
 void pointing_device_accel_enabled(bool enable);

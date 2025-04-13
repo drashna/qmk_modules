@@ -73,6 +73,14 @@ void pointing_device_accel_toggle_enabled(void) {
     pointing_device_accel_enabled(!pointing_device_accel_get_enabled());
 }
 
+__attribute__((weak)) report_mouse_t pointing_device_task_pointing_device_accel_user(report_mouse_t mouse_report) {
+    return mouse_report;
+}
+
+__attribute__((weak)) report_mouse_t pointing_device_task_pointing_device_accel_kb(report_mouse_t mouse_report) {
+    return pointing_device_task_pointing_device_accel_user(mouse_report);
+}
+
 report_mouse_t pointing_device_task_pointing_device_accel(report_mouse_t mouse_report) {
     // rounding carry to recycle dropped floats from int mouse reports, to smoothen low speed movements (credit
     // @ankostis)
@@ -144,11 +152,7 @@ report_mouse_t pointing_device_task_pointing_device_accel(report_mouse_t mouse_r
     mouse_report.x = x;
     mouse_report.y = y;
 
-#ifdef POINTING_DEVICE_ACCEL_SHIM
-    return mouse_report;
-#else  // POINTING_DEVICE_ACCEL_SHIM
     return pointing_device_task_pointing_device_accel_kb(mouse_report);
-#endif // POINTING_DEVICE_ACCEL_SHIM
 }
 
 float pointing_device_accel_get_mod_step(float step) {
