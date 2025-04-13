@@ -137,8 +137,8 @@ report_mouse_t pointing_device_task_pointing_device_accel(report_mouse_t mouse_r
                "d.out: %3i\n",
                device_cpi, g_pointing_device_accel_config.takeoff, g_pointing_device_accel_config.growth_rate,
                g_pointing_device_accel_config.offset, g_pointing_device_accel_config.limit,
-               pointing_device_accel_factor, velocity, velocity_out, CONSTRAIN_HID_XY(distance),
-               CONSTRAIN_HID_XY(distance_out));
+               pointing_device_accel_factor, velocity, velocity_out, (mouse_xy_report_t)CONSTRAIN_HID_XY(distance),
+               (mouse_xy_report_t)CONSTRAIN_HID_XY(distance_out));
 #endif // POINTING_DEVICE_DEBUG
     // report back accelerated values
     mouse_report.x = x;
