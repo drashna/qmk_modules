@@ -8,11 +8,7 @@
 #include "pointing_device_accel.h"
 #include "math.h"
 
-#ifdef POINTING_DEVICE_ACCEL_SHIM
 ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(1, 0, 0);
-#else  // POINTING_DEVICE_ACCEL_SHIM
-ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(1, 1, 0);
-#endif // POINTING_DEVICE_ACCEL_SHIM
 
 static uint32_t pointing_device_accel_timer;
 
