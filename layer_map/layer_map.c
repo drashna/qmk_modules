@@ -6,9 +6,9 @@
 
 ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(1, 0, 0);
 
-volatile uint16_t layer_map[LAYER_MAP_ROWS][LAYER_MAP_COLS] = {0};
-static bool       layer_map_set                             = true;
-extern bool       peek_matrix(uint8_t row_index, uint8_t col_index, bool read_raw);
+uint16_t    layer_map[LAYER_MAP_ROWS][LAYER_MAP_COLS] = {0};
+static bool layer_map_set                             = true;
+extern bool peek_matrix(uint8_t row_index, uint8_t col_index, bool read_raw);
 static bool layer_map_has_updated = false;
 #if defined(SWAP_HANDS_ENABLE) && defined(ENCODER_MAP_ENABLE)
 #    include "encoder.h"
@@ -32,7 +32,7 @@ void populate_layer_map(void) {
         for (uint8_t j = 0; j < LAYER_MAP_COLS; j++) {
 #ifdef LAYER_MAP_REMAPPING
             keypos_t key = layer_remap[i][j];
-#else // LAYER_MAP_REMAPPING
+#else  // LAYER_MAP_REMAPPING
             keypos_t key = {.row = i, .col = j};
 #endif // LAYER_MAP_REMAPPING
 

@@ -11,11 +11,11 @@
 #    define LAYER_MAP_COLS MATRIX_COLS
 #endif // !LAYER_MAP_COLS
 
-extern volatile uint16_t layer_map[LAYER_MAP_ROWS][LAYER_MAP_COLS];
-void                     set_layer_map_dirty(void);
-bool                     get_layer_map_has_updated(void);
-void                     set_layer_map_has_updated(bool value);
-bool                     peek_matrix_layer_map(uint8_t row, uint8_t col);
+extern uint16_t layer_map[LAYER_MAP_ROWS][LAYER_MAP_COLS];
+void            set_layer_map_dirty(void);
+bool            get_layer_map_has_updated(void);
+void            set_layer_map_has_updated(bool value);
+bool            peek_matrix_layer_map(uint8_t row, uint8_t col);
 
 #ifdef LAYER_MAP_REMAPPING
 extern keypos_t layer_remap[LAYER_MAP_ROWS][LAYER_MAP_COLS];
