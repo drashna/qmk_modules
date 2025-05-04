@@ -89,7 +89,11 @@ void housekeeping_task_layer_map(void) {
     }
 #endif // SWAP_HANDS_ENABLE
     if (layer_map_set) {
-        populate_layer_map();
+        if (is_keyboard_master()) {
+            populate_layer_map();
+        } else {
+            layer_map_has_updated = true;
+        }
         layer_map_set = false;
     }
 }
