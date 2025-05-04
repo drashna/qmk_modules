@@ -91,8 +91,6 @@ void housekeeping_task_layer_map(void) {
     if (layer_map_set) {
         if (is_keyboard_master()) {
             populate_layer_map();
-        } else {
-            layer_map_has_updated = true;
         }
         layer_map_set = false;
     }
