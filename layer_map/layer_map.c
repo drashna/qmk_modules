@@ -97,13 +97,14 @@ void housekeeping_task_layer_map(void) {
 #ifdef VIA_ENABLE
 #    include "via.h"
 
-bool via_command_kb(uint8_t *data, uint8_t length) {
+__attribute__((weak)) bool via_command_kb(uint8_t *data, uint8_t length) {
     switch (data[0]) {
         case id_dynamic_keymap_set_keycode:
         case id_dynamic_keymap_reset:
         case id_dynamic_keymap_set_buffer:
         case id_dynamic_keymap_set_encoder:
-            layer_map_set = true;
+            set_layer_map_dirty();
+            break;
     }
     return false;
 }
