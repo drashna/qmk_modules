@@ -85,3 +85,7 @@ void  pointing_device_accel_set_limit_increment(void);
 
 void pointing_device_config_update(pointing_device_accel_config_t *config);
 void pointing_device_config_read(pointing_device_accel_config_t *config);
+
+#ifdef POINTING_DEVICE_ACCEL_VIA_ENABLE
+void via_custom_value_command_accel(uint8_t *data, uint8_t length);
+#endif

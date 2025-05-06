@@ -109,15 +109,18 @@ With every adjustment, an informational message is printed to the console.
 
 Mouse acceleration can now be configured though via.
 
+To enable VIA support in the firmware, you must add `POINTING_DEVICE_ACCEL_VIA_ENABLE = yes` to your rules.mk.
+
 ![](assets/via.png)
 \* *note that VIA unfortunately cannot show the numeric values for the sliders, so you will still need to use the debug console to monitor any changes you make to the variables. (The numbers shown in the image have just been edited in to indicate the range of the sliders).*
 
-### Additional installation steps for adding VIA support:
+### Additional installation steps for adding VIA support
+
 If your keyboard is not already supported by via, you must first [create a via definition](https://www.caniusevia.com/docs/specification).
 
 Please be aware of the following caveats:
 - The via support takes over the "via custom config" block. If you are already storing values in eeprom in your userspace, you must manually merge the features.
-- The  via support implements `via_custom_value_command_kb`. This is not compatible with keyboards that already add custom features to via. If your keyboard has custom via configuration, you must manually shim the keyboard-level callback.
+- The  via support implements `via_custom_value_command_kb`, weakly. This is not compatible with keyboards that already add custom features to via. If your keyboard has custom via configuration, you must manually call `via_custom_value_command_accel(data, length)` from the keyboard's `via_custom_value_command_kb` function.
 
 Create a custom via definition: Find your keyboard's via definition in the [via keyboards repository](https://github.com/the-via/keyboards/tree/master/v3) if you did not create your own.
 
