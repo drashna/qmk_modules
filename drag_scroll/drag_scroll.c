@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include QMK_KEYBOARD_H
-#ifdef POINTING_DEVICE_ENABLE
 
 ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(1, 1, 0);
 
@@ -20,8 +19,8 @@ static bool set_scrolling = false;
 static float scroll_accumulated_h = 0;
 static float scroll_accumulated_v = 0;
 
-static float scroll_divisor_h = 0;
-static float scroll_divisor_v = 0;
+static float scroll_divisor_h = (float)SCROLL_DIVISOR_H;
+static float scroll_divisor_v = (float)SCROLL_DIVISOR_V;
 
 // Function to handle mouse reports and perform drag scrolling
 report_mouse_t pointing_device_task_drag_scroll(report_mouse_t mouse_report) {
@@ -68,7 +67,6 @@ bool process_record_drag_scroll(uint16_t keycode, keyrecord_t *record) {
     }
     return true;
 }
-#endif // POINTING_DEVICE_ENABLE
 
 float get_drag_scroll_h_divisor(void) {
     return scroll_divisor_h;
