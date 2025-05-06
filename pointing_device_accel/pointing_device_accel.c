@@ -8,7 +8,7 @@
 #include "pointing_device_accel.h"
 #include "math.h"
 
-ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(1, 0, 0);
+ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(1, 1, 0);
 
 static uint32_t pointing_device_accel_timer;
 
@@ -67,14 +67,6 @@ bool pointing_device_accel_get_enabled(void) {
 
 void pointing_device_accel_toggle_enabled(void) {
     pointing_device_accel_enabled(!pointing_device_accel_get_enabled());
-}
-
-__attribute__((weak)) report_mouse_t pointing_device_task_pointing_device_accel_user(report_mouse_t mouse_report) {
-    return mouse_report;
-}
-
-__attribute__((weak)) report_mouse_t pointing_device_task_pointing_device_accel_kb(report_mouse_t mouse_report) {
-    return pointing_device_task_pointing_device_accel_user(mouse_report);
 }
 
 report_mouse_t pointing_device_task_pointing_device_accel(report_mouse_t mouse_report) {
