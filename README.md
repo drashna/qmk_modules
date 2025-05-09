@@ -12,23 +12,27 @@ git submodule update --init --recursive
 
 Each child directory is a separate module, and has instructions on how to add it to your build.
 
-| Module                                      | Description                                                                       |
-| ------------------------------------------- | --------------------------------------------------------------------------------- |
-| [Bongocats](./bongocats)                    | Gods, help me.                                                                    |
-| [Console Keylogging](./console_keylogging/) | Adds the FAQ Debugging console code as a module.                                  |
-| [Display Menu](./display_menu/)             | Adds support for @drashna's custom on-screen display code.                        |
-| [I2C Scanner](./i2c_scanner/)               | Adds an i2c scanner as a community module.                                        |
-| [Keyboard Lock](./keyboard_lock/)           | Adds a module that allows for disabling USB complete. Eg, a "cat mode".           |
-| [Layer Map](./layer_map/)                   | Adds support for display rendering of active keyboard layout.                     |
-| [RTC](./rtc/)                               | Adds support for hardware RTC functionality (RP2040 built in RTC not working).    |
-| [Unicode Typing](./unicode_typing/)         | Adds support for communal unicode typing modes as a community module.             |
-| [Watchdog](./watchdog/)                     | Adds hardware watchdog support as a community module. Additional config required. |
+| Module                                                  | Description                                                                                                 |
+|---------------------------------------------------------|-------------------------------------------------------------------------------------------------------------|
+| [Bongocats](./bongocats)                                | Gods, help me.                                                                                              |
+| [Console Keylogging](./console_keylogging/)             | Adds the FAQ Debugging console code as a module.                                                            |
+| [Display Menu](./display_menu/)                         | Adds support for @drashna's custom on-screen display code.                                                  |
+| [Drag Scroll](./drag_scroll/)                           | Adds Drag Scrolling support as a module.                                                                    |
+| [I2C Scanner](./i2c_scanner/)                           | Adds an i2c scanner as a community module.                                                                  |
+| [Keyboard Lock](./keyboard_lock/)                       | Adds a module that allows for disabling USB complete. Eg, a "cat mode".                                     |
+| [Layer Map](./layer_map/)                               | Adds support for display rendering of active keyboard layout.                                               |
+| [Pointing Device Accel](./pointing_device_accel/)       | Adds maccel/pointing device acceleration support, ported directly from Burkfers and Wimad's implementation. |
+| [Pointing Device Gestures](./pointing_device_gestures/) | Adds a module that allows triggering behavior based on which of the cardinal and ordinal direction moved.   |
+| [RTC](./rtc/)                                           | Adds support for hardware RTC functionality (RP2040 built in RTC not working).                              |
+| [Unicode Typing](./unicode_typing/)                     | Adds support for communal unicode typing modes as a community module.                                       |
+| [Watchdog](./watchdog/)                                 | Adds hardware watchdog support as a community module.  Additional config required.                          |
+| [Wiggle Ball](./wiggle_ball/)                           | Adds a module that triggers a behavior when wiggling the ball/mouse.                                        |
+
 
 ## In development
 
 These modules are either not working properly yet (and are listed here for visibility) or are unsupported while waiting on PR merges/code changes. While it may be possible to rework these to function currently, .... eh.
 
-| Module                                            | Status                                                                | Description                                                                                                 |
-| ------------------------------------------------- | --------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| [Pointing Device Accel](./pointing_device_accel/) | Waiting on [PR 25050](https://github.com/qmk/qmk_firmware/pull/25050) | Adds maccel/pointing device acceleration support, ported directly from Burkfers and Wimad's implementation. |
-| [Drag Scroll](./drag_scroll/)                     | Waiting on [PR 25050](https://github.com/qmk/qmk_firmware/pull/25050) | Adds Drag Scrolling support as a module.                                                                    |
+| Module      | Status      |Description       |
+|-------------|-------------|------------------|
+| None        |             |                  |
