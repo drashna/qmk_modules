@@ -18,8 +18,8 @@ repos:
       - id: prettier
         exclude: |
           (?x)^(
-              .git/COMMIT_EDITMSG|
-              ../../.git/modules/modules/drashna/COMMIT_EDITMSG|
+              .*/.git/COMMIT_EDITMSG|
+              .*/.git/.*/COMMIT_EDITMSG|
               CHANGELOG.md|
               .release-please-manifest.json|
               CODE_OF_CONDUCT.md

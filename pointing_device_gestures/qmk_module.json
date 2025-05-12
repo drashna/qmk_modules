@@ -8,15 +8,11 @@
     "keycodes": [
         {
             "key": "CM_MOUSE_GESTURE_TAP",
-            "aliases": [
-                "GST_TAP"
-            ]
+            "aliases": ["GST_TAP"]
         },
         {
             "key": "CM_MOUSE_GESTURE_HOLD",
-            "aliases": [
-                "GST_HLD"
-            ]
+            "aliases": ["GST_HLD"]
         }
     ]
 }
