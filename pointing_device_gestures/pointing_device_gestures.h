@@ -15,7 +15,7 @@ void pointing_device_gestures_timed_start(void);
 void     pointing_device_gestures_trigger(uint8_t direction);
 uint16_t pointing_device_gestures_get_keycode(uint8_t direction);
 
-void pointing_device_gestures_set_timeout(uint16_t timeout);
+void     pointing_device_gestures_set_timeout(uint16_t timeout);
 uint16_t pointing_device_gestures_get_timeout(void);
-void pointing_device_gestures_set_threshold(uint16_t threshold);
+void     pointing_device_gestures_set_threshold(uint16_t threshold);
 uint16_t pointing_device_gestures_get_threshold(void);

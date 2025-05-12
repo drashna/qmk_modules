@@ -23,7 +23,7 @@ Several characteristics of the acceleration curve can be tweaked by adding relev
 #define POINTING_DEVICE_ACCEL_GROWTH_RATE 0.25 // lower/higher value = curve reaches its upper limit slower/faster
 #define POINTING_DEVICE_ACCEL_OFFSET 2.2       // lower/higher value = acceleration kicks in earlier/later
 #define POINTING_DEVICE_ACCEL_LIMIT 0.2        // lower limit of accel curve (minimum acceleration factor)
-````
+```
 
 Or can be set at runtime with these functions:
 

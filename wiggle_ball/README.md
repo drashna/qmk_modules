@@ -12,18 +12,18 @@ It can be integrated into your keymap by adding the following to your `keymap.js
 
 ## Configuration
 
-| Setting                                | Default | Description                                                                 |
-|----------------------------------------|---------|-----------------------------------------------------------------------------|
-| `WIGGLE_BALL_TIMEOUT`                  | `250`   | Timeout for processing wiggling (longer than this time will end the check). |
+| Setting                                | Default | Description                                                                                          |
+| -------------------------------------- | ------- | ---------------------------------------------------------------------------------------------------- |
+| `WIGGLE_BALL_TIMEOUT`                  | `250`   | Timeout for processing wiggling (longer than this time will end the check).                          |
 | `WIGGLE_BALL_DIRECTION_SWITCH_TIMEOUT` | `150`   | Tiemout between direction changes. If movement takes longer than this to reverse, it's not a wiggle. |
 
 ## Functions
 
-* `is_wiggle_ball_enabled(void)` - Are we actively wiggling?
-* `set_wiggle_ball_timeout(uint16_t timeout)` - Changes the timeout value. Setting to 0 sets to default.
-* `get_wiggle_ball_timeout(void)` - Gets the current timeout value.
-* `set_wiggle_ball_direction_switch_timeout(uint16_t timeout)` - Changes the direction switch timeout value.
-* `get_wiggle_ball_direction_switch_timeout(void)` - Gets the current direction switch timeout.
+-   `is_wiggle_ball_enabled(void)` - Are we actively wiggling?
+-   `set_wiggle_ball_timeout(uint16_t timeout)` - Changes the timeout value. Setting to 0 sets to default.
+-   `get_wiggle_ball_timeout(void)` - Gets the current timeout value.
+-   `set_wiggle_ball_direction_switch_timeout(uint16_t timeout)` - Changes the direction switch timeout value.
+-   `get_wiggle_ball_direction_switch_timeout(void)` - Gets the current direction switch timeout.
 
 ### `wiggle_ball_state_change(bool enabled, report_mouse_t *report)`
 
