@@ -1,4 +1,4 @@
 {
-    "module_name": "Hardware Watchdog",
-    "maintainer": "drashna"
+    "maintainer": "drashna",
+    "module_name": "Hardware Watchdog"
 }

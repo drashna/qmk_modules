@@ -1,38 +1,27 @@
 {
-    "module_name": "Pointing Device Acceleration",
-    "maintainer": "drashna",
-    "license": "GPL-2.0-or-later",
     "keycodes": [
         {
-            "key": "CM_MOUSE_ACCEL_TOGGLE",
-            "aliases": [
-                "MA_TOGG"
-            ]
+            "aliases": ["MA_TOGG"],
+            "key": "CM_MOUSE_ACCEL_TOGGLE"
         },
         {
-            "key": "CM_MOUSE_ACCEL_TAKEOFF",
-            "aliases": [
-                "MA_TKOF"
-            ]
+            "aliases": ["MA_TKOF"],
+            "key": "CM_MOUSE_ACCEL_TAKEOFF"
         },
         {
-            "key": "CM_MOUSE_ACCEL_GROWTH_RATE",
-            "aliases": [
-                "MA_GROW"
-            ]
+            "aliases": ["MA_GROW"],
+            "key": "CM_MOUSE_ACCEL_GROWTH_RATE"
         },
         {
-            "key": "CM_MOUSE_ACCEL_OFFSET",
-            "aliases": [
-                "MA_OFST"
-            ]
+            "aliases": ["MA_OFST"],
+            "key": "CM_MOUSE_ACCEL_OFFSET"
         },
         {
-            "key": "CM_MOUSE_ACCEL_LIMIT",
-            "aliases": [
-                "MA_LMT"
-            ]
+            "aliases": ["MA_LMT"],
+            "key": "CM_MOUSE_ACCEL_LIMIT"
         }
-    ]
-
+    ],
+    "license": "GPL-2.0-or-later",
+    "maintainer": "drashna",
+    "module_name": "Pointing Device Acceleration"
 }

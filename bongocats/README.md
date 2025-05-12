@@ -1,6 +1,6 @@
 # Bongocats
 
-This adds the simple bongocat animation to the board to the oled.   Intended for a 128x32 oled.
+This adds the simple bongocat animation to the board to the oled. Intended for a 128x32 oled.
 
 Add the following to the list of modules in your `keymap.json` to enable this module:
 
@@ -17,7 +17,7 @@ The actual processing is handled by `void render_bongocats(void)`, so you can th
 ## Configuration
 
 | Setting                             | Default | Description                                                                             |
-|-------------------------------------|---------|-----------------------------------------------------------------------------------------|
+| ----------------------------------- | ------- | --------------------------------------------------------------------------------------- |
 | `BONGOCATS_IDLE_FRAMES`             | `5`     | How many idle frames to use.                                                            |
 | `BONGOCATS_IDLE_SPEED`              | `10`    | Update interval in ms for idle animation.                                               |
 | `BONGOCATS_PREP_FRAMES`             | `1`     | How many frames between transition between idle and tapping.                            |
@@ -27,4 +27,3 @@ The actual processing is handled by `void render_bongocats(void)`, so you can th
 | `BONGOCATS_ANIM_FRAME_DURATION_MIN` | `100`   | Shortest time before switching frame (eg, upper limit of speed for tapping animiation). |
 | `BONGOCATS_IDLE_FRAME_DURATION`     | `300`   | Interval between updating frames for idle animation.                                    |
 | `BONGOCATS_ANIM_FRAME_RATIO`        | `2.5`   | How aggressively to speed up tapping animation speed with WPM.                          |
-

@@ -1,6 +1,6 @@
 # Layer Map
 
-This adds support for creating an array that is accurate to the keyboard, accounting for layers and transparency.  Eg, if you want a live view of how the keyboard is actually laid out.  This triggers on layer (and default layer) changes, as well as swap hand status changes and via based remapping.
+This adds support for creating an array that is accurate to the keyboard, accounting for layers and transparency. Eg, if you want a live view of how the keyboard is actually laid out. This triggers on layer (and default layer) changes, as well as swap hand status changes and via based remapping.
 
 Add the following to the list of modules in your `keymap.json` to enable this module:
 
@@ -10,21 +10,20 @@ Add the following to the list of modules in your `keymap.json` to enable this mo
 }
 ```
 
-This doesn't do anything by itself (other than populate the array).  You'll need to check the `layer_map[rows][cols]` array for the specific keycodes.  And you'll need to include `modules/drashna/layer_map/layer_map.h`.
+This doesn't do anything by itself (other than populate the array). You'll need to check the `layer_map[rows][cols]` array for the specific keycodes. And you'll need to include `modules/drashna/layer_map/layer_map.h`.
 
 ## Helper functions
 
-| Function Name                     | Description  |
-|-----------------------------------|--------------|
+| Function Name                     | Description                                                                         |
+| --------------------------------- | ----------------------------------------------------------------------------------- |
 | `set_layer_map_dirty(void)`       | Marks the layer map as dirty, and needs to be updated/refreshed to reflect changes. |
 | `get_layer_map_has_updated(void)` | Returns `true`/`false` based on if the layer map has been updated this loop.        |
 | `set_layer_map_has_updated(bool)` | Sets the status of if the layer map has been updated.                               |
 | `peek_matrix_layer_map(row, col)` | Checks the on/off state of a specific matrix position for the layer map.            |
 
-
 ## Layer Map Remapping
 
-Because many split boards have matrices that don't match the layouts, you can define `LAYER_MAP_REMAPPING` in your config.h, and provide an array of modified keypos locations.  This also allows for placing encoder map config into the layer map.  Make sure this is in your keymap.c.
+Because many split boards have matrices that don't match the layouts, you can define `LAYER_MAP_REMAPPING` in your config.h, and provide an array of modified keypos locations. This also allows for placing encoder map config into the layer map. Make sure this is in your keymap.c.
 
 You can see this with the kyria:
 
@@ -44,7 +43,7 @@ keypos_t layer_remap[LAYER_MAP_ROWS][LAYER_MAP_COLS] = {
 
 ## Sample code
 
-An example of this in action.  This would also need the `code_to_name` array for the oled keylogging code, in my (drashna's) userspace ([/users/drashna/display/oled/oled_stuff.c, lines 48-68](https://github.com/drashna/qmk_userspace/blob/566c474f07969bcc10be33cedabba56550d1abff/users/drashna/display/oled/oled_stuff.c#L48-L68)).
+An example of this in action. This would also need the `code_to_name` array for the oled keylogging code, in my (drashna's) userspace ([/users/drashna/display/oled/oled_stuff.c, lines 48-68](https://github.com/drashna/qmk_userspace/blob/566c474f07969bcc10be33cedabba56550d1abff/users/drashna/display/oled/oled_stuff.c#L48-L68)).
 
 ```c
 #ifdef COMMUNITY_MODULE_LAYER_MAP_ENABLE
@@ -80,3 +79,4 @@ bool oled_task_user(void) {
 #endif // COMMUNITY_MODULE_LAYER_MAP_ENABLE
     return false;
 }
+```

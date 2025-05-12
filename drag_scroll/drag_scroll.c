@@ -8,12 +8,12 @@ ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(1, 1, 0);
 static bool set_scrolling = false;
 
 // Modify these values to adjust the scrolling speed
-#    ifndef SCROLL_DIVISOR_H
-#        define SCROLL_DIVISOR_H 8.0
-#    endif // SCROLL_DIVISOR_H
-#    ifndef SCROLL_DIVISOR_V
-#        define SCROLL_DIVISOR_V 8.0
-#    endif // SCROLL_DIVISOR_V
+#ifndef SCROLL_DIVISOR_H
+#    define SCROLL_DIVISOR_H 8.0
+#endif // SCROLL_DIVISOR_H
+#ifndef SCROLL_DIVISOR_V
+#    define SCROLL_DIVISOR_V 8.0
+#endif // SCROLL_DIVISOR_V
 
 // Variables to store accumulated scroll values
 static float scroll_accumulated_h = 0;

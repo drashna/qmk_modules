@@ -1,15 +1,13 @@
 {
-    "module_name": "Display Menu",
-    "maintainer": "drashna",
     "features": {
         "deferred_exec": true
     },
     "keycodes": [
         {
-            "key": "DISPLAY_MENU",
-            "aliases": [
-                "DS_MENU"
-            ]
+            "aliases": ["DS_MENU"],
+            "key": "DISPLAY_MENU"
         }
-    ]
+    ],
+    "maintainer": "drashna",
+    "module_name": "Display Menu"
 }

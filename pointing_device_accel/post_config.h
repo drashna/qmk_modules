@@ -5,8 +5,8 @@
 
 // Enable float support for printf library
 #ifdef POINTING_DEVICE_DEBUG
-#undef PRINTF_SUPPORT_DECIMAL_SPECIFIERS
-#define PRINTF_SUPPORT_DECIMAL_SPECIFIERS 1
+#    undef PRINTF_SUPPORT_DECIMAL_SPECIFIERS
+#    define PRINTF_SUPPORT_DECIMAL_SPECIFIERS 1
 #endif
 
 // Crude hack to enable eeprom storage for accel config and prevent overlap with start of VIA eeprom storage

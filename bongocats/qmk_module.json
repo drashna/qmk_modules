@@ -1,8 +1,8 @@
 {
-    "module_name": "Bongocats",
-    "maintainer": "drashna",
     "features": {
         "oled": true,
         "wpm": true
-    }
+    },
+    "maintainer": "drashna",
+    "module_name": "Bongocats"
 }

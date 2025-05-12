@@ -193,8 +193,7 @@ void rtc_set_time_split(rtc_time_t time, bool is_connected) {
     rtc_connected = is_connected;
 }
 
- __attribute__((weak)) void rtc_check_dst_format(rtc_time_t *time) {
- }
+__attribute__((weak)) void rtc_check_dst_format(rtc_time_t *time) {}
 
 void keyboard_post_init_rtc(void) {
 #ifdef DS3231_RTC_DRIVER_ENABLE

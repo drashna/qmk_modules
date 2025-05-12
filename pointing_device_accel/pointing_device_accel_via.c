@@ -5,7 +5,8 @@
 #include "pointing_device_internal.h"
 #include "via.h"
 
-_Static_assert(sizeof(g_pointing_device_accel_config) <= VIA_EEPROM_CUSTOM_CONFIG_SIZE, "Mismatch in via custom eeprom stored data");
+_Static_assert(sizeof(g_pointing_device_accel_config) <= VIA_EEPROM_CUSTOM_CONFIG_SIZE,
+               "Mismatch in via custom eeprom stored data");
 
 enum via_pointing_device_channel {
     id_maccel = 24,

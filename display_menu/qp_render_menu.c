@@ -10,8 +10,6 @@
 extern menu_state_runtime_t menu_state_runtime;
 extern menu_state_t         menu_state;
 
-
-
 /**
  * @brief Truncates text to fit within a certain width
  *
@@ -22,8 +20,8 @@ extern menu_state_t         menu_state;
  * @param add_ellipses add ellipses to truncated text
  * @return char* truncated text
  */
-static char* truncate_text(const char* text, uint16_t max_width, painter_font_handle_t font, bool from_start,
-                    bool add_ellipses) {
+static char *truncate_text(const char *text, uint16_t max_width, painter_font_handle_t font, bool from_start,
+                           bool add_ellipses) {
     static char truncated_text[50];
     strncpy(truncated_text, text, sizeof(truncated_text) - 1);
     truncated_text[sizeof(truncated_text) - 1] = '\0';
@@ -34,7 +32,7 @@ static char* truncate_text(const char* text, uint16_t max_width, painter_font_ha
     }
 
     size_t      len            = strlen(truncated_text);
-    const char* ellipses       = "...";
+    const char *ellipses       = "...";
     uint16_t    ellipses_width = add_ellipses ? qp_textwidth(font, ellipses) : 0;
 
     if (from_start) {
@@ -87,8 +85,7 @@ bool painter_render_menu(painter_device_t display, painter_font_handle_t font, u
     static menu_state_t last_state;
     uint8_t             scroll_offset = 0;
 
-    if (memcmp(&last_state, &menu_state, sizeof(menu_state_t)) == 0 &&
-        menu_state_runtime.has_rendered) {
+    if (memcmp(&last_state, &menu_state, sizeof(menu_state_t)) == 0 && menu_state_runtime.has_rendered) {
         return menu_state.is_in_menu;
     }
 

@@ -17,10 +17,10 @@
 
 menu_state_runtime_t menu_state_runtime  = {.dirty = true, .has_rendered = false};
 deferred_token       menu_deferred_token = INVALID_DEFERRED_TOKEN;
-menu_state_t        menu_state          = (menu_state_t){
-    .is_in_menu = false,
-    .selected_child = 0xFF,
-    .menu_stack = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF},
+menu_state_t         menu_state          = (menu_state_t){
+                     .is_in_menu     = false,
+                     .selected_child = 0xFF,
+                     .menu_stack     = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF},
 };
 
 /**
@@ -29,7 +29,6 @@ menu_state_t        menu_state          = (menu_state_t){
  * @return menu_entry_t*
  */
 menu_entry_t *get_current_menu(void) {
-
     if (menu_state.menu_stack[0] == 0xFF) {
         return &root;
     }
@@ -83,8 +82,7 @@ bool menu_handle_input(menu_input_t input) {
     switch (input) {
         case menu_input_exit:
             menu_state.is_in_menu = false;
-            memset(menu_state.menu_stack, 0xFF,
-                   sizeof(menu_state.menu_stack));
+            memset(menu_state.menu_stack, 0xFF, sizeof(menu_state.menu_stack));
             menu_state.selected_child = 0xFF;
             if (cancel_deferred_exec(menu_deferred_token)) {
                 menu_deferred_token = INVALID_DEFERRED_TOKEN;
@@ -93,13 +91,9 @@ bool menu_handle_input(menu_input_t input) {
         case menu_input_back:
             // Iterate backwards through the stack and remove the last entry
             for (uint8_t i = 0; i < sizeof(menu_state.menu_stack); ++i) {
-                if (menu_state
-                        .menu_stack[sizeof(menu_state.menu_stack) - 1 - i] != 0xFF) {
-                    menu_state.selected_child =
-                        menu_state
-                            .menu_stack[sizeof(menu_state.menu_stack) - 1 - i];
-                    menu_state
-                        .menu_stack[sizeof(menu_state.menu_stack) - 1 - i] = 0xFF;
+                if (menu_state.menu_stack[sizeof(menu_state.menu_stack) - 1 - i] != 0xFF) {
+                    menu_state.selected_child = menu_state.menu_stack[sizeof(menu_state.menu_stack) - 1 - i];
+                    menu_state.menu_stack[sizeof(menu_state.menu_stack) - 1 - i] = 0xFF;
                     break;
                 }
 
@@ -116,8 +110,7 @@ bool menu_handle_input(menu_input_t input) {
                 // Iterate forwards through the stack and add the selected entry
                 for (uint8_t i = 0; i < sizeof(menu_state.menu_stack); ++i) {
                     if (menu_state.menu_stack[i] == 0xFF) {
-                        menu_state.menu_stack[i] =
-                            menu_state.selected_child;
+                        menu_state.menu_stack[i]  = menu_state.selected_child;
                         menu_state.selected_child = 0;
                         break;
                     }
@@ -130,13 +123,11 @@ bool menu_handle_input(menu_input_t input) {
             return false;
         case menu_input_up:
             menu_state.selected_child =
-                (menu_state.selected_child + menu->parent.child_count - 1) %
-                menu->parent.child_count;
+                (menu_state.selected_child + menu->parent.child_count - 1) % menu->parent.child_count;
             return false;
         case menu_input_down:
             menu_state.selected_child =
-                (menu_state.selected_child + menu->parent.child_count + 1) %
-                menu->parent.child_count;
+                (menu_state.selected_child + menu->parent.child_count + 1) % menu->parent.child_count;
             return false;
         case menu_input_left:
         case menu_input_right:
@@ -196,7 +187,7 @@ bool process_record_display_menu(uint16_t keycode, keyrecord_t *record) {
     if (keycode == DISPLAY_MENU && record->event.pressed && !menu_state.is_in_menu) {
         menu_state.is_in_menu     = true;
         menu_state.selected_child = 0;
-        menu_deferred_token = defer_exec(DISPLAY_MENU_TIMEOUT, display_menu_timeout_handler, NULL);
+        menu_deferred_token       = defer_exec(DISPLAY_MENU_TIMEOUT, display_menu_timeout_handler, NULL);
         return false;
     }
 
@@ -312,7 +303,6 @@ void keyboard_task_display_menu_pre(void) {
     if (menu_state_runtime.dirty) {
         menu_state_runtime.has_rendered = false;
     }
-
 }
 void keyboard_task_display_menu_post(void) {
     if (!menu_state_runtime.has_rendered && !menu_state_runtime.dirty) {

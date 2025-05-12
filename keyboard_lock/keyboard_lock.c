@@ -40,7 +40,7 @@ bool get_keyboard_lock(void) {
  * @brief Toggles the keyboard lock status
  *
  */
- void toggle_keyboard_lock(void) {
+void toggle_keyboard_lock(void) {
     set_keyboard_lock(!host_driver_disabled);
 }
 

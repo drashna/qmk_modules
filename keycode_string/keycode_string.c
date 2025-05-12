@@ -308,13 +308,14 @@ static void append_keycode(uint16_t keycode) {
     if (keycode <= 255) { // Basic keycodes.
         switch (keycode) {
             // Modifiers KC_LSFT, KC_RCTL, etc.
-            case MODIFIER_KEYCODE_RANGE: {
-                const uint8_t i      = keycode - KC_LCTL;
-                const bool    is_rhs = i > 3;
-                append_P(PSTR("KC_"));
-                append_char(is_rhs ? 'R' : 'L');
-                append_P(&mod_names[4 * (i & 3)]);
-            }
+            case MODIFIER_KEYCODE_RANGE:
+                {
+                    const uint8_t i      = keycode - KC_LCTL;
+                    const bool    is_rhs = i > 3;
+                    append_P(PSTR("KC_"));
+                    append_char(is_rhs ? 'R' : 'L');
+                    append_P(&mod_names[4 * (i & 3)]);
+                }
                 return;
 
             // Letters A-Z.

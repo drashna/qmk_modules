@@ -16,7 +16,6 @@
 
 #include <stdint.h>
 
-
 /**
  * @brief Formats a QMK keycode as a human-readable string.
  *

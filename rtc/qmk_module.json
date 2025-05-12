@@ -1,6 +1,4 @@
 {
-    "module_name": "Real Time Clock",
-    "maintainer": "drashna",
     "keycodes": [
         {
             "key": "RTC_YEAR_INCREASE"
@@ -47,5 +45,7 @@
         {
             "key": "RTC_DST_TOGGLE"
         }
-    ]
+    ],
+    "maintainer": "drashna",
+    "module_name": "Real Time Clock"
 }

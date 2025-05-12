@@ -16,32 +16,32 @@
 #endif
 
 #define DISPLAY_MENU_ENTRY_CHILD(display_text, short_display, name) \
-    {                                                       \
-        .flags                 = menu_flag_is_value,        \
-        .text                  = display_text,              \
-        .short_text            = short_display,             \
-        .child.menu_handler    = menu_handler_##name,       \
-        .child.display_handler = display_handler_##name,    \
+    {                                                               \
+        .flags                 = menu_flag_is_value,                \
+        .text                  = display_text,                      \
+        .short_text            = short_display,                     \
+        .child.menu_handler    = menu_handler_##name,               \
+        .child.display_handler = display_handler_##name,            \
     }
 
 #define DISPLAY_MENU_ENTRY_PARENT(display_text, short_display, child) \
-    {                                                         \
-        .flags              = menu_flag_is_parent,            \
-        .text               = display_text,                   \
-        .short_text         = short_display,                  \
-        .parent.children    = child,                          \
-        .parent.child_count = ARRAY_SIZE(child),              \
+    {                                                                 \
+        .flags              = menu_flag_is_parent,                    \
+        .text               = display_text,                           \
+        .short_text         = short_display,                          \
+        .parent.children    = child,                                  \
+        .parent.child_count = ARRAY_SIZE(child),                      \
     }
 
-#define DISPLAY_MENU_ENTRY_MULTI(display_text, short_display, child_item, name)    \
-    {                                                                      \
-        .flags                 = menu_flag_is_parent | menu_flag_is_value, \
-        .text                  = display_text,                             \
-        .short_text            = short_display,                            \
-        .child.menu_handler    = menu_handler_##name,                      \
-        .child.display_handler = display_handler_##name,                   \
-        .parent.children       = child_item,                               \
-        .parent.child_count    = ARRAY_SIZE(child_item),                   \
+#define DISPLAY_MENU_ENTRY_MULTI(display_text, short_display, child_item, name) \
+    {                                                                           \
+        .flags                 = menu_flag_is_parent | menu_flag_is_value,      \
+        .text                  = display_text,                                  \
+        .short_text            = short_display,                                 \
+        .child.menu_handler    = menu_handler_##name,                           \
+        .child.display_handler = display_handler_##name,                        \
+        .parent.children       = child_item,                                    \
+        .parent.child_count    = ARRAY_SIZE(child_item),                        \
     }
 
 typedef enum _menu_flags_t {
