@@ -94,6 +94,7 @@ void housekeeping_task_layer_map(void) {
         }
         layer_map_set = false;
     }
+    housekeeping_task_layer_map_kb();
 }
 
 #ifdef VIA_ENABLE

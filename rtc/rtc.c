@@ -246,6 +246,7 @@ void housekeeping_task_rtc(void) {
         }
         rtc_connected = connected;
     }
+    housekeeping_task_rtc_kb()
 }
 
 /**

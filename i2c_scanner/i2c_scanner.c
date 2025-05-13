@@ -46,11 +46,13 @@ void housekeeping_task_i2c_scanner(void) {
         do_scan();
         scan_timer = timer_read();
     }
+    housekeeping_task_i2c_scanner_kb();
 }
 
 void keyboard_post_init_i2c_scanner(void) {
     i2c_init();
     scan_timer = timer_read();
+    keyboard_post_init_i2c_scanner_kb();
 }
 
 bool i2c_scanner_get_enabled(void) {

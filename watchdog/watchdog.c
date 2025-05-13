@@ -54,23 +54,27 @@ void keyboard_post_init_watchdog(void) {
     wdgInit();
 
     wdgStart(&WDGD1, &wdgcfg);
+    keyboard_post_init_watchdog_kb();
 }
 
 void housekeeping_task_watchdog(void) {
     wdgReset(&WDGD1);
+    housekeeping_task_watchdog_kb();
 }
 
 bool shutdown_watchdog(bool jump_to_bootloader) {
     wdgStop(&WDGD1);
-    return true;
+    return shutdown_watchdog_kb(jump_to_bootloader);
 }
 
 void suspend_power_down_watchdog(void) {
     wdgReset(&WDGD1);
+    suspend_power_down_watchdog_kb();
 }
 
 void suspend_wakeup_init_watchdog(void) {
     wdgReset(&WDGD1);
+    suspend_wakeup_init_watchdog_kb();
 }
 
 #elif defined(__AVR__)
