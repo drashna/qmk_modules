@@ -1,0 +1,60 @@
+# Junk files
+*.bak
+*.swp
+*~
+.DS_Store
+._*
+
+# Merge files
+*.orig
+*.rej
+
+# Build artifacts
+.clang_complete
+*.elf
+*.log
+*.lss
+*.lst
+*.map
+*.o
+*.stackdump
+*.sym
+
+
+# Eclipse/PyCharm/Other IDE Settings
+*.iml
+.browse.VC.db*
+.cproject
+.idea
+.idea/
+.project
+.settings/
+
+# ?
+.dep
+.history/
+build/
+cmake-build-debug
+CMakeLists.txt
+*.pdf
+
+# Let these ones be user specific, since we have so many different configurations
+*.code-workspace
+.stfolder
+.tags
+.vscode/c_cpp_properties.json
+.vscode/ipch/
+.vscode/last.sql
+.vscode/launch.json
+.vscode/tasks.json
+.vscode/temp.sql
+tags
+
+# Python things
+__pycache__
+.python-version
+.venv
+# clangd
+compile_commands.json
+.clangd/
+.cache/
