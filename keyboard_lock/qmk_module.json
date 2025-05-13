@@ -1,7 +1,9 @@
 {
     "keycodes": [
         {
-            "aliases": ["KEYLOCK"],
+            "aliases": [
+                "KEYLOCK"
+            ],
             "key": "CM_KEYBOARD_LOCK_TOGGLE"
         }
     ],

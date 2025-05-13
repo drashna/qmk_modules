@@ -68,7 +68,7 @@ By default, "vendor" is the selected RTC hardware. This requires hardware suppor
 
 As mentioned above, currently, RP2040 is not supported by the vendor hardware due to a bug in the RTC driver code. And I'm not sure where it is (it looks to match the pico-SDK code, which does apparently work fine).
 
-For STM32 based chips, you will need to check your schematic and data sheet to see if RTC suppport is available, and how to support it. Ideally, you should have an LSE crystal, and the RTC should be configured to use it. This will get you the most reliable functionality, from what I understand.
+For STM32 based chips, you will need to check your schematic and data sheet to see if RTC support is available, and how to support it. Ideally, you should have an LSE crystal, and the RTC should be configured to use it. This will get you the most reliable functionality, from what I understand.
 
 As an example, the [STM32F405 Tractyl Manuform](https://github.com/qmk/qmk_firmware/blob/e3c613c79c2211163abb914c8725cb495942fbb9/keyboards/handwired/tractyl_manuform/5x6_right/f405/mcuconf.h#L21-L28) has RTC enabled at the keyboard level, for instance.
 
@@ -80,4 +80,4 @@ As an example, the [STM32F405 Tractyl Manuform](https://github.com/qmk/qmk_firmw
 #define STM32_RTCSEL STM32_RTCSEL_LSE
 ```
 
-Also, to ensure that the keyboard keeps time after power loss, you will need to ensure a bettery is hooked up (a simple coin cell battery is more than enough for this), and that the controller has the correct circuitry to support this. WeAct's Blackpill (STM32F4x1) and CoreBoard (STM32F405) have all the required components and I have personally verified that they do work.
+Also, to ensure that the keyboard keeps time after power loss, you will need to ensure a battery is hooked up (a simple coin cell battery is more than enough for this), and that the controller has the correct circuitry to support this. WeAct's Blackpill (STM32F4x1) and CoreBoard (STM32F405) have all the required components and I have personally verified that they do work.

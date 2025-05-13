@@ -54,7 +54,7 @@ menu_entry_t *get_selected_menu_item(void) {
 }
 
 /**
- * @brief deffered function to handle menu timeout
+ * @brief deferred function to handle menu timeout
  *
  * @param trigger_time
  * @param cb_arg
@@ -270,7 +270,7 @@ uint8_t get_menu_scroll_offset(menu_entry_t *menu, uint8_t visible_entries) {
                 l_scroll_offset = 0;
             }
             // If the selected child is at the end of the visible list and we don't have any more entries to scroll
-            // to, then don't increase, but ensure ofset is at the end (for wrapping)
+            // to, then don't increase, but ensure offset is at the end (for wrapping)
         } else if (menu_state.selected_child == menu->parent.child_count - 1) {
             l_scroll_offset = menu->parent.child_count - visible_entries;
         }

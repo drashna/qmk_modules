@@ -66,7 +66,7 @@ static char *truncate_text(const char *text, uint16_t max_width, painter_font_ha
 }
 
 /**
- * @brief Hepler function to render the on screen menu
+ * @brief Helper function to render the on screen menu
  *
  * @param display qp display device to render to
  * @param font font to use for text
@@ -143,7 +143,7 @@ bool painter_render_menu(painter_device_t display, painter_font_handle_t font, u
                 } else {
                     snprintf(buf, sizeof(buf), ": %s", val);
                 }
-                // TODO: fix text truncation with elipses for super short values
+                // TODO: fix text truncation with ellipses for super short values
                 if (child == selected) {
                     qp_drawtext_recolor(display, x, y, font, truncate_text(buf, render_width - x, font, false, false),
                                         0, 0, 0, secondary.h, secondary.s, secondary.v);

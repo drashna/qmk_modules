@@ -39,10 +39,10 @@ Several characteristics of the acceleration curve can be tweaked by adding relev
 
 Or can be set at runtime with these functions:
 
--   `pointing_device_accel_set_takeoff(float val)`
--   `pointing_device_accel_set_growth_rate(float val)`
--   `pointing_device_accel_set_offset(float val)`
--   `pointing_device_accel_set_limit(float val)`
+- `pointing_device_accel_set_takeoff(float val)`
+- `pointing_device_accel_set_growth_rate(float val)`
+- `pointing_device_accel_set_offset(float val)`
+- `pointing_device_accel_set_limit(float val)`
 
 The graph below shows the acceleration curve. You can interpret this graph as follows: the horizontal axis is input velocity (ie. how fast you are physically moving your mouse/trackball/trackpad); the vertical axis is the acceleration factor, which is the factor with which the input velocity will be multiplied, resulting in your new output velocity on screen. You can also understand this as a DPI scaling factor: the curve maxes out at 1, meaning your mouse sensitivity will never go higher than your default DPI setting; at the start of the curve your sensitivity is scaled down to a minimum that can be set by the LIMIT variable. The limit in this example is 0.2, which means at the lowest velocity your mouse sensitivity is scaled down to an equivalent of 0.2 times your default DPI.
 
@@ -50,15 +50,15 @@ The graph below shows the acceleration curve. You can interpret this graph as fo
 
 **If you click on the image of the curve**, you will be linked to Desmos, where you can play around with the variables to understand how each of them affect the shape of the curve. But in short:
 
--   The TAKEOFF variable controls how smoothly or abruptly the acceleration curve takes off. A higher value will make it take off more abruptly, a lower value smoothens out the start of the curve.
+- The TAKEOFF variable controls how smoothly or abruptly the acceleration curve takes off. A higher value will make it take off more abruptly, a lower value smoothens out the start of the curve.
 
--   The GROWTH_RATE variable sets the growth rate of the acceleration curve. A lower value will result in a flatter curve which takes longer to reach its LIMIT. A higher value will result in a steeper curve, which will reach its LIMIT faster.
+- The GROWTH_RATE variable sets the growth rate of the acceleration curve. A lower value will result in a flatter curve which takes longer to reach its LIMIT. A higher value will result in a steeper curve, which will reach its LIMIT faster.
 
--   The OFFSET variable moves the entire curve towards the right. Offsetting the curve to the right means acceleration will kick in later, which is useful for low speed precision - in effect what you would otherwise have used SNIPING mode for. The maccel feature basically eliminates the need for a sniping mode.
+- The OFFSET variable moves the entire curve towards the right. Offsetting the curve to the right means acceleration will kick in later, which is useful for low speed precision - in effect what you would otherwise have used SNIPING mode for. The maccel feature basically eliminates the need for a sniping mode.
 
--   The LIMIT variable sets the lower limit for the acceleration curve. This is the minimum acceleration factor at which the curve will start. In effect this adjusts the sensitivity for low speed precision movements.
+- The LIMIT variable sets the lower limit for the acceleration curve. This is the minimum acceleration factor at which the curve will start. In effect this adjusts the sensitivity for low speed precision movements.
 
--   The upper limit of the curve is fixed at 1, which means that at high speed sensitivity equals your default DPI. If you want to adjust high speed sensitivity, adjust your DPI.
+- The upper limit of the curve is fixed at 1, which means that at high speed sensitivity equals your default DPI. If you want to adjust high speed sensitivity, adjust your DPI.
 
 A good starting point for tweaking your settings, is to set your default DPI slightly higher than what you'd use without acceleration. Then set your LIMIT variable to a factor that would scale down to what you normally might have set your sniping DPI. For example, if your usual default DPI is 900, you might set it now to 1000. And if your usual sniping DPI is 200, you might set your LIMIT to 0.2 (0.2\*1000=200). From there you can start playing around with the variables until you arrive at something to your liking.
 
@@ -117,8 +117,8 @@ If your keyboard is not already supported by via, you must first [create a via d
 
 Please be aware of the following caveats:
 
--   The via support takes over the "via custom config" block. If you are already storing values in eeprom in your userspace, you must manually merge the features.
--   The via support implements `via_custom_value_command_kb`, weakly. This is not compatible with keyboards that already add custom features to via. If your keyboard has custom via configuration, you must manually call `via_custom_value_command_accel(data, length)` from the keyboard's `via_custom_value_command_kb` function.
+- The via support takes over the "via custom config" block. If you are already storing values in eeprom in your userspace, you must manually merge the features.
+- The via support implements `via_custom_value_command_kb`, weakly. This is not compatible with keyboards that already add custom features to via. If your keyboard has custom via configuration, you must manually call `via_custom_value_command_accel(data, length)` from the keyboard's `via_custom_value_command_kb` function.
 
 Create a custom via definition: Find your keyboard's via definition in the [via keyboards repository](https://github.com/the-via/keyboards/tree/master/v3) if you did not create your own.
 
@@ -132,18 +132,18 @@ Finally, after flashing the firmware to your board, load the custom via definiti
 
 _It's complicated..._ Yes, you can use acceleration with MacOS, but there is some caveats to consider:
 
--   Even after disabling the OS level acceleration, macOS does some kind of post processing to smooth cursor movement, which you cannot disable. This will distort the results, which will make it harder to dial in, and the result may or may not be satisfactory.
--   Secondly, the OS level acceleration of macOS seems to be quite good, so whether acceleration (with the smoothing issue in mind) will actually be an improvement is debatable. We've heard opinions both ways from macOS users. So in other words, your mileage may vary.
+- Even after disabling the OS level acceleration, macOS does some kind of post processing to smooth cursor movement, which you cannot disable. This will distort the results, which will make it harder to dial in, and the result may or may not be satisfactory.
+- Secondly, the OS level acceleration of macOS seems to be quite good, so whether acceleration (with the smoothing issue in mind) will actually be an improvement is debatable. We've heard opinions both ways from macOS users. So in other words, your mileage may vary.
 
 **Sensor compatibility:**
 
--   PMW3360: fully compatible, elaborately tested
--   Other PMW33xx sensors will very likely perform equally well (but not tested so far)
--   adns5050: compatible, tested
--   Cirque trackpad: compatible, limited testing
--   Azoteq: not compatible, due to issues in how the driver handles DPI settings.
--   No other QMK compatible sensors have been tested so far. We expect most sensors to work fine with acceleration, but there could always be unexpected driver/firmware related conflicts we are not aware of.
--   If you are using acceleration successfully (or unsuccessfully) with a sensor that isn't listed here, we'd love to hear!
+- PMW3360: fully compatible, elaborately tested
+- Other PMW33xx sensors will very likely perform equally well (but not tested so far)
+- adns5050: compatible, tested
+- Cirque trackpad: compatible, limited testing
+- Azoteq: not compatible, due to issues in how the driver handles DPI settings.
+- No other QMK compatible sensors have been tested so far. We expect most sensors to work fine with acceleration, but there could always be unexpected driver/firmware related conflicts we are not aware of.
+- If you are using acceleration successfully (or unsuccessfully) with a sensor that isn't listed here, we'd love to hear!
 
 **MCU compatibility:**
 Despite our initial worries about the extensive use of floating point operations likely not working well on AVR, it's been tested and works adequately. However, firmware size might be an issue. Depending on what other QMK features you have enabled, you may need to make some compromises to fit maccel.
@@ -158,10 +158,10 @@ This new release changes the acceleration curve from a up-scaling curve to a dow
 
 See the configuration bit of this readme for an explanation of how the new curve works. This change means that you will have to readjust your variables; but do not worry, it is fairly easy to get this dialed in to _exactly_ to how you had it set before:
 
--   First, change your default DPI: $DPI_{new} = DPI_{old} * {limit}_{old}$
--   Second, change your LIMIT variable (which is now lower instead of upper limit): $limit_{new} = \dfrac{DPI_{old}}{DPI_{new}}$
--   Your other variables can remain the same.
--   If using via, make sure to clear EEPROM for the new settings to take effect.
+- First, change your default DPI: $DPI_{new} = DPI_{old} * {limit}_{old}$
+- Second, change your LIMIT variable (which is now lower instead of upper limit): $limit_{new} = \dfrac{DPI_{old}}{DPI_{new}}$
+- Your other variables can remain the same.
+- If using via, make sure to clear EEPROM for the new settings to take effect.
 
 ### 2024 March 10
 
@@ -171,31 +171,31 @@ A keycode for toggling mouse acceleration was added: If you enabled maccel keyco
 
 If you're updating from a previous version, you will have to make manual adjustments to your integration. Refer to the instructions for details on what the current version expects:
 
--   The parameters have changed names and were expanded:
-    -   `STEEPNESS` is now `GROWTH_RATE`, `TAKEOFF` was added
-        -   Change the define names in your `config.h` for the parameter settings and step settings (if applicable)
-        -   If using keycodes: Change the shim in `process_record_user` to call a fourth keycode
--   If using via: Clear EEPROM and use a new via json. Do NOT load a previous via backup without adjusting the maccel values to the new format!
+- The parameters have changed names and were expanded:
+    - `STEEPNESS` is now `GROWTH_RATE`, `TAKEOFF` was added
+        - Change the define names in your `config.h` for the parameter settings and step settings (if applicable)
+        - If using keycodes: Change the shim in `process_record_user` to call a fourth keycode
+- If using via: Clear EEPROM and use a new via json. Do NOT load a previous via backup without adjusting the maccel values to the new format!
 
 If you set GROWTH_RATE to your previous value of `STEEPNESS` and keep `TAKEOFF` at a high value (eg. `10`), the behavior will be similar to previous versions.
 
 ## Release history
 
--   2024 March 12 - Release of improved down scaling accel curve
--   2024 March 10 - Addition of toggle keycode
--   2024 March 1 - Release of new four-parameter acceleration curve
--   2024 February 23 - New four-parameter acceleration curve and improved documentation
--   2024 February 07 - Experimental new DPI correction to achieve consistent acceleration behavior across different user DPI settings.
--   2024 February 06 - First release candidate. Feedback welcome!
+- 2024 March 12 - Release of improved down scaling accel curve
+- 2024 March 10 - Addition of toggle keycode
+- 2024 March 1 - Release of new four-parameter acceleration curve
+- 2024 February 23 - New four-parameter acceleration curve and improved documentation
+- 2024 February 07 - Experimental new DPI correction to achieve consistent acceleration behavior across different user DPI settings.
+- 2024 February 06 - First release candidate. Feedback welcome!
 
 ## Credits
 
 Thanks to everyone who helped!
 Including, but not limited to:
 
--   Wimads (@wimads) and burkfers (@burkfers) wrote most of the code
--   ankostis (@ankostis) for catalyzing discussion about improving the acceleration curve and providing several enhancements
--   Quentin (@balanstik) for insightful commentary on the math, and testing
--   ouglop (@ouglop) for insightful commentary on the math
--   Drashna Jael're (@drashna) for coding tips and their invaluable bag of magic C tricks
--   bcl (@energetic_beagle_99245) for testing on AVR with an adns5050 sensor
+- Wimads (@wimads) and burkfers (@burkfers) wrote most of the code
+- ankostis (@ankostis) for catalyzing discussion about improving the acceleration curve and providing several enhancements
+- Quentin (@balanstik) for insightful commentary on the math, and testing
+- ouglop (@ouglop) for insightful commentary on the math
+- Drashna Jael're (@drashna) for coding tips and their invaluable bag of magic C tricks
+- bcl (@energetic_beagle_99245) for testing on AVR with an adns5050 sensor

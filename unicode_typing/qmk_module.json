@@ -1,50 +1,72 @@
 {
     "keycodes": [
         {
-            "aliases": ["KC_NORM"],
+            "aliases": [
+                "KC_NORM"
+            ],
             "key": "KC_NOMODE"
         },
         {
             "key": "KC_WIDE"
         },
         {
-            "aliases": ["KC_SCPT"],
+            "aliases": [
+                "KC_SCPT"
+            ],
             "key": "KC_SCRIPT"
         },
         {
-            "aliases": ["KC_BLCK"],
+            "aliases": [
+                "KC_BLCK"
+            ],
             "key": "KC_BLOCKS"
         },
         {
-            "aliases": ["KC_REG"],
+            "aliases": [
+                "KC_REG"
+            ],
             "key": "KC_REGIONAL"
         },
         {
-            "aliases": ["KC_AUSS"],
+            "aliases": [
+                "KC_AUSS"
+            ],
             "key": "KC_AUSSIE"
         },
         {
-            "aliases": ["KC_ZALG"],
+            "aliases": [
+                "KC_ZALG"
+            ],
             "key": "KC_ZALGO"
         },
         {
-            "aliases": ["KC_SUPR"],
+            "aliases": [
+                "KC_SUPR"
+            ],
             "key": "KC_SUPER"
         },
         {
-            "aliases": ["KC_COMC"],
+            "aliases": [
+                "KC_COMC"
+            ],
             "key": "KC_COMIC"
         },
         {
-            "aliases": ["KC_FRAK"],
+            "aliases": [
+                "KC_FRAK"
+            ],
             "key": "KC_FRAKTUR"
         },
         {
-            "aliases": ["KC_DBSK"],
+            "aliases": [
+                "KC_DBSK"
+            ],
             "key": "KC_DOUBLE_STRUCK"
         },
         {
-            "aliases": ["KC_SCRM"],
+            "aliases": [
+                "KC_SCRM"
+            ],
             "key": "KC_SCREAM_CYPHER"
         }
     ],

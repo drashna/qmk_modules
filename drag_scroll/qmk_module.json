@@ -1,11 +1,15 @@
 {
     "keycodes": [
         {
-            "aliases": ["DRG_TOG"],
+            "aliases": [
+                "DRG_TOG"
+            ],
             "key": "DRAG_SCROLL_TOGGLE"
         },
         {
-            "aliases": ["DRG_SCL"],
+            "aliases": [
+                "DRG_SCL"
+            ],
             "key": "DRAG_SCROLL_MOMENTARY"
         }
     ],

@@ -4,7 +4,9 @@
     },
     "keycodes": [
         {
-            "aliases": ["DS_MENU"],
+            "aliases": [
+                "DS_MENU"
+            ],
             "key": "DISPLAY_MENU"
         }
     ],
