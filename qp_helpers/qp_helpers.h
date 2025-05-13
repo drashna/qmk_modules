@@ -30,7 +30,7 @@ typedef struct {
  * @return false if the graph could not be drawn
  */
 bool qp_draw_graph(painter_device_t device, uint16_t graph_x, uint16_t graph_y, uint16_t graph_width,
-                   uint16_t graph_height, hsv_t primary, hsv_t background, graph_line_t *graph_data, uint8_t n_graphs,
-                   uint8_t graph_segments, uint8_t scale_to);
+                   uint16_t graph_height, hsv_t primary, hsv_t background, const graph_line_t *graph_data,
+                   uint8_t n_graphs, uint8_t graph_segments, uint8_t scale_to);
 
 #endif

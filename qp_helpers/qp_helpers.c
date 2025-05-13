@@ -9,8 +9,8 @@ static inline uint8_t scale_value(uint8_t value, uint8_t from, uint8_t to) {
 }
 
 bool qp_draw_graph(painter_device_t device, uint16_t graph_x, uint16_t graph_y, uint16_t graph_width,
-                   uint16_t graph_height, hsv_t primary, hsv_t background, graph_line_t *graph_data, uint8_t n_graphs,
-                   uint8_t graph_segments, uint8_t scale_to) {
+                   uint16_t graph_height, hsv_t primary, hsv_t background, const graph_line_t *graph_data,
+                   uint8_t n_graphs, uint8_t graph_segments, uint8_t scale_to) {
     uint8_t graph_starting_index = 0;
     // if there are more segments than the graph width is wide in pixels, then set up things to only render the last
     // graph_width segments of the array.
