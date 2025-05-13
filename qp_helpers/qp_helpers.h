@@ -25,6 +25,7 @@ typedef struct {
  * @param background background color for the graph (used for clearing the graph area)
  * @param graph_data graph_line_t array containing the data to be plotted and color for each line
  * @param graph_segments number of segments in the graph_data array
+ * @param n_graphs number of graphs to draw
  * @param scale_to maximum value to scale the graph to
  * @return true if the graph was drawn successfully
  * @return false if the graph could not be drawn
