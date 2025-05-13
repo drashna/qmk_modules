@@ -33,16 +33,16 @@ const uint16_t PROGMEM pointing_device_gestures[NUM_GESTURE_DIRECTIONS] =
 
 ## Functions
 
--   `pointing_device_gestures_is_started(void)` - Returns true/false based on if the gesture is being checked.
--   `pointing_device_gestures_start(void)` - Starts the gesture and listens for movement.
--   `pointing_device_gestures_end(void)` - Ends the gesture and processes the gesture.
--   `pointing_device_gestures_cancel(void)` - Ends the gesture but doesn't do any processing of the gesture
--   `pointing_device_gestures_timed_start(void)` - Triggers timed start (`CM_MOUSE_GESTURE_TAP`) for gestures.
+- `pointing_device_gestures_is_started(void)` - Returns true/false based on if the gesture is being checked.
+- `pointing_device_gestures_start(void)` - Starts the gesture and listens for movement.
+- `pointing_device_gestures_end(void)` - Ends the gesture and processes the gesture.
+- `pointing_device_gestures_cancel(void)` - Ends the gesture but doesn't do any processing of the gesture
+- `pointing_device_gestures_timed_start(void)` - Triggers timed start (`CM_MOUSE_GESTURE_TAP`) for gestures.
 
--   `pointing_device_gestures_trigger(uint8_t direction)` - Triggeres the gesture based on direction. Is defined weakly, so it can be replaced with custom functionality (such as enabling drag scroll or for quantum functions).
--   `pointing_device_gestures_get_keycode(uint8_t direction)` - Gets the keycode to use for the direction triggered (uses `tap_code16`)
+- `pointing_device_gestures_trigger(uint8_t direction)` - Triggers the gesture based on direction. Is defined weakly, so it can be replaced with custom functionality (such as enabling drag scroll or for quantum functions).
+- `pointing_device_gestures_get_keycode(uint8_t direction)` - Gets the keycode to use for the direction triggered (uses `tap_code16`)
 
--   `pointing_device_gestures_set_timeout(uint16_t timeout)` - Sets the timeout for gesture tap.
--   `pointing_device_gestures_get_timeout(void)` - Gets the current timeout for gesture tap.
--   `pointing_device_gestures_set_threshold(uint16_t threshold)` - Sets the minimum threshold for gesture to be processed.
--   `pointing_device_gestures_get_threshold(void)` - Gets the current threshold value.
+- `pointing_device_gestures_set_timeout(uint16_t timeout)` - Sets the timeout for gesture tap.
+- `pointing_device_gestures_get_timeout(void)` - Gets the current timeout for gesture tap.
+- `pointing_device_gestures_set_threshold(uint16_t threshold)` - Sets the minimum threshold for gesture to be processed.
+- `pointing_device_gestures_get_threshold(void)` - Gets the current threshold value.

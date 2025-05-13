@@ -629,7 +629,7 @@ void rtc_dst_toggle(void) {
  * @brief Keycode processing for RTC keycodes
  *
  * @param keycode actual keycodes
- * @param record key recored struct
+ * @param record key record struct
  * @return true
  * @return false
  */
