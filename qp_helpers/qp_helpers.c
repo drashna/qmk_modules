@@ -1,4 +1,8 @@
-#include "qp_helpers.h"
+// Copyright 2025 Christopher Courtney, aka Drashna Jael're  (@drashna) <drashna@live.com>
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+#ifdef QUANTUM_PAINTER_ENABLE
+#    include "qp_helpers.h"
 
 static inline uint8_t scale_value(uint8_t value, uint8_t from, uint8_t to) {
     return (value * from / to);
@@ -55,3 +59,5 @@ bool qp_draw_graph(painter_device_t device, uint16_t graph_x, uint16_t graph_y, 
 
     return true;
 }
+
+#endif
