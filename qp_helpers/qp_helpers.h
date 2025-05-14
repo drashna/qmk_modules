@@ -8,9 +8,17 @@
 #    include <stdlib.h>
 #    include <quantum/color.h>
 
+typedef enum drawing_mode_t {
+    LINE,
+    SQUARED_LINE,
+    POINT,
+    SQUARE_BOX,
+} drawing_mode_t;
+
 typedef struct {
-    uint8_t *line_data;
-    hsv_t    line_color;
+    uint8_t       *line_data;
+    hsv_t          line_color;
+    drawing_mode_t mode;
 } graph_line_t;
 
 /**

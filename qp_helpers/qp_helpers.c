@@ -44,12 +44,47 @@ bool qp_draw_graph(painter_device_t device, uint16_t graph_x, uint16_t graph_y, 
             uint16_t x1 = graph_x + ((i - graph_starting_index) * spacing) + offset;
             uint16_t y1 =
                 graph_y + graph_height - scale_value(graph_data[n].line_data[i], graph_height - 1, scale_to) - 1;
+            if (y1 < graph_y) {
+                y1 = graph_y;
+            }
             uint16_t x2 = graph_x + (((i - graph_starting_index) + 1) * spacing) + offset;
             uint16_t y2 =
                 graph_y + graph_height - scale_value(graph_data[n].line_data[i + 1], graph_height - 1, scale_to) - 1;
-            if (!qp_line(device, x1, y1, x2, y2, graph_data[n].line_color.h, graph_data[n].line_color.s,
-                         graph_data[n].line_color.v)) {
-                return false;
+            if (y2 < graph_y) {
+                y2 = graph_y;
+            }
+            switch (graph_data[n].mode) {
+                case LINE:
+                    if (!qp_line(device, x1, y1, x2, y2, graph_data[n].line_color.h, graph_data[n].line_color.s,
+                                 graph_data[n].line_color.v)) {
+                        return false;
+                    }
+                    break;
+                case POINT:
+                    if (!qp_rect(device, x1, y1, x1 + 1, y1 + 1, graph_data[n].line_color.h, graph_data[n].line_color.s,
+                                 graph_data[n].line_color.v, true)) {
+                        return false;
+                    }
+                    break;
+                case SQUARE_BOX:
+                    if (!qp_rect(device, x1 - 1, y1 - ((y1 < graph_y) ? 1 : 0), x1 + 1,
+                                 y1 + ((y1 >= graph_y + graph_height - 1) ? ((y1 > graph_y + graph_height - 1) ? -1 : 0)
+                                                                          : 1),
+                                 graph_data[n].line_color.h, graph_data[n].line_color.s, graph_data[n].line_color.v,
+                                 true)) {
+                        return false;
+                    }
+                    break;
+                case SQUARED_LINE:
+                    if (!qp_line(device, x1, y1, x2, y1, graph_data[n].line_color.h, graph_data[n].line_color.s,
+                                 graph_data[n].line_color.v)) {
+                        return false;
+                    }
+                    if (!qp_line(device, x2, y1, x2, y2, graph_data[n].line_color.h, graph_data[n].line_color.s,
+                                 graph_data[n].line_color.v)) {
+                        return false;
+                    }
+                    break;
             }
         }
     }
