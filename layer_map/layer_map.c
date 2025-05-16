@@ -73,12 +73,31 @@ bool peek_matrix_layer_map(uint8_t row, uint8_t col) {
 #endif // LAYER_MAP_REMAPPING
 }
 
+layer_state_t layer_state_set_layer_map(layer_state_t state) {
+    if ((COMMUNITY_MODULES_API_VERSION) >= COMMUNITY_MODULES_API_VERSION_BUILDER(1, 1, 0)) {
+        state         = layer_state_set_layer_map_kb(state);
+        layer_map_set = true;
+    }
+
+    return state;
+}
+layer_state_t default_layer_state_set_layer_map(layer_state_t state) {
+    if ((COMMUNITY_MODULES_API_VERSION) >= COMMUNITY_MODULES_API_VERSION_BUILDER(1, 1, 0)) {
+        state         = default_layer_state_set_layer_map_kb(state);
+        layer_map_set = true;
+    }
+
+    return state;
+}
+
 void housekeeping_task_layer_map(void) {
-    static layer_state_t last_layer_state = 0, last_default_layer_state = 0;
-    if (layer_state != last_layer_state || default_layer_state != last_default_layer_state) {
-        last_layer_state         = layer_state;
-        last_default_layer_state = default_layer_state;
-        layer_map_set            = true;
+    if ((COMMUNITY_MODULES_API_VERSION) < COMMUNITY_MODULES_API_VERSION_BUILDER(1, 1, 0)) {
+        static layer_state_t last_layer_state = 0, last_default_layer_state = 0;
+        if (layer_state != last_layer_state || default_layer_state != last_default_layer_state) {
+            last_layer_state         = layer_state;
+            last_default_layer_state = default_layer_state;
+            layer_map_set            = true;
+        }
     }
 
 #ifdef SWAP_HANDS_ENABLE
