@@ -73,6 +73,14 @@ bool peek_matrix_layer_map(uint8_t row, uint8_t col) {
 #endif // LAYER_MAP_REMAPPING
 }
 
+__attribute__((weak)) layer_state_t layer_state_set_layer_map_user(layer_state_t state) {
+    return state;
+}
+
+__attribute__((weak)) layer_state_t layer_state_set_layer_map_kb(layer_state_t state) {
+    return layer_state_set_layer_map_user(state);
+}
+
 layer_state_t layer_state_set_layer_map(layer_state_t state) {
     if ((COMMUNITY_MODULES_API_VERSION) >= COMMUNITY_MODULES_API_VERSION_BUILDER(1, 1, 0)) {
         state         = layer_state_set_layer_map_kb(state);
@@ -81,6 +89,15 @@ layer_state_t layer_state_set_layer_map(layer_state_t state) {
 
     return state;
 }
+
+__attribute__((weak)) layer_state_t default_layer_state_set_layer_map_user(layer_state_t state) {
+    return state;
+}
+
+__attribute__((weak)) layer_state_t default_layer_state_set_layer_map_kb(layer_state_t state) {
+    return layer_state_set_layer_map_user(state);
+}
+
 layer_state_t default_layer_state_set_layer_map(layer_state_t state) {
     if ((COMMUNITY_MODULES_API_VERSION) >= COMMUNITY_MODULES_API_VERSION_BUILDER(1, 1, 0)) {
         state         = default_layer_state_set_layer_map_kb(state);
