@@ -48,6 +48,9 @@ bool qp_draw_graph(painter_device_t device, uint16_t graph_x, uint16_t graph_y, 
                 y1 = graph_y;
             }
             uint16_t x2 = graph_x + (((i - graph_starting_index) + 1) * spacing) + offset;
+            if (x2 >= graph_x + graph_width) {
+                x2 = graph_x + graph_width - 1;
+            }
             uint16_t y2 =
                 graph_y + graph_height - scale_value(graph_data[n].line_data[i + 1], graph_height - 1, scale_to) - 1;
             if (y2 < graph_y) {
