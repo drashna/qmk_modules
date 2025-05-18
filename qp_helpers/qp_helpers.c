@@ -33,13 +33,20 @@ bool qp_draw_graph(painter_device_t device, uint16_t graph_x, uint16_t graph_y, 
         return false;
     }
 
-    uint8_t spacing   = graph_width / (graph_segments);
-    uint8_t remainder = graph_width - (graph_segments * spacing);
+    uint8_t spacing   = graph_width / (graph_segments - 1);
+    uint8_t remainder = graph_width - ((graph_segments - 1) * spacing);
 
-    // Plot graph data
-    uint8_t offset = 0;
     for (uint8_t n = 0; n < n_graphs; n++) {
-        for (uint8_t i = graph_starting_index; i < graph_segments; i++) {
+        uint8_t seg = graph_segments;
+        if (graph_data[n].mode == LINE || graph_data[n].mode == SQUARED_LINE) {
+            // the line draws to the next point, so we need don't need the last data point to be rendered,
+            // otherwise, it goes out of bounds of the array and graph with random data.
+            seg = graph_segments - 1;
+        }
+
+        // Plot graph data
+        uint8_t offset = 0;
+        for (uint8_t i = graph_starting_index; i < seg; i++) {
             offset += (remainder != 0 && (i - graph_starting_index) % (graph_segments / remainder) == 0) ? 1 : 0;
             uint16_t x1 = graph_x + ((i - graph_starting_index) * spacing) + offset;
             uint16_t y1 =
@@ -58,17 +65,14 @@ bool qp_draw_graph(painter_device_t device, uint16_t graph_x, uint16_t graph_y, 
             }
             switch (graph_data[n].mode) {
                 case LINE:
-                    if (i == graph_segments - 1) {
-                        break;
-                    }
                     if (!qp_line(device, x1, y1, x2, y2, graph_data[n].line_color.h, graph_data[n].line_color.s,
                                  graph_data[n].line_color.v)) {
                         return false;
                     }
                     break;
                 case POINT:
-                    if (!qp_rect(device, x1, y1, x1 + 1, y1 + 1, graph_data[n].line_color.h, graph_data[n].line_color.s,
-                                 graph_data[n].line_color.v, true)) {
+                    if (!qp_setpixel(device, x1, y1, graph_data[n].line_color.h, graph_data[n].line_color.s,
+                                     graph_data[n].line_color.v)) {
                         return false;
                     }
                     break;
@@ -82,9 +86,6 @@ bool qp_draw_graph(painter_device_t device, uint16_t graph_x, uint16_t graph_y, 
                     }
                     break;
                 case SQUARED_LINE:
-                    if (i == graph_segments - 1) {
-                        break;
-                    }
                     if (!qp_line(device, x1, y1, x2, y1, graph_data[n].line_color.h, graph_data[n].line_color.s,
                                  graph_data[n].line_color.v)) {
                         return false;
