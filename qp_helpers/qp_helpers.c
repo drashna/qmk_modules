@@ -58,6 +58,9 @@ bool qp_draw_graph(painter_device_t device, uint16_t graph_x, uint16_t graph_y, 
             }
             switch (graph_data[n].mode) {
                 case LINE:
+                    if (i == graph_segments - 1) {
+                        break;
+                    }
                     if (!qp_line(device, x1, y1, x2, y2, graph_data[n].line_color.h, graph_data[n].line_color.s,
                                  graph_data[n].line_color.v)) {
                         return false;
@@ -79,6 +82,9 @@ bool qp_draw_graph(painter_device_t device, uint16_t graph_x, uint16_t graph_y, 
                     }
                     break;
                 case SQUARED_LINE:
+                    if (i == graph_segments - 1) {
+                        break;
+                    }
                     if (!qp_line(device, x1, y1, x2, y1, graph_data[n].line_color.h, graph_data[n].line_color.s,
                                  graph_data[n].line_color.v)) {
                         return false;
