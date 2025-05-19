@@ -1,110 +1,165 @@
 // Copyright 2025 Christopher Courtney, aka Drashna Jael're  (@drashna) <drashna@live.com>
+// Copyright Pablo Martinez (@elpekenin) <elpekenin@elpekenin.dev>
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #ifdef QUANTUM_PAINTER_ENABLE
 #    include "qp_helpers.h"
 
+typedef bool (*draw_fn_t)(const graph_config_t *config, const graph_line_t *line);
+
+//
+
 static inline uint8_t scale_value(uint8_t value, uint8_t from, uint8_t to) {
-    return (value * from / to);
+    return (MIN(value, to) * from / to);
 }
 
-bool qp_draw_graph(painter_device_t device, uint16_t graph_x, uint16_t graph_y, uint16_t graph_width,
-                   uint16_t graph_height, hsv_t primary, hsv_t background, const graph_line_t *graph_data,
-                   uint8_t n_graphs, uint8_t graph_segments, uint8_t scale_to) {
-    uint8_t graph_starting_index = 0;
-    // if there are more segments than the graph width is wide in pixels, then set up things to only render the last
-    // graph_width segments of the array.
-    if (graph_segments >= graph_width) {
-        graph_starting_index = graph_segments - graph_width;
-        graph_segments       = graph_width;
+static inline uint16_t in_range(uint16_t value, uint16_t start, uint16_t end) {
+    return MIN(MAX(start, value), end);
+}
+
+static point_t get_end(const graph_config_t *config) {
+    return (point_t){
+        .x = config->start.x + config->size.x,
+        .y = config->start.y + config->size.y,
+    };
+}
+
+static bool draw_line(const graph_config_t *config, const graph_line_t *line) {
+    const uint8_t step      = config->size.x / config->data_points;
+    const uint8_t remainder = config->size.x - (config->data_points * step);
+
+    const point_t end    = get_end(config);
+    uint8_t       offset = 0;
+
+    // -1 because we will also access next point on each iteration
+    for (uint8_t n = 0; n < config->data_points - 1; ++n) {
+        offset += (remainder != 0 && n % (config->data_points / remainder) == 0) ? 1 : 0;
+
+        const uint16_t x1 = config->start.x + (step * n) + offset;
+        const uint16_t y1 = end.y - scale_value(line->data[n], config->size.y - 1, line->max_value);
+
+        const uint16_t x2 = config->start.x + (step * (n + 1)) + offset;
+        const uint16_t y2 = end.y - scale_value(line->data[n + 1], config->size.y - 1, line->max_value);
+
+        if (!qp_line(config->device, x1, y1, x2, y2, line->color.h, line->color.s, line->color.v)) {
+            return false;
+        }
     }
+
+    return true;
+}
+
+static bool draw_point(const graph_config_t *config, const graph_line_t *line) {
+    const uint16_t step      = config->size.x / config->data_points;
+    const uint8_t  remainder = config->size.x - (config->data_points * step);
+
+    const point_t end    = get_end(config);
+    uint8_t       offset = 0;
+
+    for (uint8_t n = 0; n < config->data_points - 1; ++n) {
+        offset += (remainder != 0 && n % (config->data_points / remainder) == 0) ? 1 : 0;
+        const uint16_t x = config->start.x + (step * n) + offset;
+        const uint16_t y = end.y - scale_value(line->data[n], config->size.y - 1, line->max_value);
+
+        if (!qp_setpixel(config->device, x, y, line->color.h, line->color.s, line->color.v)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+static bool draw_dot(const graph_config_t *config, const graph_line_t *line) {
+    const uint16_t step      = config->size.x / config->data_points;
+    const uint8_t  remainder = config->size.x - (config->data_points * step);
+
+    const point_t end    = get_end(config);
+    uint8_t       offset = 1;
+
+    for (uint8_t n = 0; n < config->data_points - 1; ++n) {
+        offset += (remainder != 0 && n % (config->data_points / remainder) == 0) ? 1 : 0;
+        const uint16_t x = config->start.x + (step * n) + offset;
+        const uint16_t y = end.y - scale_value(line->data[n], config->size.y - 1, line->max_value);
+
+        if (!qp_rect(
+                config->device, x - 1, y - ((y < config->size.y) ? 1 : 0), x + 1,
+                y + (y >= (config->start.y + config->size.y - 1) ? ((y > (config->start.y + config->size.y)) ? -1 : 0)
+                                                                 : 1),
+                line->color.h, line->color.s, line->color.v, true)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+static bool draw_square_line(const graph_config_t *config, const graph_line_t *line) {
+    const uint16_t step      = config->size.x / config->data_points;
+    const uint8_t  remainder = config->size.x - (config->data_points * step);
+
+    const point_t end    = get_end(config);
+    uint8_t       offset = 0;
+
+    // -1 because we will also access next point on each iteration
+    for (uint8_t n = 0; n < config->data_points - 1; ++n) {
+        offset += (remainder != 0 && n % (config->data_points / remainder) == 0) ? 1 : 0;
+        const uint16_t x1 = config->start.x + (step * n) + offset;
+        uint16_t       y1 = end.y - scale_value(line->data[n], config->size.y - 1, line->max_value);
+
+        const uint16_t x2 = config->start.x + (step * (n + 1)) + offset;
+        const uint16_t y2 = end.y - scale_value(line->data[n + 1], config->size.y - 1, line->max_value);
+
+        if (!qp_line(config->device, x1, y1, x2, y1, line->color.h, line->color.s, line->color.v)) {
+            return false;
+        }
+
+        if (!qp_line(config->device, x2, y1, x2, y2, line->color.h, line->color.s, line->color.v)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+static const draw_fn_t draw_functions[] = {
+    [LINE]         = draw_line,
+    [POINT]        = draw_point,
+    [DOT]          = draw_dot,
+    [SQUARED_LINE] = draw_square_line,
+};
+
+bool qp_draw_graph(const graph_config_t *config, const graph_line_t *lines) {
+    // if there are more segments than the graph width is wide in pixels, reject drawing
+    if (config->data_points >= config->size.x) {
+        return false;
+    }
+
     // clear the graph area for redrawing
-    if (!qp_rect(device, graph_x, graph_y, graph_x + graph_width, graph_y + graph_height, background.h, background.s,
-                 background.v, true)) {
+    if (!qp_rect(config->device, config->start.x, config->start.y, config->start.x + config->size.x,
+                 config->start.y + config->size.y, config->background.h, config->background.s, config->background.v,
+                 true)) {
         return false;
     }
 
     // Draw graph axes
-    if (!qp_line(device, graph_x, graph_y, graph_x, graph_y + graph_height, primary.h, primary.s, primary.v)) {
-        return false;
-    }
-    if (!qp_line(device, graph_x, graph_y + graph_height, graph_x + graph_width, graph_y + graph_height, primary.h,
-                 primary.s, primary.v)) {
+    if (!qp_line(config->device, config->start.x, config->start.y, config->start.x, config->start.y + config->size.y,
+                 config->axis.h, config->axis.s, config->axis.v)) {
         return false;
     }
 
-    uint8_t spacing   = graph_width / (graph_segments - 1);
-    uint8_t remainder = graph_width - ((graph_segments - 1) * spacing);
-
-    for (uint8_t n = 0; n < n_graphs; n++) {
-        uint8_t seg = graph_segments;
-        if (graph_data[n].mode == LINE || graph_data[n].mode == SQUARED_LINE) {
-            // the line draws to the next point, so we need don't need the last data point to be rendered,
-            // otherwise, it goes out of bounds of the array and graph with random data.
-            seg = graph_segments - 1;
-        }
-
-        // Plot graph data
-        uint8_t offset = 0;
-        for (uint8_t i = graph_starting_index; i < seg; i++) {
-            offset += (remainder != 0 && (i - graph_starting_index) % (graph_segments / remainder) == 0) ? 1 : 0;
-            uint16_t x1 = graph_x + ((i - graph_starting_index) * spacing) + offset;
-            uint16_t y1 =
-                graph_y + graph_height - scale_value(graph_data[n].line_data[i], graph_height - 1, scale_to) - 1;
-            if (y1 < graph_y) {
-                y1 = graph_y;
-            }
-            uint16_t x2 = graph_x + (((i - graph_starting_index) + 1) * spacing) + offset;
-            if (x2 >= graph_x + graph_width) {
-                x2 = graph_x + graph_width - 1;
-            }
-            uint16_t y2 =
-                graph_y + graph_height - scale_value(graph_data[n].line_data[i + 1], graph_height - 1, scale_to) - 1;
-            if (y2 < graph_y) {
-                y2 = graph_y;
-            }
-            switch (graph_data[n].mode) {
-                case LINE:
-                    if (!qp_line(device, x1, y1, x2, y2, graph_data[n].line_color.h, graph_data[n].line_color.s,
-                                 graph_data[n].line_color.v)) {
-                        return false;
-                    }
-                    break;
-                case POINT:
-                    if (!qp_setpixel(device, x1, y1, graph_data[n].line_color.h, graph_data[n].line_color.s,
-                                     graph_data[n].line_color.v)) {
-                        return false;
-                    }
-                    break;
-                case SQUARE_BOX:
-                    if (!qp_rect(device, x1 - 1, y1 - ((y1 < graph_y) ? 1 : 0), x1 + 1,
-                                 y1 + ((y1 >= graph_y + graph_height - 1) ? ((y1 > graph_y + graph_height - 1) ? -1 : 0)
-                                                                          : 1),
-                                 graph_data[n].line_color.h, graph_data[n].line_color.s, graph_data[n].line_color.v,
-                                 true)) {
-                        return false;
-                    }
-                    break;
-                case SQUARED_LINE:
-                    if (!qp_line(device, x1, y1, x2, y1, graph_data[n].line_color.h, graph_data[n].line_color.s,
-                                 graph_data[n].line_color.v)) {
-                        return false;
-                    }
-                    if (!qp_line(device, x2, y1, x2, y2, graph_data[n].line_color.h, graph_data[n].line_color.s,
-                                 graph_data[n].line_color.v)) {
-                        return false;
-                    }
-                    break;
-            }
-        }
+    if (!qp_line(config->device, config->start.x, config->start.y + config->size.y, config->start.x + config->size.x,
+                 config->start.y + config->size.y, config->axis.h, config->axis.s, config->axis.v)) {
+        return false;
     }
 
-    // Add markers on the y-axis for every 10 units, scaled to scale_to
-    for (uint16_t i = 0; i <= scale_to; i += 10) {
-        uint16_t marker_y = graph_y + graph_height - scale_value(i, graph_height - 1, scale_to);
-        if (!qp_line(device, graph_x, marker_y, graph_x + 2, marker_y, primary.h, primary.s, primary.v)) {
+    const graph_line_t *line = lines;
+    while (line->data != NULL) {
+        const draw_fn_t function = draw_functions[line->mode];
+        if (!function(config, line)) {
             return false;
         }
+
+        line++;
     }
 
     return true;
