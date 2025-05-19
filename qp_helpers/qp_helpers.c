@@ -35,10 +35,10 @@ static bool draw_line(const graph_config_t *config, const graph_line_t *line) {
     for (uint8_t n = 0; n < config->data_points - 1; ++n) {
         offset += (remainder != 0 && n % (config->data_points / remainder) == 0) ? 1 : 0;
 
-        const uint16_t x1 = config->start.x + (step * n) + offset;
+        const uint16_t x1 = MIN(config->start.x + (step * n) + offset, end.x);
         const uint16_t y1 = end.y - scale_value(line->data[n], config->size.y - 1, line->max_value);
 
-        const uint16_t x2 = config->start.x + (step * (n + 1)) + offset;
+        const uint16_t x2 = MIN(config->start.x + (step * (n + 1)) + offset, end.x);
         const uint16_t y2 = end.y - scale_value(line->data[n + 1], config->size.y - 1, line->max_value);
 
         if (!qp_line(config->device, x1, y1, x2, y2, line->color.h, line->color.s, line->color.v)) {
@@ -58,7 +58,7 @@ static bool draw_point(const graph_config_t *config, const graph_line_t *line) {
 
     for (uint8_t n = 0; n < config->data_points; ++n) {
         offset += (remainder != 0 && n % (config->data_points / remainder) == 0) ? 1 : 0;
-        const uint16_t x = config->start.x + (step * n) + offset;
+        const uint16_t x = MIN(config->start.x + (step * n) + offset, end.x);
         const uint16_t y = end.y - scale_value(line->data[n], config->size.y - 1, line->max_value);
 
         if (!qp_setpixel(config->device, x, y, line->color.h, line->color.s, line->color.v)) {
@@ -78,7 +78,7 @@ static bool draw_dot(const graph_config_t *config, const graph_line_t *line) {
 
     for (uint8_t n = 0; n < config->data_points; ++n) {
         offset += (remainder != 0 && n % (config->data_points / remainder) == 0) ? 1 : 0;
-        const uint16_t x = config->start.x + (step * n) + offset;
+        const uint16_t x = MIN(config->start.x + (step * n) + offset, end.x);
         const uint16_t y = end.y - scale_value(line->data[n], config->size.y - 1, line->max_value);
 
         if (!qp_rect(
@@ -103,10 +103,10 @@ static bool draw_square_line(const graph_config_t *config, const graph_line_t *l
     // -1 because we will also access next point on each iteration
     for (uint8_t n = 0; n < config->data_points - 1; ++n) {
         offset += (remainder != 0 && n % (config->data_points / remainder) == 0) ? 1 : 0;
-        const uint16_t x1 = config->start.x + (step * n) + offset;
+        const uint16_t x1 = MIN(config->start.x + (step * n) + offset, end.x);
         uint16_t       y1 = end.y - scale_value(line->data[n], config->size.y - 1, line->max_value);
 
-        const uint16_t x2 = config->start.x + (step * (n + 1)) + offset;
+        const uint16_t x2 = MIN(config->start.x + (step * (n + 1)) + offset, end.x);
         const uint16_t y2 = end.y - scale_value(line->data[n + 1], config->size.y - 1, line->max_value);
 
         if (!qp_line(config->device, x1, y1, x2, y1, line->color.h, line->color.s, line->color.v)) {
