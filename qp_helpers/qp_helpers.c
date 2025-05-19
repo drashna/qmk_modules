@@ -56,7 +56,7 @@ static bool draw_point(const graph_config_t *config, const graph_line_t *line) {
     const point_t end    = get_end(config);
     uint8_t       offset = 0;
 
-    for (uint8_t n = 0; n < config->data_points - 1; ++n) {
+    for (uint8_t n = 0; n < config->data_points; ++n) {
         offset += (remainder != 0 && n % (config->data_points / remainder) == 0) ? 1 : 0;
         const uint16_t x = config->start.x + (step * n) + offset;
         const uint16_t y = end.y - scale_value(line->data[n], config->size.y - 1, line->max_value);
@@ -76,13 +76,13 @@ static bool draw_dot(const graph_config_t *config, const graph_line_t *line) {
     const point_t end    = get_end(config);
     uint8_t       offset = 1;
 
-    for (uint8_t n = 0; n < config->data_points - 1; ++n) {
+    for (uint8_t n = 0; n < config->data_points; ++n) {
         offset += (remainder != 0 && n % (config->data_points / remainder) == 0) ? 1 : 0;
         const uint16_t x = config->start.x + (step * n) + offset;
         const uint16_t y = end.y - scale_value(line->data[n], config->size.y - 1, line->max_value);
 
         if (!qp_rect(
-                config->device, x - 1, y - ((y < config->size.y) ? 1 : 0), x + 1,
+                config->device, x - 1, y - ((y < config->size.y) ? 1 : 0), MIN(x + 1, end.x - 1),
                 y + (y >= (config->start.y + config->size.y - 1) ? ((y > (config->start.y + config->size.y)) ? -1 : 0)
                                                                  : 1),
                 line->color.h, line->color.s, line->color.v, true)) {
