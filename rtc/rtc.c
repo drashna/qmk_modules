@@ -382,6 +382,8 @@ void rtc_set_time(rtc_time_t time) {
 #ifdef VENDOR_RTC_DRIVER_ENABLE
     vendor_rtc_set_time(time);
 #endif // VENDOR_RTC_DRIVER_ENABLE
+    rtc_time = time;
+
     rtc_set_time_kb(&time);
 }
 
