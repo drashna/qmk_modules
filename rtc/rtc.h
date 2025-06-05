@@ -46,9 +46,11 @@ typedef struct {
 
 uint32_t   convert_to_unixtime(rtc_time_t time);
 rtc_time_t convert_date_time(const char *date, const char *time);
-uint8_t    rtc_bcd2bin(uint8_t val);
-uint8_t    rtc_bin2bcd(uint8_t val);
-uint8_t    week_to_int(uint8_t d);
+rtc_time_t convert_timestamp(const char *timestamp);
+
+uint8_t rtc_bcd2bin(uint8_t val);
+uint8_t rtc_bin2bcd(uint8_t val);
+uint8_t week_to_int(uint8_t d);
 
 rtc_time_t rtc_read_time_struct(void);
 char      *rtc_read_date_str(void);

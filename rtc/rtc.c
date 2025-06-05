@@ -157,6 +157,72 @@ rtc_time_t convert_date_time(const char *date, const char *time) {
     return t;
 }
 
+rtc_time_t convert_timestamp(const char *timestamp) {
+    rtc_time_t t;
+    uint16_t   year_offset;
+
+    year_offset = atoi(timestamp + 20);
+    // Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec
+    switch (timestamp[4]) {
+        case 'J':
+            t.month = (timestamp[5] == 'a') ? 1 : ((timestamp[6] == 'n') ? 6 : 7);
+            break;
+        case 'F':
+            t.month = 2;
+            break;
+        case 'A':
+            t.month = timestamp[5] == 'r' ? 4 : 8;
+            break;
+        case 'M':
+            t.month = timestamp[5] == 'r' ? 3 : 5;
+            break;
+        case 'S':
+            t.month = 9;
+            break;
+        case 'O':
+            t.month = 10;
+            break;
+        case 'N':
+            t.month = 11;
+            break;
+        case 'D':
+            t.month = 12;
+            break;
+        default:
+            t.month = 0;
+            break;
+    }
+
+    switch (timestamp[0]) {
+        case 'S':
+            t.day_of_the_week = (timestamp[1] == 'u') ? RTC_SUNDAY : RTC_SATURDAY;
+            break;
+        case 'M':
+            t.day_of_the_week = RTC_MONDAY;
+            break;
+        case 'T':
+            t.day_of_the_week = (timestamp[1] == 'u') ? RTC_TUESDAY : RTC_THURSDAY;
+            break;
+        case 'W':
+            t.day_of_the_week = RTC_WEDNESDAY;
+            break;
+        case 'F':
+            t.day_of_the_week = RTC_FRIDAY;
+            break;
+    }
+
+    t.year     = (uint16_t)year_offset + 2000U;
+    t.date     = (uint8_t)atoi(timestamp + 8);
+    t.hour     = (uint8_t)atoi(timestamp + 11);
+    t.minute   = (uint8_t)atoi(timestamp + 14);
+    t.second   = (uint8_t)atoi(timestamp + 17);
+    t.format   = (rtc_time_format_t)RTC_FORMAT_24H;
+    t.am_pm    = (rtc_time_am_pm_t)(t.hour >= 12);
+    t.unixtime = (uint32_t)convert_to_unixtime(t);
+
+    return t;
+}
+
 uint8_t week_to_int(uint8_t d) {
     return d == 0 ? 7 : d;
 }

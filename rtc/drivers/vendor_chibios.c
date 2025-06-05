@@ -67,7 +67,7 @@ bool vendor_rtc_init(rtc_time_t *time) {
 #endif // RTC_FORCE_INIT
     {
         dprintf("Vendor RTC: Date/time not set. Setting to compiled date/time as fallback!\n");
-        vendor_rtc_set_time(convert_date_time(__DATE__, __TIME__));
+        vendor_rtc_set_time(convert_timestamp(__TIMESTAMP__));
     } else {
         dprintf("vendor RTC: Initialized and initial read performed\n");
     }
