@@ -159,9 +159,6 @@ rtc_time_t convert_date_time(const char *date, const char *time) {
 
 rtc_time_t convert_timestamp(const char *timestamp) {
     rtc_time_t t;
-    uint16_t   year_offset;
-
-    year_offset = atoi(timestamp + 20);
     // Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec
     switch (timestamp[4]) {
         case 'J':
@@ -211,7 +208,7 @@ rtc_time_t convert_timestamp(const char *timestamp) {
             break;
     }
 
-    t.year     = (uint16_t)year_offset + 2000U;
+    t.year     = (uint16_t)atoi(timestamp + 20);
     t.date     = (uint8_t)atoi(timestamp + 8);
     t.hour     = (uint8_t)atoi(timestamp + 11);
     t.minute   = (uint8_t)atoi(timestamp + 14);
