@@ -118,7 +118,10 @@ bool ds1307_init(rtc_time_t *time) {
         // If there is an issue with the RTC config, then manually set the RTC time to the compile time
         // It's not exact, but it's better than nothing. Can be adjusted manually, later.
         xprintf("DS1307: Clock not running. Setting to compiled date/time as fallback\n");
-        ds1307_set_time(convert_timestamp(__TIMESTAMP__));
+        *time = convert_timestamp(__TIMESTAMP__);
+        rtc_check_dst_format(time);
+
+        ds1307_set_time(*time);
     }
     return ds1307_initialized;
 }

@@ -46,7 +46,6 @@ void convert_local_rtc_to_halrtc_struct(rtc_time_t *local, RTCDateTime *halrtc) 
 void vendor_rtc_set_time(rtc_time_t time) {
     RTCDateTime timespec = {0};
     convert_local_rtc_to_halrtc_struct(&time, &timespec);
-    timespec.dstflag = (uint32_t)time.is_dst;
     rtcSetTime(&RTCD1, &timespec);
 }
 
@@ -67,7 +66,10 @@ bool vendor_rtc_init(rtc_time_t *time) {
 #endif // RTC_FORCE_INIT
     {
         dprintf("Vendor RTC: Date/time not set. Setting to compiled date/time as fallback!\n");
-        vendor_rtc_set_time(convert_timestamp(__TIMESTAMP__));
+        *time = convert_timestamp(__TIMESTAMP__);
+        rtc_check_dst_format(time);
+
+        vendor_rtc_set_time(*time);
     } else {
         dprintf("vendor RTC: Initialized and initial read performed\n");
     }
