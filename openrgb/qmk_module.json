@@ -1,0 +1,8 @@
+{
+    "features": {
+        "raw": true,
+        "via": false
+    },
+    "maintainer": "drashna",
+    "module_name": "openrgb"
+}
