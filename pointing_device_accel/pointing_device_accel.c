@@ -7,6 +7,7 @@
 #include "pointing_device_internal.h"
 #include "pointing_device_accel.h"
 #include "math.h"
+#include <quantum/util.h>
 
 ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(1, 1, 0);
 
@@ -250,4 +251,32 @@ void eeconfig_init_pointing_device(void) {
     };
     // Write default value to EEPROM now
     pointing_device_config_update(&g_pointing_device_accel_config);
+}
+
+/**
+ * @brief Plots an acceleration curve for pointing device acceleration
+ *
+ * This function generates a acceleration curve and stores the computed values in the provided graph array. The curve
+ * is calculated using the current acceleration configuration parameters and follows a logistic growth function.
+ *
+ * @param graph      Array to store the computed acceleration curve values (0-100 scale)
+ * @param graph_size Size of the graph array, determines the velocity range (0 to graph_size-1)
+ *
+ * @note The function uses global acceleration configuration from g_pointing_device_accel_config
+ * @note Values are scaled by 100 and cast to uint8_t for storage
+ * @note Function isn't very scalable.
+ */
+void pointing_device_accel_plot_curve(uint8_t graph[], uint8_t graph_size) {
+    const float k = g_pointing_device_accel_config.takeoff;
+    const float g = g_pointing_device_accel_config.growth_rate;
+    const float s = g_pointing_device_accel_config.offset;
+    const float m = g_pointing_device_accel_config.limit;
+
+    for (uint8_t velocity = 0; velocity < graph_size; velocity++) {
+        graph[velocity] =
+            (uint8_t)((POINTING_DEVICE_ACCEL_LIMIT_UPPER -
+                       (POINTING_DEVICE_ACCEL_LIMIT_UPPER - m) / powf(1 + expf(k * (velocity - s)), g / k)) *
+                      100.0f);
+        pd_dprintf("PDACCEL: velocity: %3i, factor: %3d\n", velocity, graph[velocity]);
+    }
 }
