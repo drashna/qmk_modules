@@ -50,3 +50,5 @@ extern const char PROGMEM bongocats_tap[BONGOCATS_TAP_FRAMES][BONGOCATS_ANIM_SIZ
 #if BONGOCATS_PREP_FRAMES > 0
 extern const char PROGMEM bongocats_prep[BONGOCATS_PREP_FRAMES][BONGOCATS_ANIM_SIZE];
 #endif
+
+void render_bongocats(void);

@@ -44,7 +44,7 @@ static void animation_phase(void) {
     }
 }
 
-void render_bongocat(void) {
+void render_bongocats(void) {
 #if OLED_TIMEOUT > 0
     if (last_input_activity_elapsed() > OLED_TIMEOUT) {
         return;
@@ -75,6 +75,6 @@ void render_bongocat(void) {
 }
 
 __attribute__((weak)) bool oled_task_user(void) {
-    render_bongocat();
+    render_bongocats();
     return false;
 }
