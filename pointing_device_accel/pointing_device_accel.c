@@ -70,6 +70,10 @@ void pointing_device_accel_toggle_enabled(void) {
     pointing_device_accel_enabled(!pointing_device_accel_get_enabled());
 }
 
+__attribute__((weak)) bool pointing_device_accel_should_process(void) {
+    return true;
+}
+
 report_mouse_t pointing_device_task_pointing_device_accel(report_mouse_t mouse_report) {
     // rounding carry to recycle dropped floats from int mouse reports, to smoothen low speed movements (credit
     // @ankostis)
@@ -78,7 +82,8 @@ report_mouse_t pointing_device_task_pointing_device_accel(report_mouse_t mouse_r
     // time since last mouse report:
     const uint16_t delta_time = timer_elapsed32(pointing_device_accel_timer);
     // skip pointing_device_accel maths if report = 0, or if pointing_device_accel not enabled.
-    if ((mouse_report.x == 0 && mouse_report.y == 0) || !g_pointing_device_accel_config.enabled) {
+    if ((mouse_report.x == 0 && mouse_report.y == 0) || !g_pointing_device_accel_config.enabled ||
+        !pointing_device_accel_should_process()) {
         return mouse_report;
     }
     // reset timer:

@@ -50,13 +50,15 @@ The graph below shows the acceleration curve. You can interpret this graph as fo
 
 A good starting point for tweaking your settings, is to set your default DPI slightly higher than what you'd use without acceleration. Then set your LIMIT variable to a factor that would scale down to what you normally might have set your sniping DPI. For example, if your usual default DPI is 900, you might set it now to 1000. And if your usual sniping DPI is 200, you might set your LIMIT to 0.2 (0.2\*1000=200). From there you can start playing around with the variables until you arrive at something to your liking.
 
-**Debug console**: To aid in dialing in your settings just right, a debug mode exists to print mathy details to the console. The debug console will print your current DPI setting and variable settings, as well as the acceleration factor, the input and output velocity, and the input and output distance. Refer to the QMK documentation on how to [_enable the console and debugging_](https://docs.qmk.fm/#/faq_debug?id=debugging), then enable mouse acceleration debugging by adding the following defines in `config.h`:
+### Debugging
+
+To aid in dialing in your settings just right, a debug mode exists to print mathy details to the console. The debug console will print your current DPI setting and variable settings, as well as the acceleration factor, the input and output velocity, and the input and output distance. Refer to the QMK documentation on how to [_enable the console and debugging_](https://docs.qmk.fm/#/faq_debug?id=debugging), then enable mouse acceleration debugging by adding the following defines in `config.h`:
 
 ```c
 #define POINTING_DEVICE_DEBUG
 ```
 
-## Runtime adjusting of curve parameters by keycodes (optional)
+### Runtime adjusting of curve parameters by keycodes (optional)
 
 To use keycodes to adjust the parameters without recompiling, two more build steps are required.
 First, add five keycodes to your keycode enum. You may choose different names, as long as you use the same names in the following step. If you are not yet using custom keycodes, add the following snippet to `keymap.c`:
@@ -69,7 +71,7 @@ First, add five keycodes to your keycode enum. You may choose different names, a
 | `MA_OFFSET`      | `MA_OFST`  | Acceleration curve offset step key.                         |
 | `MA_LIMIT`       | `MA_LMT`   | Acceleration curve limit step key.                          |
 
-## Acceleration keycode usage
+### Acceleration keycode usage
 
 The four keycodes can be used to adjust the curve parameters. This is _not_ persisted unless you also enabled the via option or add your own provisioning for persistence - Adjusted values are printed to the console to aid in finding the right settings for `config.h`. The step keys will adjust the parameters by the following amounts, which can optionally be adjusted:
 
@@ -90,6 +92,13 @@ The modifier keys can be used to alter the step effect:
 Modifiers can be combined.
 
 With every adjustment, an informational message is printed to the console.
+
+### Additional functions
+
+- (weak) `bool pointing_device_accel_should_process(void)` - This function determines if the acceleration code should be processed without disabling the feature altogether. This is to allow other features (such as drag scroll) to selectively disable acceleration, since that may no be desirable.
+- `pointing_device_accel_plot_curve(uint8_t graph[], uint8_t graph_size)` - This function takes an array (and arraw size) and plots the current acceleration curve. Useful for displaying in Quantum Painter with the graph code in the [Quantum Painter Helpers module](../qp_helpers).
+- (weak) `void pointing_device_config_update(pointing_device_accel_config_t *config)` - This function is called every time the config is changed and should be written to. This allows users to implement a method to get and save the config to persistent storage.
+- (weak) `void pointing_device_config_read(pointing_device_accel_config_t *config)` - Called during post init to get the initial values, and allow users to read in their own initial data.
 
 ## VIA support (optional)
 
@@ -122,6 +131,7 @@ _It's complicated..._ Yes, you can use acceleration with MacOS, but there is som
 
 - Even after disabling the OS level acceleration, macOS does some kind of post processing to smooth cursor movement, which you cannot disable. This will distort the results, which will make it harder to dial in, and the result may or may not be satisfactory.
 - Secondly, the OS level acceleration of macOS seems to be quite good, so whether acceleration (with the smoothing issue in mind) will actually be an improvement is debatable. We've heard opinions both ways from macOS users. So in other words, your mileage may vary.
+- [LinearMouse](https://linearmouse.app/) may be worth trying out if you do with to use the module over macOS' built in acceleration.
 
 **Sensor compatibility:**
 
