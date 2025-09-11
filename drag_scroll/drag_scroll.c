@@ -9,38 +9,38 @@ static bool set_scrolling = false;
 
 // Modify these values to adjust the scrolling speed
 #ifndef SCROLL_DIVISOR_H
-#    define SCROLL_DIVISOR_H 8.0
+#    define SCROLL_DIVISOR_H 8
 #endif // SCROLL_DIVISOR_H
 #ifndef SCROLL_DIVISOR_V
-#    define SCROLL_DIVISOR_V 8.0
+#    define SCROLL_DIVISOR_V 8
 #endif // SCROLL_DIVISOR_V
 
 // Variables to store accumulated scroll values
-static float scroll_accumulated_h = 0;
-static float scroll_accumulated_v = 0;
+static int8_t scroll_remainder_h = 0;
+static int8_t scroll_remainder_v = 0;
 
-static float scroll_divisor_h = (float)SCROLL_DIVISOR_H;
-static float scroll_divisor_v = (float)SCROLL_DIVISOR_V;
+static int8_t scroll_divisor_h = (int8_t)SCROLL_DIVISOR_H;
+static int8_t scroll_divisor_v = (int8_t)SCROLL_DIVISOR_V;
 
 // Function to handle mouse reports and perform drag scrolling
 report_mouse_t pointing_device_task_drag_scroll(report_mouse_t mouse_report) {
     // Check if drag scrolling is active
     if (set_scrolling) {
-        // Calculate and accumulate scroll values based on mouse movement and divisors
-        scroll_accumulated_h += (float)mouse_report.x / scroll_divisor_h;
-        scroll_accumulated_v += (float)mouse_report.y / scroll_divisor_h;
+        mouse_report.h = (mouse_report.x + scroll_remainder_h) / scroll_divisor_h;
+        mouse_report.v = (mouse_report.y + scroll_remainder_v) / scroll_divisor_v;
 
-        // Assign integer parts of accumulated scroll values to the mouse report
-        mouse_report.h = (int8_t)scroll_accumulated_h;
-        mouse_report.v = (int8_t)scroll_accumulated_v;
-
-        // Update accumulated scroll values by subtracting the integer parts
-        scroll_accumulated_h -= (int8_t)scroll_accumulated_h;
-        scroll_accumulated_v -= (int8_t)scroll_accumulated_v;
+        // Update remainder scroll values through modulo
+        scroll_remainder_h = (mouse_report.x + scroll_remainder_h) % scroll_divisor_h;
+        scroll_remainder_v = (mouse_report.y + scroll_remainder_v) % scroll_divisor_v;
 
         // Clear the X and Y values of the mouse report
         mouse_report.x = 0;
         mouse_report.y = 0;
+
+    } else {
+        // Clear any left over remainders if not currently in drag scroll mode
+        scroll_remainder_h = 0;
+        scroll_remainder_v = 0;
     }
     return pointing_device_task_drag_scroll_kb(mouse_report);
 }
@@ -68,23 +68,23 @@ bool process_record_drag_scroll(uint16_t keycode, keyrecord_t *record) {
     return true;
 }
 
-float get_drag_scroll_h_divisor(void) {
+int8_t get_drag_scroll_h_divisor(void) {
     return scroll_divisor_h;
 }
 
-float get_drag_scroll_v_divisor(void) {
+int8_t get_drag_scroll_v_divisor(void) {
     return scroll_divisor_v;
 }
 
-void set_drag_scroll_h_divisor(float divisor) {
+void set_drag_scroll_h_divisor(int8_t divisor) {
     scroll_divisor_h = divisor;
 }
 
-void set_drag_scroll_v_divisor(float divisor) {
+void set_drag_scroll_v_divisor(int8_t divisor) {
     scroll_divisor_v = divisor;
 }
 
-void set_drag_scroll_divisor(float divisor) {
+void set_drag_scroll_divisor(int8_t divisor) {
     scroll_divisor_h = divisor;
     scroll_divisor_v = divisor;
 }
