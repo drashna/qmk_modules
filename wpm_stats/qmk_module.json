@@ -1,0 +1,7 @@
+{
+    "features": {
+        "wpm": true
+    },
+    "maintainer": "dmyoung9",
+    "module_name": "wpm_stats"
+}
