@@ -1,6 +1,7 @@
 {
     "features": {
-        "deferred_exec": true
+        "deferred_exec": true,
+        "pointing_device": true
     },
     "keycodes": [
         {

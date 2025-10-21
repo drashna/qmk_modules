@@ -1,4 +1,7 @@
 {
+    "features": {
+        "pointing_device": true
+    },
     "keycodes": [
         {
             "aliases": [
