@@ -92,10 +92,10 @@ bool painter_render_menu(painter_device_t display, painter_font_handle_t font, u
     menu_state_runtime.dirty = false;
     memcpy(&last_state, &menu_state, sizeof(menu_state_t));
 
-    uint16_t render_width = end_x - start_x;
+    uint16_t render_width = (end_x - start_x) + 2;
 
     if (menu_state.is_in_menu) {
-        qp_rect(display, start_x, start_y, render_width - 1, end_y - 1, 0, 0, 0, true);
+        qp_rect(display, start_x, start_y, render_width, end_y - 1, 0, 0, 0, true);
 
         menu_entry_t *menu     = get_current_menu();
         menu_entry_t *selected = get_selected_menu_item();
