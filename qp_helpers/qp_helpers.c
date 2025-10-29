@@ -147,8 +147,9 @@ bool qp_draw_graph(const graph_config_t *config, const graph_line_t *lines) {
         return false;
     }
 
-    if (!qp_line(config->device, config->start.x, config->start.y + config->size.y, config->start.x + config->size.x,
-                 config->start.y + config->size.y, config->axis.h, config->axis.s, config->axis.v)) {
+    if (!qp_line(config->device, config->start.x, (config->start.y + config->size.y - 1),
+                 config->start.x + config->size.x, (config->start.y + config->size.y) - 1, config->axis.h,
+                 config->axis.s, config->axis.v)) {
         return false;
     }
 
