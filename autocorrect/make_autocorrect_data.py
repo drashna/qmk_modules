@@ -210,7 +210,7 @@ def serialize_trie(
             backspaces = len(typo) - i - 1 + word_boundary_ending
             assert 0 <= backspaces <= 63
             correction = correction[i:]
-            bs_count = [backspaces + 128]
+            bs_count = [backspaces + 128]  # Set high bit to mark as leaf, encode backspaces in lower 6 bits
             data = bs_count + list(bytes(correction, "ascii")) + [0]
 
             entry = {"data": data, "links": [], "byte_offset": 0}
@@ -252,19 +252,19 @@ def serialize_trie(
     for e in table:  # To encode links, first compute byte offset of each entry.
         e["byte_offset"] = byte_offset
         byte_offset += len(serialize(e))
-        assert 0 <= byte_offset <= 0xFFFF
+        assert 0 <= byte_offset <= 0xFFFFFFFF
 
     return [b for e in table for b in serialize(e)]  # Serialize final table.
 
 
 def encode_link(link: Dict[str, Any]) -> List[int]:
-    """Encodes a node link as two bytes."""
+    """Encodes a node link as four bytes."""
     byte_offset = link["byte_offset"]
-    if not (0 <= byte_offset <= 0xFFFF):
+    if not (0 <= byte_offset <= 0xFFFFFFFF):
         print('Error: The autocorrection table is too large, a node link exceeds '
-            '64KB limit. Try reducing the autocorrection dict to fewer entries.')
+            '4GB limit. Try reducing the autocorrection dict to fewer entries.')
         sys.exit(1)
-    return [byte_offset & 255, byte_offset >> 8]
+    return [byte_offset & 255, (byte_offset >> 8) & 255, (byte_offset >> 16) & 255, (byte_offset >> 24) & 255]
 
 
 def typo_len(e: Tuple[str, str]) -> int:
@@ -303,10 +303,10 @@ def write_generated_code(autocorrections: List[Tuple[str, str]],
                 )
             ),
             "\n#pragma once\n\n",
-            f'#define AUTOCORRECTION_MIN_LENGTH {len(min_typo)}  // "{min_typo}"\n',
-            f'#define AUTOCORRECTION_MAX_LENGTH {len(max_typo)}  // "{max_typo}"\n',
+            f'#define AUTOCORRECT_MIN_LENGTH {len(min_typo)}  // "{min_typo}"\n',
+            f'#define AUTOCORRECT_MAX_LENGTH {len(max_typo)}  // "{max_typo}"\n',
             f"#define DICTIONARY_SIZE {len(data)}\n\n",
-            "static const uint8_t autocorrection_data[DICTIONARY_SIZE] PROGMEM = {\n",
+            "static const uint8_t autocorrect_data[DICTIONARY_SIZE] PROGMEM = {\n",
             textwrap.fill(
                 "    %s" % (", ".join(map(to_hex, data))),
                 width=100,
@@ -321,19 +321,21 @@ def write_generated_code(autocorrections: List[Tuple[str, str]],
 
 
 def get_default_h_file(dict_file: str) -> str:
-  return os.path.join(os.path.dirname(dict_file), 'autocorrection_data.h')
+    return os.path.join(os.path.dirname(dict_file), "autocorrect_data.h")
 
 
 def main(argv):
-  dict_file = argv[1] if len(argv) > 1 else 'autocorrection_dict.txt'
-  h_file = argv[2] if len(argv) > 2 else get_default_h_file(dict_file)
+    dict_file = argv[1] if len(argv) > 1 else "autocorrect_dict.txt"
+    h_file = argv[2] if len(argv) > 2 else get_default_h_file(dict_file)
 
-  autocorrections = parse_file(dict_file)
-  trie = make_trie(autocorrections)
-  data = serialize_trie(autocorrections, trie)
-  print(f'Processed %d autocorrection entries to table with %d bytes.'
-        % (len(autocorrections), len(data)))
-  write_generated_code(autocorrections, data, h_file)
+    autocorrections = parse_file(dict_file)
+    trie = make_trie(autocorrections)
+    data = serialize_trie(autocorrections, trie)
+    print(
+        f"Processed %d autocorrection entries to table with %d bytes."
+        % (len(autocorrections), len(data))
+    )
+    write_generated_code(autocorrections, data, h_file)
 
 
 if __name__ == '__main__':

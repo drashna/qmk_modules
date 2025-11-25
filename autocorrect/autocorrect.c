@@ -282,18 +282,20 @@ bool process_autocorrect(uint16_t keycode, keyrecord_t *record) {
     }
 
     // Check for typo in buffer using a trie stored in `autocorrect_data`.
-    uint16_t state = 0;
+    uint32_t state = 0;
     uint8_t  code  = pgm_read_byte(autocorrect_data + state);
     for (int8_t i = typo_buffer_size - 1; i >= 0; --i) {
         uint8_t const key_i = typo_buffer[i];
 
         if (code & 64) { // Check for match in node with multiple children.
             code &= 63;
-            for (; code != key_i; code = pgm_read_byte(autocorrect_data + (state += 3))) {
+            for (; code != key_i; code = pgm_read_byte(autocorrect_data + (state += 5))) {
                 if (!code) return true;
             }
             // Follow link to child node.
-            state = (pgm_read_byte(autocorrect_data + state + 1) | pgm_read_byte(autocorrect_data + state + 2) << 8);
+            state =
+                (pgm_read_byte(autocorrect_data + state + 1) | pgm_read_byte(autocorrect_data + state + 2) << 8 |
+                 pgm_read_byte(autocorrect_data + state + 3) << 16 | pgm_read_byte(autocorrect_data + state + 4) << 24);
             // Check for match in node with single child.
         } else if (code != key_i) {
             return true;
@@ -351,7 +353,7 @@ bool process_autocorrect(uint16_t keycode, keyrecord_t *record) {
              *
              * B) When correcting 'typo' -- Need extra offset for terminator
              */
-            char correct[AUTOCORRECT_MAX_LENGTH + 10] = {0}; // let's hope this is big enough
+            char correct[AUTOCORRECT_MAX_LENGTH + 50] = {0}; // increased buffer for longer corrections
 
             uint8_t offset = space_last ? backspaces : backspaces + 1;
             strcpy(correct, typo);
