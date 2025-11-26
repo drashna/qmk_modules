@@ -199,7 +199,7 @@ __attribute__((weak)) bool apply_autocorrect(uint8_t backspaces, const char *str
  * @return true Continue processing keycodes, and send to host
  * @return false Stop processing keycodes, and don't send to host
  */
-bool process_autocorrect(uint16_t keycode, keyrecord_t *record) {
+bool process_record_autocorrect_no(uint16_t keycode, keyrecord_t *record) {
     uint8_t mods = get_mods();
 #ifndef NO_ACTION_ONESHOT
     mods |= get_oneshot_mods();
