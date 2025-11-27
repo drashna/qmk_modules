@@ -3,12 +3,12 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "wpm_stats.h"
-#include "quantum.h"
+#include <quantum.h>
 
 ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(1, 0, 0);
 
 static bool     g_initialized = false;
-static uint32_t g_last_update;
+static uint16_t g_last_update;
 static uint16_t g_max_wpm   = 0;
 static uint32_t g_wpm_sum   = 0;
 static uint16_t g_wpm_count = 0;
@@ -86,3 +86,27 @@ uint16_t wpm_stats_get_max(void) {
 
     return g_max_wpm;
 }
+
+#ifdef SPLIT_KEYBOARD
+bool wpm_stats_get_split(uint16_t *max_wpm, uint32_t *wpm_sum, uint16_t *wpm_count) {
+    if (!g_initialized) {
+        return false;
+    }
+    g_max_wpm   = *max_wpm;
+    g_wpm_sum   = *wpm_sum;
+    g_wpm_count = *wpm_count;
+
+    return true;
+}
+
+bool wpm_stats_set_split(uint16_t *max_wpm, uint32_t *wpm_sum, uint16_t *wpm_count) {
+    if (!g_initialized) {
+        return false;
+    }
+    *max_wpm   = g_max_wpm;
+    *wpm_sum   = g_wpm_sum;
+    *wpm_count = g_wpm_count;
+
+    return true;
+}
+#endif // SPLIT_KEYBOARD

@@ -74,3 +74,27 @@ uint16_t wpm_stats_get_avg(void);
  * @return Maximum WPM ever recorded
  */
 uint16_t wpm_stats_get_max(void);
+
+#ifdef SPLIT_KEYBOARD
+/**
+ * @brief Get split keyboard WPM statistics
+ *
+ * @param max_wpm
+ * @param wpm_sum
+ * @param wpm_count
+ * @return true
+ * @return false
+ */
+bool wpm_stats_get_split(uint16_t *max_wpm, uint32_t *wpm_sum, uint16_t *wpm_count);
+
+/**
+ * @brief Set split keyboard WPM statistics
+ *
+ * @param max_wpm
+ * @param wpm_sum
+ * @param wpm_count
+ * @return true
+ * @return false
+ */
+bool wpm_stats_set_split(uint16_t *max_wpm, uint32_t *wpm_sum, uint16_t *wpm_count);
+#endif
