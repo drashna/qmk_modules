@@ -73,6 +73,6 @@ These are modules that add additional functionality to displays (both OLED drive
 
 These modules are either not working properly yet (and are listed here for visibility) or are unsupported while waiting on PR merges/code changes. While it may be possible to rework these to function currently, .... eh.
 
-| Module | Status | Description |
-| ------ | ------ | ----------- |
-| None   |        |             |
+| Module      | Status | Description                                                                                |
+| ----------- | ------ | ------------------------------------------------------------------------------------------ |
+| Autocorrect | WIP    | A rewrite of the autocorrect feature to much larger library sizes, and multiple libraries. |
