@@ -3,6 +3,10 @@
 
 #include "quantum.h"
 #include "layer_map.h"
+#if defined(SPLIT_KEYBOARD)
+#    include "transactions.h"
+ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(1, 1, 2);
+#endif // SPLIT_KEYBOARD
 
 ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(1, 0, 0);
 
@@ -107,6 +111,62 @@ layer_state_t default_layer_state_set_layer_map(layer_state_t state) {
     return state;
 }
 
+#ifdef SPLIT_KEYBOARD
+typedef struct PACKED layer_map_msg_t {
+    uint8_t  row;
+    uint16_t layer_map[LAYER_MAP_COLS];
+} layer_map_msg_t;
+
+_Static_assert(sizeof(layer_map_msg_t) <= RPC_M2S_BUFFER_SIZE, "Layer map message size exceeds buffer size!");
+
+void layer_map_sync_handler(uint8_t initiator2target_buffer_size, const void *initiator2target_buffer,
+                            uint8_t target2initiator_buffer_size, void *target2initiator_buffer) {
+    layer_map_msg_t msg = {0};
+    memcpy(&msg, initiator2target_buffer, initiator2target_buffer_size);
+    if (msg.row >= LAYER_MAP_ROWS) {
+        xprintf("Layer Map row out of bounds: %d (Valid range: 0-%d)\n", msg.row, LAYER_MAP_ROWS - 1);
+        return;
+    }
+    if (memcmp(msg.layer_map, layer_map[msg.row], sizeof(msg.layer_map)) != 0) {
+        memcpy(layer_map[msg.row], msg.layer_map, sizeof(msg.layer_map));
+        set_layer_map_has_updated(true);
+    }
+}
+
+/**
+ * @brief Synchronizes the layer map between split keyboard halves.
+ *
+ * This function ensures that the layer map is consistent across both halves of a split keyboard.
+ * It checks for differences between the current layer map and the last synchronized state.
+ * If differences are detected, it sends the updated layer map to the other half.
+ */
+void sync_layer_map(void) {
+    static uint16_t last_layer_map[LAYER_MAP_ROWS][LAYER_MAP_COLS] = {0};
+    static uint16_t last_sync_time                                 = 0;
+
+    if (memcmp(layer_map, last_layer_map, sizeof(last_layer_map)) != 0 || timer_elapsed(last_sync_time) >= 1000) {
+        memcpy(last_layer_map, layer_map, sizeof(last_layer_map));
+        for (uint8_t i = 0; i < LAYER_MAP_ROWS; i++) {
+            layer_map_msg_t msg = {
+                .row       = i,
+                .layer_map = {0},
+            };
+            memcpy(msg.layer_map, layer_map[i], sizeof(msg.layer_map));
+            if (transaction_rpc_send(RPC_ID_LAYER_MAP_SYNC, sizeof(layer_map_msg_t), &msg)) {
+                continue;
+            }
+        }
+        last_sync_time = timer_read();
+    }
+}
+
+void keyboard_post_init_layer_map(void) {
+    // Register layer map sync split transaction
+    transaction_register_rpc(RPC_ID_LAYER_MAP_SYNC, layer_map_sync_handler);
+    keyboard_post_init_layer_map_kb();
+}
+#endif // SPLIT_KEYBOARD
+
 void housekeeping_task_layer_map(void) {
     if ((COMMUNITY_MODULES_API_VERSION) < COMMUNITY_MODULES_API_VERSION_BUILDER(1, 1, 0)) {
         static layer_state_t last_layer_state = 0, last_default_layer_state = 0;
@@ -130,6 +190,13 @@ void housekeeping_task_layer_map(void) {
         }
         layer_map_set = false;
     }
+
+#ifdef SPLIT_KEYBOARD
+    if (is_keyboard_master()) {
+        sync_layer_map()
+    }
+#endif // SPLIT_KEYBOARD
+
     housekeeping_task_layer_map_kb();
 }
 
