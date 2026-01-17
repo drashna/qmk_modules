@@ -193,7 +193,7 @@ void housekeeping_task_layer_map(void) {
 
 #ifdef SPLIT_KEYBOARD
     if (is_keyboard_master()) {
-        sync_layer_map()
+        sync_layer_map();
     }
 #endif // SPLIT_KEYBOARD
 
