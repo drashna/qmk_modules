@@ -1,0 +1,1 @@
+DEBOUNCE_TYPE = custom

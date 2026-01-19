@@ -1,0 +1,16 @@
+{
+    "keycodes": [
+        {
+            "key": "DYNAMIC_DEBOUNCE_ALGO_CYCLE"
+        },
+        {
+            "key": "DYNAMIC_DEBOUNCE_TIME_UP"
+        },
+        {
+            "key": "DYNAMIC_DEBOUNCE_TIME_DOWN"
+        }
+    ],
+    "license": "GPL-2.0-or-later",
+    "maintainer": "drashna",
+    "module_name": "Dynamic Debounce Algorithm"
+}
