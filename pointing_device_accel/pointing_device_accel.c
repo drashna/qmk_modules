@@ -10,6 +10,10 @@
 #include <quantum/util.h>
 
 ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(1, 1, 0);
+#if defined(__AVR__) || (defined(CORTEX_USE_FPU) && CORTEX_USE_FPU == FALSE)
+#    pragma message \
+        "Warning: Pointing Device Accel module may not work properly without Floating Point support. Use at your own risk."
+#endif
 
 static uint32_t pointing_device_accel_timer;
 
