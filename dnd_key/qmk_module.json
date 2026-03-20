@@ -1,0 +1,10 @@
+{
+    "module_name": "Globe Key",
+    "maintainer": "tzarc",
+    "keycodes": [
+        {
+            "key": "KC_DO_NOT_DISTURB",
+            "aliases": ["KC_DND"]
+        }
+    ]
+}
