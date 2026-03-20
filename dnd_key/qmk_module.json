@@ -1,6 +1,6 @@
 {
-    "module_name": "Globe Key",
-    "maintainer": "tzarc",
+    "module_name": "Do Not Distrurb Key",
+    "maintainer": "drashna",
     "keycodes": [
         {
             "key": "KC_DO_NOT_DISTURB",
