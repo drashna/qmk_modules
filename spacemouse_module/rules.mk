@@ -1,0 +1,1 @@
+UART_DRIVER_REQUIRED = yes
