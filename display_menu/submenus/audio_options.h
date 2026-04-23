@@ -37,6 +37,7 @@ __attribute__((weak)) void display_handler_music_enabled(char *text_buffer, size
     snprintf(text_buffer, buffer_len - 1, "%s", is_music_on() ? "on" : "off");
 }
 
+#    ifdef AUDIO_CLICKY
 bool menu_handler_audio_clicky_enabled(menu_input_t input) {
     switch (input) {
         case menu_input_left:
@@ -69,11 +70,14 @@ __attribute__((weak)) void display_handler_audio_clicky_freq(char *text_buffer, 
     extern float clicky_freq;
     snprintf(text_buffer, buffer_len - 1, "%.2f", (float)clicky_freq);
 }
+#    endif // AUDIO_CLICKY
 
 menu_entry_t audio_entries[] = {
     DISPLAY_MENU_ENTRY_CHILD("Audio", "Audio", audio_enabled),
     DISPLAY_MENU_ENTRY_CHILD("Music Mode", "Music", music_enabled),
+#    ifdef AUDIO_CLICKY
     DISPLAY_MENU_ENTRY_CHILD("Clicky", "Clicky", audio_clicky_enabled),
     DISPLAY_MENU_ENTRY_CHILD("Clicky Frequency", "Freq", audio_clicky_freq),
+#    endif // AUDIO_CLICKY
 };
 #endif // AUDIO_ENABLE
