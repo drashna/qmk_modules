@@ -159,13 +159,16 @@ void sync_layer_map(void) {
         last_sync_time = timer_read();
     }
 }
+#endif // SPLIT_KEYBOARD
 
 void keyboard_post_init_layer_map(void) {
+    populate_layer_map();
+#ifdef SPLIT_KEYBOARD
     // Register layer map sync split transaction
     transaction_register_rpc(RPC_ID_LAYER_MAP_SYNC, layer_map_sync_handler);
+#endif // SPLIT_KEYBOARD
     keyboard_post_init_layer_map_kb();
 }
-#endif // SPLIT_KEYBOARD
 
 void housekeeping_task_layer_map(void) {
     if ((COMMUNITY_MODULES_API_VERSION) < COMMUNITY_MODULES_API_VERSION_BUILDER(1, 1, 0)) {
