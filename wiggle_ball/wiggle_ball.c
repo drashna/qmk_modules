@@ -12,6 +12,12 @@ ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(1, 1, 0);
 #ifndef WIGGLE_BALL_DIRECTION_SWITCH_TIMEOUT
 #    define WIGGLE_BALL_DIRECTION_SWITCH_TIMEOUT 150
 #endif // WIGGLE_BALL_DIRECTION_SWITCH_TIMEOUT
+#ifndef WIGGLE_BALL_MOVEMENT_THRESHOLD
+#    define WIGGLE_BALL_MOVEMENT_THRESHOLD 3
+#endif // WIGGLE_BALL_MOVEMENT_THRESHOLD
+#ifdef COMMUNITY_MODULE_DRAG_SCROLL_ENABLE
+#    include "drag_scroll.h"
+#endif // COMMUNITY_MODULE_DRAG_SCROLL_ENABLE
 
 static bool     wiggle_ball_enabled                  = false;
 static uint16_t wiggle_ball_timeout                  = WIGGLE_BALL_TIMEOUT;
@@ -93,7 +99,6 @@ uint16_t get_wiggle_ball_direction_switch_timeout(void) {
  */
 __attribute__((weak)) void wiggle_ball_state_change(bool enabled, report_mouse_t *report) {
 #ifdef COMMUNITY_MODULE_DRAG_SCROLL_ENABLE
-#    include "drag_scroll.h"
     // for drag scroll, we only need to do anything when the state changes. Drag scroll code handles everything else.
     if (enabled != get_drag_scroll_scrolling()) {
         set_drag_scroll_scrolling(enabled);
@@ -130,6 +135,14 @@ __attribute__((weak)) void wiggle_ball_state_change(bool enabled, report_mouse_t
 #endif
 }
 
+__attribute__((weak)) bool wiggle_ball_should_check_wheel(void) {
+#if defined(COMMUNITY_MODULE_DRAG_SCROLL_ENABLE) && defined(WIGGLE_BALL_DRAG_SCROLL_LOADED_FIRST)
+    return get_drag_scroll_scrolling();
+#else
+    return false;
+#endif // COMMUNITY_MODULE_DRAG_SCROLL_ENABLE
+}
+
 report_mouse_t pointing_device_task_wiggle_ball(report_mouse_t mouse_report) {
     static uint8_t  wiggle_ball_shake_count           = 0;
     static bool     last_direction                    = false;
@@ -142,12 +155,15 @@ report_mouse_t pointing_device_task_wiggle_ball(report_mouse_t mouse_report) {
             wiggle_ball_shake_count = 0;
         }
 
-        if (mouse_report.x > 1 && mouse_report.y < 3 && !last_direction) {
+        mouse_xy_report_t x_movement = wiggle_ball_should_check_wheel() ? mouse_report.h : mouse_report.x;
+        mouse_xy_report_t y_movement = wiggle_ball_should_check_wheel() ? mouse_report.v : mouse_report.y;
+
+        if ((x_movement > 1 && y_movement < WIGGLE_BALL_MOVEMENT_THRESHOLD && !last_direction)) {
             wiggle_ball_shake_count++;
             last_wiggle_direction_switch_time = timer_read();
             last_direction                    = !last_direction;
         }
-        if (mouse_report.x < -1 && mouse_report.y < 3 && last_direction) {
+        if ((x_movement < -1 && y_movement < WIGGLE_BALL_MOVEMENT_THRESHOLD && last_direction)) {
             wiggle_ball_shake_count++;
             last_wiggle_direction_switch_time = timer_read();
             last_direction                    = !last_direction;
