@@ -171,7 +171,7 @@ rtc_time_t convert_timestamp(const char *timestamp) {
             t.month = timestamp[5] == 'r' ? 4 : 8;
             break;
         case 'M':
-            t.month = timestamp[5] == 'r' ? 3 : 5;
+            t.month = timestamp[6] == 'r' ? 3 : 5;
             break;
         case 'S':
             t.month = 9;
