@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include QMK_KEYBOARD_H
+#include "drag_scroll.h"
 
 ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(1, 1, 0);
 
@@ -55,12 +56,12 @@ bool process_record_drag_scroll(uint16_t keycode, keyrecord_t *record) {
         case DRAG_SCROLL_TOGGLE:
             // Toggle set_scrolling when DRAG_SCROLL key is pressed or released
             if (record->event.pressed) {
-                set_scrolling = !set_scrolling;
+                set_drag_scroll_scrolling(!get_drag_scroll_scrolling());
             }
             break;
         case DRAG_SCROLL_MOMENTARY:
             // Toggle set_scrolling when DRAG_SCROLL key is pressed or released
-            set_scrolling = record->event.pressed;
+            set_drag_scroll_scrolling(record->event.pressed);
             break;
         default:
             break;

@@ -99,10 +99,7 @@ uint16_t get_wiggle_ball_direction_switch_timeout(void) {
  */
 __attribute__((weak)) void wiggle_ball_state_change(bool enabled, report_mouse_t *report) {
 #ifdef COMMUNITY_MODULE_DRAG_SCROLL_ENABLE
-    // for drag scroll, we only need to do anything when the state changes. Drag scroll code handles everything else.
-    if (enabled != get_drag_scroll_scrolling()) {
-        set_drag_scroll_scrolling(enabled);
-    }
+    set_drag_scroll_scrolling(enabled);
 #else
 #    pragma message "Drag scroll is not enabled.  This works much better with the drag scroll module."
     if (enabled) {
@@ -143,6 +140,14 @@ __attribute__((weak)) bool wiggle_ball_should_check_wheel(void) {
 #endif // COMMUNITY_MODULE_DRAG_SCROLL_ENABLE
 }
 
+__attribute__((weak)) bool wiggle_ball_enabled_sanity_check(void) {
+#ifdef COMMUNITY_MODULE_DRAG_SCROLL_ENABLE
+    return get_drag_scroll_scrolling();
+#else
+    return wiggle_ball_enabled;
+#endif // COMMUNITY_MODULE_DRAG_SCROLL_ENABLE
+}
+
 report_mouse_t pointing_device_task_wiggle_ball(report_mouse_t mouse_report) {
     static uint8_t  wiggle_ball_shake_count           = 0;
     static bool     last_direction                    = false;
@@ -168,6 +173,8 @@ report_mouse_t pointing_device_task_wiggle_ball(report_mouse_t mouse_report) {
             last_wiggle_direction_switch_time = timer_read();
             last_direction                    = !last_direction;
         }
+
+        wiggle_ball_enabled = wiggle_ball_enabled_sanity_check();
 
         if (wiggle_ball_shake_count > 3) {
             wiggle_ball_enabled               = !wiggle_ball_enabled;
