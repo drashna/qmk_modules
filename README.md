@@ -17,7 +17,7 @@ Each child directory is a separate module, and has instructions on how to add it
 These are modules that add additional debug functionality.
 
 | Module                                      | Description                                      |
-| ------------------------------------------- | ------------------------------------------------ |
+|---------------------------------------------|--------------------------------------------------|
 | [Console Keylogging](./console_keylogging/) | Adds the FAQ Debugging console code as a module. |
 | [I2C Scanner](./i2c_scanner/)               | Adds an i2c scanner as a community module.       |
 
@@ -26,7 +26,7 @@ These are modules that add additional debug functionality.
 These are modules that add additional functionality to displays (both OLED driver, and Quantum Painter)
 
 | Module                          | Description                                                                                                     |
-| ------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+|---------------------------------|-----------------------------------------------------------------------------------------------------------------|
 | [Bongocats](./bongocats)        | Gods, help me.                                                                                                  |
 | [Display Menu](./display_menu/) | Adds support for @drashna's custom on-screen display code.                                                      |
 | [QP Helpers](./qp_helpers/)     | Adds useful functions for Quantum Painter based displays. Mostly, this includes a simple line graph, currently. |
@@ -36,7 +36,7 @@ These are modules that add additional functionality to displays (both OLED drive
 These are modules that extend hardware functionality, such as extending (unused) hardware functionality or add drivers for new hardware.
 
 | Module                                    | Description                                                                                                                                     |
-| ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+|-------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
 | [RTC](./rtc/)                             | Adds support for hardware RTC functionality (RP2040 built in RTC not working).                                                                  |
 | [Spacemouse Module](./spacemouse_module/) | Add basic support for UART based Spacemouse Module. Lacks pointing device support intentionally, as it could be used for many other things too. |
 | [Watchdog](./watchdog/)                   | Adds hardware watchdog support as a community module. Additional config required.                                                               |
@@ -46,7 +46,7 @@ These are modules that extend hardware functionality, such as extending (unused)
 These are modules that add additional functionality to displays (both OLED driver, and Quantum Painter)
 
 | Module                                                  | Description                                                                                                 |
-| ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+|---------------------------------------------------------|-------------------------------------------------------------------------------------------------------------|
 | [Drag Scroll](./drag_scroll/)                           | Adds Drag Scrolling support as a module.                                                                    |
 | [Pointing Device Accel](./pointing_device_accel/)       | Adds maccel/pointing device acceleration support, ported directly from Burkfers and Wimad's implementation. |
 | [Pointing Device Gestures](./pointing_device_gestures/) | Adds a module that allows triggering behavior based on which of the cardinal and ordinal direction moved.   |
@@ -57,15 +57,16 @@ These are modules that add additional functionality to displays (both OLED drive
 These are modules that add additional functionality to displays (both OLED driver, and Quantum Painter)
 
 | Module                            | Description                                                             |
-| --------------------------------- | ----------------------------------------------------------------------- |
+|-----------------------------------|-------------------------------------------------------------------------|
 | [Keyboard Lock](./keyboard_lock/) | Adds a module that allows for disabling USB complete. Eg, a "cat mode". |
 | [Layer Map](./layer_map/)         | Adds support for display rendering of active keyboard layout.           |
 
 ## Typing/Keycode Modules
 
 | Module                              | Description                                                                                                                                                                         |
-| ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|-------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | [DnD Key](./dnd_key/)               | Adds the Do Not Disturb keycode from the HID system page.                                                                                                                           |
+| [Guarded Reset](./guarded_reset/)   | Prevents reset keycodes from triggering without behing held for set specific time.                                                                                                  |
 | [Typing Stats](./typing_stats/)     | A comprehensive keyboard usage tracking module for QMK that collects detailed typing statistics and stores them persistently in EEPROM. Copied from dmyoung9 and put into a module. |
 | [Unicode Typing](./unicode_typing/) | Adds support for communal unicode typing modes as a community module.                                                                                                               |
 | [WPM Stats](./wpm_stats/)           | A copy of dmyoung9's wpm stats prior to oled hardcoding stuff.                                                                                                                      |
@@ -75,7 +76,7 @@ These are modules that add additional functionality to displays (both OLED drive
 These are modules that add additional functionality to displays (both OLED driver, and Quantum Painter)
 
 | Module                    | Description                                                   |
-| ------------------------- | ------------------------------------------------------------- |
+|---------------------------|---------------------------------------------------------------|
 | [OpenRGB](./openrgb/)     | Proof of concept for OpenRGB support as a community module.   |
 | [SignalRGB](./signalrgb/) | Proof of concept for SignalRGB support as a community module. |
 
@@ -84,6 +85,6 @@ These are modules that add additional functionality to displays (both OLED drive
 These modules are either not working properly yet (and are listed here for visibility) or are unsupported while waiting on PR merges/code changes. While it may be possible to rework these to function currently, .... eh.
 
 | Module                                 | Status            | Description                                                                                |
-| -------------------------------------- | ----------------- | ------------------------------------------------------------------------------------------ |
+|----------------------------------------|-------------------|--------------------------------------------------------------------------------------------|
 | [Autocorrect](./autocorrect/)          | Tested            | A rewrite of the autocorrect feature to much larger library sizes, and multiple libraries. |
 | [FT6x36 Touch Sensor](./ft6x36_touch/) | WIP (not working) | Add support for the FT6x36 Capacitive touch sensor.                                        |
