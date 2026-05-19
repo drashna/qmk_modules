@@ -1,0 +1,14 @@
+{
+    "module_name": "Mouse Jiggler",
+    "maintainer": "Plodah",
+    "features": {
+        "deferred_exec": true,
+        "pointing_device": true
+    },
+    "keycodes": [
+        {
+            "key": "COMMUNITY_MODULE_MOUSE_JIGGLER_TOGGLE",
+            "aliases": ["CM_MSJG"]
+        }
+    ]
+}
