@@ -8,7 +8,63 @@
     "keycodes": [
         {
             "key": "COMMUNITY_MODULE_MOUSE_JIGGLER_TOGGLE",
-            "aliases": ["CM_MSJG"]
+            "aliases": [
+                "MS_JGTG"
+            ]
+        },
+        {
+            "key": "COMMUNITY_MODULE_MOUSE_JIGGLER_ON",
+            "aliases": [
+                "MS_JGON"
+            ]
+        },
+        {
+            "key": "COMMUNITY_MODULE_MOUSE_JIGGLER_OFF",
+            "aliases": [
+                "MS_JGOF"
+            ]
+        },
+        {
+            "key": "COMMUNITY_MODULE_MOUSE_JIGGLER_PATTERN_NEXT",
+            "aliases": [
+                "MS_JGPN"
+            ]
+        },
+        {
+            "key": "COMMUNITY_MODULE_MOUSE_JIGGLER_PATTERN_PREV",
+            "aliases": [
+                "MS_JGPP"
+            ]
+        },
+        {
+            "key": "COMMUNITY_MODULE_MOUSE_JIGGLER_INTRO_NEXT",
+            "aliases": [
+                "MS_JGIN"
+            ]
+        },
+        {
+            "key": "COMMUNITY_MODULE_MOUSE_JIGGLER_INTRO_PREV",
+            "aliases": [
+                "MS_JGIP"
+            ]
+        },
+        {
+            "key": "COMMUNITY_MODULE_MOUSE_JIGGLER_ENDING_NEXT",
+            "aliases": [
+                "MS_JGEN"
+            ]
+        },
+        {
+            "key": "COMMUNITY_MODULE_MOUSE_JIGGLER_ENDING_PREV",
+            "aliases": [
+                "MS_JGEP"
+            ]
+        },
+        {
+            "key": "COMMUNITY_MODULE_MOUSE_JIGGLER_AUTOSTOP",
+            "aliases": [
+                "MS_JGAS"
+            ]
         }
     ]
 }

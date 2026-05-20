@@ -44,6 +44,12 @@ uint8_t jiggler_get_pattern_ending(void);
 void jiggler_set_pattern(uint8_t pattern);
 void jiggler_set_pattern_intro(uint8_t pattern);
 void jiggler_set_pattern_ending(uint8_t pattern);
+void jiggler_pattern_next(void);
+void jiggler_pattern_prev(void);
+void jiggler_pattern_intro_next(void);
+void jiggler_pattern_intro_prev(void);
+void jiggler_pattern_ending_next(void);
+void jiggler_pattern_ending_prev(void);
 
 bool     jiggler_get_intro_enabled(void);
 void     jiggler_set_intro_enabled(bool enabled);

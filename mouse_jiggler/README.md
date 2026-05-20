@@ -12,7 +12,21 @@ It can be integrated into your keymap by adding the following to your `keymap.js
 }
 ```
 
-After this, add `COMMUNITY_MODULE_MOUSE_JIGGLER_TOGGLE` (aliased to `CM_MSJG`) to any keymap position to toggle the jiggler on and off.
+Three keycodes are available:
+
+| Keycode                                        | Alias      | Description                                  |
+|------------------------------------------------|------------|----------------------------------------------|
+| `COMMUNITY_MODULE_MOUSE_JIGGLER_TOGGLE`        | `MS_JGTG` | Toggle the jiggler on/off                    |
+| `COMMUNITY_MODULE_MOUSE_JIGGLER_ON`            | `MS_JGON` | Turn the jiggler on                          |
+| `COMMUNITY_MODULE_MOUSE_JIGGLER_OFF`           | `MS_JGOF`| Turn the jiggler off                         |
+| `COMMUNITY_MODULE_MOUSE_JIGGLER_AUTOSTOP`      | `MS_JGAS` | Stop the jiggler immediately                 |
+| `COMMUNITY_MODULE_MOUSE_JIGGLER_PATTERN_NEXT`  | `MS_JGPN` | Cycle to the next primary movement pattern   |
+| `COMMUNITY_MODULE_MOUSE_JIGGLER_PATTERN_PREV`  | `MS_JGPP` | Cycle to the previous primary movement pattern |
+| `COMMUNITY_MODULE_MOUSE_JIGGLER_INTRO_NEXT`    | `MS_JGIN` | Cycle to the next intro pattern              |
+| `COMMUNITY_MODULE_MOUSE_JIGGLER_INTRO_PREV`    | `MS_JGIP` | Cycle to the previous intro pattern          |
+| `COMMUNITY_MODULE_MOUSE_JIGGLER_ENDING_NEXT`   | `MS_JGEN` | Cycle to the next ending pattern             |
+| `COMMUNITY_MODULE_MOUSE_JIGGLER_ENDING_PREV`   | `MS_JGEP` | Cycle to the previous ending pattern         |
+
 
 ## Configuration
 
@@ -51,17 +65,25 @@ The following pattern identifiers are available as `pd_jiggler_pattern_t` enum v
 - `jiggler_get_state(void)` - Returns `0` when inactive, `1` when the main loop is running, `2` when the intro/outro is also active.
 - `jiggler_start(void)` - Starts the jiggler and plays the intro animation (if enabled).
 - `jiggler_end(void)` - Stops the jiggler and plays the outro animation (if enabled).
+- `jiggler_enable(void)` - Starts the jiggler if it is not already running.
+- `jiggler_disable(void)` - Stops the jiggler if it is running.
 - `jiggler_toggle(void)` - Toggles the jiggler on or off.
 - `jiggle_delay(uint32_t delay_sec)` - Pushes the next jiggler tick forward by `delay_sec` seconds.
 
 ### Pattern
 
-- `jiggler_get_pattern(void)` - Returns the current primary movement pattern as a `pd_jiggler_pattern_t`.
-- `jiggler_set_pattern(pd_jiggler_pattern_t pattern)` - Sets the primary movement pattern. Takes effect the next time the jiggler starts. Invalid patterns are ignored.
-- `jiggler_get_pattern_intro(void)` - Returns the current intro animation pattern.
-- `jiggler_set_pattern_intro(pd_jiggler_pattern_t pattern)` - Sets the intro animation pattern.
-- `jiggler_get_pattern_ending(void)` - Returns the current outro animation pattern.
-- `jiggler_set_pattern_ending(pd_jiggler_pattern_t pattern)` - Sets the outro animation pattern.
+- `jiggler_get_pattern(void)` - Returns the current primary movement pattern ID.
+- `jiggler_set_pattern(uint8_t pattern)` - Sets the primary movement pattern. Takes effect on the next start. Invalid patterns are ignored.
+- `jiggler_pattern_next(void)` - Advances to the next primary pattern, wrapping around. Takes effect immediately if running.
+- `jiggler_pattern_prev(void)` - Retreats to the previous primary pattern, wrapping around. Takes effect immediately if running.
+- `jiggler_get_pattern_intro(void)` - Returns the current intro animation pattern ID.
+- `jiggler_set_pattern_intro(uint8_t pattern)` - Sets the intro animation pattern.
+- `jiggler_pattern_intro_next(void)` - Cycles the intro pattern forward.
+- `jiggler_pattern_intro_prev(void)` - Cycles the intro pattern backward.
+- `jiggler_get_pattern_ending(void)` - Returns the current outro animation pattern ID.
+- `jiggler_set_pattern_ending(uint8_t pattern)` - Sets the outro animation pattern.
+- `jiggler_pattern_ending_next(void)` - Cycles the ending pattern forward.
+- `jiggler_pattern_ending_prev(void)` - Cycles the ending pattern backward.
 
 ### Intro / Outro
 

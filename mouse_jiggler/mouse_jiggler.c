@@ -460,6 +460,36 @@ void jiggler_set_pattern(uint8_t pattern) {
 }
 
 /**
+ * @brief Advances the active pattern to the next one, wrapping around.
+ *
+ * Skips pattern ID 0 (invalid/NULL slot).  If the jiggler is currently
+ * running the change takes effect immediately via jiggler_start().
+ */
+void jiggler_pattern_next(void) {
+    uint8_t next = (jiggler_active_pattern % (PD_JIGGLER_NUM_PATTERNS - 1)) + 1;
+    jiggler_set_pattern(next);
+    if (jiggler_get_state()) {
+        jiggler_intro_end();
+        jiggler_start();
+    }
+}
+
+/**
+ * @brief Retreats the active pattern to the previous one, wrapping around.
+ *
+ * Skips pattern ID 0 (invalid/NULL slot).  If the jiggler is currently
+ * running the change takes effect immediately via jiggler_start().
+ */
+void jiggler_pattern_prev(void) {
+    uint8_t prev = (jiggler_active_pattern <= 1) ? (PD_JIGGLER_NUM_PATTERNS - 1) : (jiggler_active_pattern - 1);
+    jiggler_set_pattern(prev);
+    if (jiggler_get_state()) {
+        jiggler_intro_end();
+        jiggler_start();
+    }
+}
+
+/**
  * @brief Sets the intro animation pattern at runtime.
  *
  * The change takes effect the next time jiggler_start() is called.
@@ -475,6 +505,22 @@ void jiggler_set_pattern_intro(uint8_t pattern) {
 }
 
 /**
+ * @brief Advances the intro pattern to the next one, wrapping around.
+ */
+void jiggler_pattern_intro_next(void) {
+    uint8_t next = (jiggler_active_intro % (PD_JIGGLER_NUM_PATTERNS - 1)) + 1;
+    jiggler_set_pattern_intro(next);
+}
+
+/**
+ * @brief Retreats the intro pattern to the previous one, wrapping around.
+ */
+void jiggler_pattern_intro_prev(void) {
+    uint8_t prev = (jiggler_active_intro <= 1) ? (PD_JIGGLER_NUM_PATTERNS - 1) : (jiggler_active_intro - 1);
+    jiggler_set_pattern_intro(prev);
+}
+
+/**
  * @brief Sets the outro animation pattern at runtime.
  *
  * The change takes effect the next time jiggler_end() is called.
@@ -487,6 +533,22 @@ void jiggler_set_pattern_ending(uint8_t pattern) {
         jiggler_active_ending = pattern;
         jiggle_delay(jiggler_backoff);
     }
+}
+
+/**
+ * @brief Advances the ending pattern to the next one, wrapping around.
+ */
+void jiggler_pattern_ending_next(void) {
+    uint8_t next = (jiggler_active_ending % (PD_JIGGLER_NUM_PATTERNS - 1)) + 1;
+    jiggler_set_pattern_ending(next);
+}
+
+/**
+ * @brief Retreats the ending pattern to the previous one, wrapping around.
+ */
+void jiggler_pattern_ending_prev(void) {
+    uint8_t prev = (jiggler_active_ending <= 1) ? (PD_JIGGLER_NUM_PATTERNS - 1) : (jiggler_active_ending - 1);
+    jiggler_set_pattern_ending(prev);
 }
 
 /**
@@ -582,10 +644,10 @@ void jiggle_delay(uint32_t delay_sec) {
 /**
  * @brief Key-event hook for the mouse jiggler module.
  *
- * Handles the @c COMMUNITY_MODULE_MOUSE_JIGGLER_TOGGLE keycode and, when
- * autostop is enabled (see jiggler_set_autostop()), stops the jiggler on any
- * keypress.  Also calls jiggle_delay() on every key event so that real input
- * does not collide with simulated mouse movement.
+ * Handles the @c COMMUNITY_MODULE_MOUSE_JIGGLER_TOGGLE, @c _ON, and @c _OFF
+ * keycodes and, when autostop is enabled (see jiggler_set_autostop()), stops
+ * the jiggler on any keypress.  Also calls jiggle_delay() on every key event
+ * so that real input does not collide with simulated mouse movement.
  *
  * @param keycode The keycode of the key event.
  * @param record  Pointer to the key record containing event details.
@@ -595,13 +657,43 @@ bool process_record_mouse_jiggler(uint16_t keycode, keyrecord_t *record) {
     // Delay the next jiggler tick to avoid simulated movement colliding with real input.
     jiggle_delay(jiggler_backoff);
     if (record->event.pressed) {
-        if (keycode == COMMUNITY_MODULE_MOUSE_JIGGLER_TOGGLE) {
-            jiggler_toggle();
-            return false;
-        }
-        if (jiggler_autostop && jiggler_get_state()) {
-            jiggler_intro_end();
-            jiggler_end();
+        switch (keycode) {
+            case COMMUNITY_MODULE_MOUSE_JIGGLER_TOGGLE:
+                jiggler_toggle();
+                break;
+            case COMMUNITY_MODULE_MOUSE_JIGGLER_ON:
+                jiggler_enable();
+                break;
+            case COMMUNITY_MODULE_MOUSE_JIGGLER_OFF:
+                jiggler_disable();
+                break;
+            case COMMUNITY_MODULE_MOUSE_JIGGLER_PATTERN_NEXT:
+                jiggler_pattern_next();
+                break;
+            case COMMUNITY_MODULE_MOUSE_JIGGLER_PATTERN_PREV:
+                jiggler_pattern_prev();
+                break;
+            case COMMUNITY_MODULE_MOUSE_JIGGLER_INTRO_NEXT:
+                jiggler_pattern_intro_next();
+                break;
+            case COMMUNITY_MODULE_MOUSE_JIGGLER_INTRO_PREV:
+                jiggler_pattern_intro_prev();
+                break;
+            case COMMUNITY_MODULE_MOUSE_JIGGLER_ENDING_NEXT:
+                jiggler_pattern_ending_next();
+                break;
+            case COMMUNITY_MODULE_MOUSE_JIGGLER_ENDING_PREV:
+                jiggler_pattern_ending_prev();
+                break;
+            case COMMUNITY_MODULE_MOUSE_JIGGLER_AUTOSTOP:
+                jiggler_set_autostop(true);
+                break;
+            default:
+                if (jiggler_autostop && jiggler_get_state()) {
+                    jiggler_intro_end();
+                    jiggler_end();
+                }
+                break;
         }
     }
     return true;
