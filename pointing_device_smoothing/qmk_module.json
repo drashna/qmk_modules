@@ -1,0 +1,28 @@
+{
+    "features": {
+        "pointing_device": true
+    },
+    "keycodes": [
+        {
+            "aliases": [
+                "SM_TOGG"
+            ],
+            "key": "CM_SMOOTHING_TOGGLE"
+        },
+        {
+            "aliases": [
+                "SM_FACT"
+            ],
+            "key": "CM_SMOOTHING_FACTOR_INC"
+        },
+        {
+            "aliases": [
+                "SM_TIME"
+            ],
+            "key": "CM_SMOOTHING_TIMEOUT_INC"
+        }
+    ],
+    "license": "GPL-2.0-or-later",
+    "maintainer": "drashna",
+    "module_name": "Pointing Device Smoothing"
+}
