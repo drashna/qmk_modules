@@ -9,7 +9,7 @@ Add the module to your `keymap.json`:
 ```json
 {
     "modules": [
-        "drashna/hold_guarded_keycode"
+        "drashna/guarded_reset"
     ]
 }
 ```

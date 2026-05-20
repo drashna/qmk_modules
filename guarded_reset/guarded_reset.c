@@ -28,10 +28,18 @@ ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(1, 0, 0);
  * Default guarded-keycode list.  Override by defining guarded_reset_keycodes[]
  * as a non-weak (strong) symbol anywhere in the firmware build.
  * ----------------------------------------------------------------------- */
-__attribute__((weak)) const uint16_t guarded_reset_keycodes[] = {
-    QK_BOOTLOADER,
-    QK_REBOOT,
-    QK_CLEAR_EEPROM,
+
+typedef bool (*guarded_reset_handler_t)(uint16_t keycode, keyrecord_t *record);
+
+typedef struct {
+    uint16_t                 keycode;
+    guarded_reset_handler_t  handler;
+} guarded_reset_entry_t;
+
+__attribute__((weak)) const guarded_reset_entry_t guarded_reset_keycodes[] = {
+    {QK_BOOTLOADER,  process_quantum},
+    {QK_REBOOT,      process_quantum},
+    {QK_CLEAR_EEPROM, process_quantum},
 };
 
 __attribute__((weak)) uint16_t guarded_reset_keycode_count(void) {
@@ -42,7 +50,7 @@ __attribute__((weak)) uint16_t guarded_reset_keycode_get(uint16_t index) {
     if (index >= guarded_reset_keycode_count()) {
         return KC_NO;
     }
-    return guarded_reset_keycodes[index];
+    return guarded_reset_keycodes[index].keycode;
 }
 
 static uint16_t            gr_hold_ms                            = GUARDED_RESET_HOLD_MS;
@@ -69,11 +77,14 @@ static uint32_t gr_deferred_callback(uint32_t trigger_time, void *cb_arg) {
         gr_tokens[index] = INVALID_DEFERRED_TOKEN;
     }
 
-    uint16_t keycode = guarded_reset_keycode_get(index);
-    if (keycode != KC_NO) {
-        keyrecord_t fake_record   = {0};
-        fake_record.event.pressed = true;
-        process_quantum(keycode, &fake_record);
+    if (index < guarded_reset_keycode_count()) {
+        uint16_t keycode = guarded_reset_keycodes[index].keycode;
+        guarded_reset_handler_t handler = guarded_reset_keycodes[index].handler;
+        if (keycode != KC_NO && handler != NULL) {
+            keyrecord_t fake_record   = {0};
+            fake_record.event.pressed = true;
+            handler(keycode, &fake_record);
+        }
     }
 
     return 0; /* do not repeat */
@@ -84,7 +95,7 @@ static uint32_t gr_deferred_callback(uint32_t trigger_time, void *cb_arg) {
  *        On press we schedule the deferred callback for that keycode's own
  *        slot; on release we cancel only that slot.
  */
-bool process_record_guarded_reset(uint16_t keycode, keyrecord_t *record) {
+bool pre_process_record_guarded_reset(uint16_t keycode, keyrecord_t *record) {
     uint16_t count = guarded_reset_keycode_count();
     for (uint16_t i = 0; i < count && i < GUARDED_RESET_MAX_KEYCODES; i++) {
         if (guarded_reset_keycode_get(i) != keycode) {
@@ -104,10 +115,10 @@ bool process_record_guarded_reset(uint16_t keycode, keyrecord_t *record) {
         }
 
         /* Consume the keycode – process_quantum must not see it */
-        return false;
+        return false && pre_process_record_guarded_reset_kb(keycode, record);
     }
 
-    return true;
+    return pre_process_record_guarded_reset_kb(keycode, record);
 }
 
 /**
