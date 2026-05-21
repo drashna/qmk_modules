@@ -24,28 +24,57 @@ static float carry_y = 0.0f;
 
 static uint32_t smooth_timer = 0;
 
+/**
+ * @brief Returns the current EMA smoothing factor.
+ * @return Factor in [0.0, 1.0].
+ */
 float pointing_device_smoothing_get_factor(void) {
     return smooth_factor;
 }
 
+/**
+ * @brief Sets the EMA smoothing factor.
+ * @param factor New factor, clamped to [0.0, 1.0].
+ *               1.0 = passthrough (no smoothing); 0.0 = maximum smoothing.
+ */
 void pointing_device_smoothing_set_factor(float factor) {
     if (factor >= 0.0f && factor <= 1.0f) {
         smooth_factor = factor;
     }
 }
 
+/**
+ * @brief Returns the current inactivity reset timeout in milliseconds.
+ * @return Timeout in milliseconds.
+ */
 uint32_t pointing_device_smoothing_get_reset_timeout(void) {
     return smooth_reset_timeout;
 }
 
+/**
+ * @brief Sets the inactivity threshold after which the EMA state is reset.
+ * @param timeout_ms Timeout in milliseconds. 0 disables the auto-reset.
+ */
 void pointing_device_smoothing_set_reset_timeout(uint32_t timeout_ms) {
     smooth_reset_timeout = timeout_ms;
 }
 
+/**
+ * @brief Returns true when EMA smoothing is active.
+ * @return true if smoothing is enabled, false otherwise.
+ */
 bool pointing_device_smoothing_get_enabled(void) {
     return smooth_enabled;
 }
 
+/**
+ * @brief Enables or disables EMA smoothing.
+ *
+ * When disabled, the internal EMA state and rounding carry are cleared so
+ * that stale history does not bleed into the next enabled session.
+ *
+ * @param enable true to enable smoothing; false to disable and reset state.
+ */
 void pointing_device_smoothing_set_enabled(bool enable) {
     smooth_enabled = enable;
     if (!enable) {
@@ -57,14 +86,16 @@ void pointing_device_smoothing_set_enabled(bool enable) {
     }
 }
 
+/** @brief Toggles EMA smoothing on/off. */
 void pointing_device_smoothing_toggle_enabled(void) {
     pointing_device_smoothing_set_enabled(!smooth_enabled);
 }
 
 /**
- * Returns a step value adjusted by held modifiers.
- * Shift  → inverts the direction.
- * Ctrl   → multiplies by 10.
+ * @brief Returns a modifier-adjusted float step for increment functions.
+ * @param step     Base step value.
+ * @param[out] out Adjusted step: negated if Shift is held, multiplied by 10 if Ctrl is held.
+ * @return Always true.
  */
 bool pointing_device_smoothing_get_mod_step_f(float step, float *out) {
     const uint8_t mod_mask = get_mods();
@@ -78,6 +109,12 @@ bool pointing_device_smoothing_get_mod_step_f(float step, float *out) {
     return true;
 }
 
+/**
+ * @brief Returns a modifier-adjusted integer step for increment functions.
+ * @param step     Base step value (unsigned).
+ * @param[out] out Adjusted signed step: negated if Shift is held, multiplied by 10 if Ctrl is held.
+ * @return Always true.
+ */
 bool pointing_device_smoothing_get_mod_step_u32(uint32_t step, int32_t *out) {
     const uint8_t mod_mask = get_mods();
     int32_t       s        = (int32_t)step;
@@ -91,12 +128,25 @@ bool pointing_device_smoothing_get_mod_step_u32(uint32_t step, int32_t *out) {
     return true;
 }
 
+/**
+ * @brief Increments the smoothing factor by one step, respecting held modifiers.
+ *
+ * Uses @ref POINTING_DEVICE_SMOOTHING_FACTOR_STEP as the base step.
+ * Shift inverts the direction (decrement); Ctrl multiplies the step by 10.
+ */
 void pointing_device_smoothing_factor_increment(void) {
     float step = 0.0f;
     pointing_device_smoothing_get_mod_step_f(POINTING_DEVICE_SMOOTHING_FACTOR_STEP, &step);
     pointing_device_smoothing_set_factor(smooth_factor + step);
 }
 
+/**
+ * @brief Increments the reset timeout by one step, respecting held modifiers.
+ *
+ * Uses @ref POINTING_DEVICE_SMOOTHING_TIMEOUT_STEP as the base step.
+ * Shift inverts the direction (decrement); Ctrl multiplies the step by 10.
+ * The result is clamped to a minimum of 0 ms.
+ */
 void pointing_device_smoothing_timeout_increment(void) {
     int32_t step = 0;
     pointing_device_smoothing_get_mod_step_u32(POINTING_DEVICE_SMOOTHING_TIMEOUT_STEP, &step);
@@ -107,12 +157,20 @@ void pointing_device_smoothing_timeout_increment(void) {
 }
 
 /**
- * Core task hook — applies exponential moving average smoothing.
+ * @brief QMK pointing_device_task hook — applies EMA smoothing to X/Y axes.
  *
- * EMA formula:  ema = alpha * raw + (1 - alpha) * ema
+ * EMA formula: @f$ \text{ema} = \alpha \cdot \text{raw} + (1-\alpha) \cdot \text{ema} @f$
  *
  * A high alpha (near 1.0) passes raw values almost unchanged.
- * A low alpha (near 0.0) applies heavy smoothing / lag.
+ * A low alpha (near 0.0) applies heavy smoothing at the cost of increased lag.
+ *
+ * Sub-pixel precision is preserved via a rounding carry that accumulates the
+ * fractional part dropped when converting the float EMA back to int8_t.
+ * The carry is reset when the pointer reverses direction or after the
+ * inactivity timeout (@ref POINTING_DEVICE_SMOOTHING_RESET_TIMEOUT_MS).
+ *
+ * @param mouse_report Incoming mouse report.
+ * @return Smoothed mouse report.
  */
 report_mouse_t pointing_device_task_pointing_device_smoothing(report_mouse_t mouse_report) {
     if (!smooth_enabled) {
@@ -156,6 +214,16 @@ report_mouse_t pointing_device_task_pointing_device_smoothing(report_mouse_t mou
     return pointing_device_task_pointing_device_smoothing_kb(mouse_report);
 }
 
+/**
+ * @brief QMK process_record hook — handles smoothing keycodes.
+ *
+ * Responds to @c CM_SMOOTHING_TOGGLE, @c CM_SMOOTHING_FACTOR_INC, and
+ * @c CM_SMOOTHING_TIMEOUT_INC on key-press events.
+ *
+ * @param keycode The keycode being processed.
+ * @param record  Key event record.
+ * @return true to continue normal QMK processing; false to stop.
+ */
 bool process_record_pointing_device_smoothing(uint16_t keycode, keyrecord_t *record) {
     if (!process_record_pointing_device_smoothing_kb(keycode, record)) {
         return true;
@@ -175,12 +243,4 @@ bool process_record_pointing_device_smoothing(uint16_t keycode, keyrecord_t *rec
         }
     }
     return true;
-}
-
-__attribute__((weak)) void keyboard_post_init_pointing_device_smoothing(void) {
-    smooth_enabled       = true;
-    smooth_factor        = POINTING_DEVICE_SMOOTHING_FACTOR;
-    smooth_reset_timeout = POINTING_DEVICE_SMOOTHING_RESET_TIMEOUT_MS;
-
-    keyboard_post_init_pointing_device_smoothing_kb();
 }
