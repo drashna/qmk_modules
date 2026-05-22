@@ -27,7 +27,7 @@ ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(1, 1, 1);
 #    define OPENRGB_DIRECT_MODE_STARTUP_BLUE 255
 #endif
 
-RGB g_openrgb_direct_mode_colors[RGB_MATRIX_LED_COUNT] = {
+rgb_t g_openrgb_direct_mode_colors[RGB_MATRIX_LED_COUNT] = {
     [0 ... RGB_MATRIX_LED_COUNT - 1] = {OPENRGB_DIRECT_MODE_STARTUP_GREEN, OPENRGB_DIRECT_MODE_STARTUP_RED,
                                         OPENRGB_DIRECT_MODE_STARTUP_BLUE}};
 
@@ -258,7 +258,7 @@ void openrgb_get_device_info(void) {
     }
 }
 void openrgb_get_mode_info(void) {
-    const HSV hsv_color = rgb_matrix_get_hsv();
+    const hsv_t hsv_color = rgb_matrix_get_hsv();
 
     raw_hid_buffer[0] = OPENRGB_GET_MODE_INFO;
     raw_hid_buffer[1] = rgb_matrix_get_mode();
