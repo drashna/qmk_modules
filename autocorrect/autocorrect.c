@@ -464,7 +464,7 @@ bool process_record_autocorrect(uint16_t keycode, keyrecord_t *record) {
             char correct[TYPO_BUFFER_SIZE + 10] = {0}; // let's hope this is big enough
 
             uint8_t offset = space_last ? backspaces : backspaces + 1;
-            strcpy(correct, typo);
+            memcpy(correct, typo, typo_len); // correct is zero-initialized; typo_len is already known
             strcpy_P(correct + typo_len - offset, changes);
 
             if (apply_autocorrect(backspaces, changes, typo, correct)) {
