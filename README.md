@@ -76,10 +76,11 @@ These are modules that add additional functionality to displays (both OLED drive
 
 These are modules that add additional functionality to displays (both OLED driver, and Quantum Painter)
 
-| Module                    | Description                                                   |
-|---------------------------|---------------------------------------------------------------|
-| [OpenRGB](./openrgb/)     | Proof of concept for OpenRGB support as a community module.   |
-| [SignalRGB](./signalrgb/) | Proof of concept for SignalRGB support as a community module. |
+| Module                                | Description                                                      |
+|---------------------------------------|------------------------------------------------------------------|
+| [Better RGB Keys](./better_rgb_keys/) | RGB keycodes that you can hold down to cycle through the values. |
+| [OpenRGB](./openrgb/)                 | Proof of concept for OpenRGB support as a community module.      |
+| [SignalRGB](./signalrgb/)             | Proof of concept for SignalRGB support as a community module.    |
 
 ## In development
 
