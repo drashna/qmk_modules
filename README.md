@@ -37,6 +37,7 @@ These are modules that extend hardware functionality, such as extending (unused)
 
 | Module                                    | Description                                                                                                                                     |
 |-------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
+| [KVM Helper](./kvm_helper/)               | Improves USB stability when using a keyboard through a KVM switch by detecting stuck enumeration states and performing a soft reset to recover. |
 | [RTC](./rtc/)                             | Adds support for hardware RTC functionality (RP2040 built in RTC not working).                                                                  |
 | [Spacemouse Module](./spacemouse_module/) | Add basic support for UART based Spacemouse Module. Lacks pointing device support intentionally, as it could be used for many other things too. |
 | [Watchdog](./watchdog/)                   | Adds hardware watchdog support as a community module. Additional config required.                                                               |
