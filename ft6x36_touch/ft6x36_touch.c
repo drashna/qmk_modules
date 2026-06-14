@@ -84,8 +84,18 @@ bool ft6x36_init(void) {
     ft6x36_read_reg(FT6X36_REG_CHIP_ID, &chip_id);
     pd_dprintf("FT6x36: chip_id=0x%02X focaltech_id=0x%02X\n", chip_id, id);
 
-    // Interrupt mode: polling (0 = trigger, 1 = polling)
+    // Configure interrupt pin as input with pull-up when defined
+#ifdef FT6X36_INT_PIN
+    gpio_set_pin_input_high(FT6X36_INT_PIN);
+    pd_dprintf("FT6x36: INT pin configured\n");
+#endif
+
+    // Interrupt mode: trigger (0x00) when INT pin wired, polling (0x01) otherwise
+#ifdef FT6X36_INT_PIN
+    ft6x36_write_reg(FT6X36_REG_G_MODE, 0x00);
+#else
     ft6x36_write_reg(FT6X36_REG_G_MODE, 0x01);
+#endif
 
     ft6x36_connected = true;
     return true;
@@ -119,6 +129,13 @@ ft6x36_touch_data_t ft6x36_read_touch(void) {
         pd_dprintf("FT6x36: not connected or enabled\n");
         return data;
     }
+
+    // When an interrupt pin is configured, skip the I2C read if no event pending
+#ifdef FT6X36_INT_PIN
+    if (gpio_read_pin(FT6X36_INT_PIN)) {
+        return data; // INT still high → no new data
+    }
+#endif
 
     // Read 15 bytes starting from GEST_ID (0x01) through P2_MISC (0x0E)
     uint8_t buf[14] = {0};

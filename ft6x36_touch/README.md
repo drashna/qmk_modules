@@ -35,8 +35,7 @@ Add the module to `qmk.json` / `modules` section of your userspace, then enable 
 | `FT6X36_I2C_TIMEOUT`             | `20`     | I2C timeout (ms)                                        |
 | `FT6X36_RESET_PIN`               | *(none)* | MCU pin connected to the sensor RSTN line (active-low)  |
 | `FT6X36_RESET_DURATION_MS`       | `5`      | How long to hold RSTN low (ms)                          |
-| `FT6X36_RESET_SETTLE_MS`         | `300`    | Delay after releasing RSTN before first I2C access (ms) |
-| `FT6X36_TOUCH_SCALE_NUMERATOR`   | `1`      | Scale numerator for mouse delta                         |
+| `FT6X36_RESET_SETTLE_MS`         | `300`    | Delay after releasing RSTN before first I2C access (ms) || `FT6X36_INT_PIN`                 | *(none)*| MCU pin connected to the sensor INT line (active-low); enables trigger mode and skips I2C when no touch pending || `FT6X36_TOUCH_SCALE_NUMERATOR`   | `1`      | Scale numerator for mouse delta                         |
 | `FT6X36_TOUCH_SCALE_DENOMINATOR` | `4`      | Scale denominator – larger = slower cursor              |
 | `FT6X36_TAP_TERM_MS`             | `200`    | Max tap duration (ms) for click detection               |
 | `FT6X36_TAP_MAX_DISPLACEMENT`    | `30`     | Max finger travel (sensor units) to count as tap        |

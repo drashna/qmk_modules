@@ -30,6 +30,11 @@
 #    define FT6X36_RESET_SETTLE_MS 300
 #endif
 
+// Optional interrupt pin (active-low).  Define in config.h to skip I2C reads
+// when no touch event is pending.
+// Example: #define FT6X36_INT_PIN B4
+// If not defined the sensor is polled unconditionally every task cycle.
+
 // ──────────────────────────────────────────────────────────────────────────────
 // Sensor register map
 // ──────────────────────────────────────────────────────────────────────────────
