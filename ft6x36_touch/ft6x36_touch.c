@@ -1,7 +1,8 @@
 // Copyright 2025 Christopher Courtney, aka Drashna Jael're  (@drashna) <drashna@live.com>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-#include "ft6x36.h"
+#include "ft6x36_touch.h"
+#include "quantum.h"
 #include "i2c_master.h"
 #include "print.h"
 #include "timer.h"
@@ -23,6 +24,7 @@
 // #endif // FT6X36_RESET_PIN
 
 static const uint8_t threshold = FT6X36_DEFAULT_THRESHOLD;
+static bool          initialized = false;
 
 bool ft6x36_init(void) {
     i2c_init();
@@ -91,9 +93,26 @@ void ft6x36_task(void) {
     if (timer_elapsed(interval) > 1000) {
         interval = timer_read();
 #ifdef FT6X36_INTERRUPT_PIN
-        // bool state = gpio_read_pin(FT6X36_INTERRUPT_PIN);
-        // xprintf("INT: %d\n", state);
+        bool state = gpio_read_pin(FT6X36_INTERRUPT_PIN);
+        xprintf("INT: %d\n", state);
 #endif // FT6X36_INTERRUPT_PIN
         ft6x36_read_data();
     }
 }
+
+void keyboard_post_init_ft6x36_touch(void) {
+    initialized = ft6x36_init();
+    keyboard_post_init_ft6x36_touch_kb();
+}
+
+void housekeeping_task_ft6x36_touch(void) {
+    if (initialized) {
+        ft6x36_task();
+    } else {
+        static uint16_t retry_count = 0;
+        retry_count++;
+        if (retry_count == UINT16_MAX) {
+            initialized = ft6x36_init();
+        }
+    }
+};
