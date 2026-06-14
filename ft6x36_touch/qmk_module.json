@@ -4,5 +4,5 @@
     },
     "license": "GPL-2.0-or-later",
     "maintainer": "drashna",
-    "module_name": "FT6x36 Touch Controller"
+    "module_name": "FT6x36 Touch Sensor"
 }
