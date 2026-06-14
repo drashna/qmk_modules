@@ -106,6 +106,16 @@
 #    define FT6X36_TAP_MAX_DISPLACEMENT 30
 #endif
 
+// Coordinate bounds used for 180-degree rotation.
+// Override in config.h if your panel resolution differs.
+#ifndef FT6X36_TOUCH_MAX_X
+#    define FT6X36_TOUCH_MAX_X 320
+#endif
+
+#ifndef FT6X36_TOUCH_MAX_Y
+#    define FT6X36_TOUCH_MAX_Y 480
+#endif
+
 // ──────────────────────────────────────────────────────────────────────────────
 // Public data types
 // ──────────────────────────────────────────────────────────────────────────────
@@ -128,11 +138,90 @@ typedef struct {
 // Public API
 // ──────────────────────────────────────────────────────────────────────────────
 
-bool                ft6x36_init(void);
-bool                ft6x36_is_connected(void);
+/**
+ * @brief Initialize the FT6x36 controller and communication interface.
+ *
+ * @return true when the device responds on I2C.
+ * @return false when initialization fails.
+ */
+bool ft6x36_init(void);
+
+/**
+ * @brief Check whether the FT6x36 was detected and initialized.
+ *
+ * @return true when connected.
+ * @return false when not connected.
+ */
+bool ft6x36_is_connected(void);
+
+/**
+ * @brief Read and decode the latest FT6x36 touch report.
+ *
+ * @return Decoded touch data structure.
+ */
 ft6x36_touch_data_t ft6x36_read_touch(void);
-void                ft6x36_reset(void);
+
+/**
+ * @brief Perform a hardware reset pulse when a reset pin is configured.
+ */
+void ft6x36_reset(void);
 
 // Runtime enable/disable
+/**
+ * @brief Get the runtime state of touch processing.
+ *
+ * @return true when touch processing is enabled.
+ * @return false when touch processing is disabled.
+ */
 bool ft6x36_touch_get_enabled(void);
+
+/**
+ * @brief Enable or disable touch processing at runtime.
+ *
+ * @param enable Set true to enable touch processing.
+ */
 void ft6x36_touch_set_enabled(bool enable);
+
+// Runtime enable/disable for pointing-device report generation.
+// This only affects mouse report output; absolute touch data remains available.
+/**
+ * @brief Get the runtime state of pointing-device report generation.
+ *
+ * @return true when pointing reports are enabled.
+ * @return false when pointing reports are disabled.
+ */
+bool ft6x36_pointing_get_enabled(void);
+
+/**
+ * @brief Enable or disable pointing-device report generation at runtime.
+ *
+ * @param enable Set true to enable pointing reports.
+ */
+void ft6x36_pointing_set_enabled(bool enable);
+
+// Returns the most-recent touch data captured during the last matrix scan.
+// Use this for absolute-position access without enabling POINTING_DEVICE.
+/**
+ * @brief Return the most recent cached touch data.
+ *
+ * @return Last touch snapshot captured by the housekeeping hook.
+ */
+ft6x36_touch_data_t ft6x36_get_last_touch(void);
+
+// Callbacks fired every matrix-scan cycle with the latest absolute touch data.
+// Implement ft6x36_touch_event_user() in your keymap/user code to receive
+// absolute X/Y coordinates (e.g. for display/UI hit-testing).
+// These are called regardless of whether POINTING_DEVICE_ENABLE is set.
+/**
+ * @brief Keyboard-level touch callback invoked each housekeeping cycle.
+ *
+ * @param data Latest touch snapshot.
+ */
+void ft6x36_touch_event_kb(ft6x36_touch_data_t data);
+
+/**
+ * @brief User-level touch callback invoked each housekeeping cycle.
+ *
+ * @param data Latest touch snapshot.
+ */
+void ft6x36_touch_event_user(ft6x36_touch_data_t data);

@@ -17,6 +17,7 @@ ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(1, 0, 0);
 
 static bool ft6x36_connected = false;
 static bool ft6x36_enabled   = true;
+static bool ft6x36_pointing_enabled = true;
 
 // Cursor tracking
 static bool     touch_active = false;
@@ -36,18 +37,54 @@ static uint32_t tap2_start_ms    = 0;
 // Accumulated mouse buttons to send on the next report cycle
 static uint8_t pending_buttons = 0;
 
+// Last raw touch data captured in matrix_scan (used by both the absolute-position
+// callbacks and the pointing-device processing path)
+static ft6x36_touch_data_t ft6x36_last_touch_data = {0};
+
+/**
+ * @brief Clear internal gesture and tap state trackers.
+ */
+static void ft6x36_reset_touch_state(void) {
+    touch_active     = false;
+    tap_in_progress  = false;
+    tap2_in_progress = false;
+    pending_buttons  = 0;
+}
+
 // ──────────────────────────────────────────────────────────────────────────────
 // I2C helpers
 // ──────────────────────────────────────────────────────────────────────────────
 
+/**
+ * @brief Read one register byte from the FT6x36.
+ *
+ * @param reg Register address.
+ * @param out Destination byte pointer.
+ * @return true on successful I2C transaction.
+ */
 static inline bool ft6x36_read_reg(uint8_t reg, uint8_t *out) {
     return i2c_read_register(FT6X36_I2C_ADDRESS << 1, reg, out, 1, FT6X36_I2C_TIMEOUT) == I2C_STATUS_SUCCESS;
 }
 
+/**
+ * @brief Read a contiguous register range from the FT6x36.
+ *
+ * @param reg Starting register address.
+ * @param buf Destination buffer.
+ * @param len Number of bytes to read.
+ * @return true on successful I2C transaction.
+ */
 static inline bool ft6x36_read_regs(uint8_t reg, uint8_t *buf, uint16_t len) {
     return i2c_read_register(FT6X36_I2C_ADDRESS << 1, reg, buf, len, FT6X36_I2C_TIMEOUT) == I2C_STATUS_SUCCESS;
 }
 
+/**
+ * @brief Write one register byte to the FT6x36.
+ *
+ * @param reg Register address.
+ * @param val Value to write.
+ * @return true on successful I2C transaction.
+ */
 static inline bool ft6x36_write_reg(uint8_t reg, uint8_t val) {
     return i2c_write_register(FT6X36_I2C_ADDRESS << 1, reg, &val, 1, FT6X36_I2C_TIMEOUT) == I2C_STATUS_SUCCESS;
 }
@@ -56,6 +93,9 @@ static inline bool ft6x36_write_reg(uint8_t reg, uint8_t val) {
 // Public: initialise
 // ──────────────────────────────────────────────────────────────────────────────
 
+/**
+ * @brief Reset the FT6x36 via the configured reset pin.
+ */
 void ft6x36_reset(void) {
 #ifdef FT6X36_RESET_PIN
     gpio_set_pin_output(FT6X36_RESET_PIN);
@@ -66,6 +106,12 @@ void ft6x36_reset(void) {
 #endif
 }
 
+/**
+ * @brief Initialize I2C, probe the controller, and apply interrupt mode.
+ *
+ * @return true when the controller is detected.
+ * @return false when probing fails.
+ */
 bool ft6x36_init(void) {
     ft6x36_reset();
     i2c_init();
@@ -101,27 +147,96 @@ bool ft6x36_init(void) {
     return true;
 }
 
+/**
+ * @brief Get current FT6x36 connectivity state.
+ *
+ * @return true when device is connected.
+ * @return false when device is not connected.
+ */
 bool ft6x36_is_connected(void) {
     return ft6x36_connected;
 }
 
+/**
+ * @brief Get runtime touch-processing enable state.
+ *
+ * @return true when touch processing is enabled.
+ * @return false when touch processing is disabled.
+ */
 bool ft6x36_touch_get_enabled(void) {
     return ft6x36_enabled;
 }
 
+/**
+ * @brief Enable or disable touch processing at runtime.
+ *
+ * @param enable Set true to enable touch processing.
+ */
 void ft6x36_touch_set_enabled(bool enable) {
     ft6x36_enabled = enable;
     if (!enable) {
-        touch_active     = false;
-        tap_in_progress  = false;
-        tap2_in_progress = false;
+        ft6x36_reset_touch_state();
     }
+}
+
+/**
+ * @brief Get runtime pointing report enable state.
+ *
+ * @return true when pointing report generation is enabled.
+ * @return false when pointing report generation is disabled.
+ */
+bool ft6x36_pointing_get_enabled(void) {
+    return ft6x36_pointing_enabled;
+}
+
+/**
+ * @brief Enable or disable pointing report generation at runtime.
+ *
+ * @param enable Set true to enable pointing reports.
+ */
+void ft6x36_pointing_set_enabled(bool enable) {
+    ft6x36_pointing_enabled = enable;
+    if (!enable) {
+        ft6x36_reset_touch_state();
+    }
+}
+
+/**
+ * @brief Return the most recent cached touch sample.
+ *
+ * @return Last touch snapshot.
+ */
+ft6x36_touch_data_t ft6x36_get_last_touch(void) {
+    return ft6x36_last_touch_data;
+}
+
+/**
+ * @brief Keyboard-level touch event hook.
+ *
+ * @param data Latest touch snapshot.
+ */
+__attribute__((weak)) void ft6x36_touch_event_kb(ft6x36_touch_data_t data) {
+    ft6x36_touch_event_user(data);
+}
+
+/**
+ * @brief User-level touch event hook.
+ *
+ * @param data Latest touch snapshot.
+ */
+__attribute__((weak)) void ft6x36_touch_event_user(ft6x36_touch_data_t data) {
+    xprintf("FT6x36: touch event received\n  x=%u y=%u\n", data.p[0].x, data.p[0].y);
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
 // Public: read raw touch data
 // ──────────────────────────────────────────────────────────────────────────────
 
+/**
+ * @brief Read, decode, and normalize FT6x36 touch data.
+ *
+ * @return Parsed touch snapshot.
+ */
 ft6x36_touch_data_t ft6x36_read_touch(void) {
     ft6x36_touch_data_t data = {0};
 
@@ -167,6 +282,10 @@ ft6x36_touch_data_t ft6x36_read_touch(void) {
         data.p[i].valid = (i < data.touch_count);
 
         if (data.p[i].valid) {
+#ifdef FT6X36_TOUCH_ROTATE_180
+            data.p[i].x = (data.p[i].x < FT6X36_TOUCH_MAX_X) ? (FT6X36_TOUCH_MAX_X - 1 - data.p[i].x) : 0;
+            data.p[i].y = (data.p[i].y < FT6X36_TOUCH_MAX_Y) ? (FT6X36_TOUCH_MAX_Y - 1 - data.p[i].y) : 0;
+#endif // FT6X36_TOUCH_ROTATE_180
             pd_dprintf("FT6x36: p%u x=%4u y=%4u ev=%u id=%u\n", i, data.p[i].x, data.p[i].y, data.p[i].event,
                        data.p[i].id);
         }
@@ -182,14 +301,22 @@ ft6x36_touch_data_t ft6x36_read_touch(void) {
 #if defined(POINTING_DEVICE_ENABLE)
 #    include "pointing_device.h"
 
-static report_mouse_t ft6x36_process_touch(report_mouse_t mouse_report) {
+// Processes a pre-read touch snapshot into mouse deltas / tap clicks.
+// Called from pointing_device_task using the data cached by matrix_scan.
+/**
+ * @brief Convert a touch snapshot into a pointing-device mouse report.
+ *
+ * @param mouse_report Incoming mouse report.
+ * @param d Touch snapshot to process.
+ * @return Updated mouse report.
+ */
+report_mouse_t ft6x36_process_touch(report_mouse_t mouse_report, ft6x36_touch_data_t d) {
     if (!ft6x36_connected || !ft6x36_enabled) {
         pd_dprintf("FT6x36: not connected or enabled\n");
         return mouse_report;
     }
 
-    ft6x36_touch_data_t d   = ft6x36_read_touch();
-    uint32_t            now = timer_read32();
+    uint32_t now = timer_read32();
 
     if (d.touch_count == 1 && d.p[0].valid) {
         uint8_t ev = d.p[0].event;
@@ -287,6 +414,14 @@ void keyboard_post_init_ft6x36_touch(void) {
     keyboard_post_init_ft6x36_touch_kb();
 }
 
+void housekeeping_task_ft6x36_touch(void) {
+    if (ft6x36_connected && ft6x36_enabled) {
+        ft6x36_last_touch_data = ft6x36_read_touch();
+        ft6x36_touch_event_kb(ft6x36_last_touch_data);
+    }
+    housekeeping_task_ft6x36_touch_kb();
+}
+
 #if defined(POINTING_DEVICE_ENABLE)
 void pointing_device_init_ft6x36_touch(void) {
     // Sensor already initialised in keyboard_post_init; nothing extra required.
@@ -294,7 +429,11 @@ void pointing_device_init_ft6x36_touch(void) {
 }
 
 report_mouse_t pointing_device_task_ft6x36_touch(report_mouse_t mouse_report) {
-    mouse_report = ft6x36_process_touch(mouse_report);
+    if (ft6x36_pointing_enabled) {
+        // Use the data already read by matrix_scan_ft6x36_touch() this cycle so
+        // we never issue a second I2C read (important when an INT pin is wired).
+        mouse_report = ft6x36_process_touch(mouse_report, ft6x36_last_touch_data);
+    }
     return pointing_device_task_ft6x36_touch_kb(mouse_report);
 }
 #endif // POINTING_DEVICE_ENABLE
