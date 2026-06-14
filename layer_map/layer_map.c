@@ -121,8 +121,11 @@ _Static_assert(sizeof(layer_map_msg_t) <= RPC_M2S_BUFFER_SIZE, "Layer map messag
 
 void layer_map_sync_handler(uint8_t initiator2target_buffer_size, const void *initiator2target_buffer,
                             uint8_t target2initiator_buffer_size, void *target2initiator_buffer) {
+    if (initiator2target_buffer_size < sizeof(layer_map_msg_t)) {
+        return;
+    }
     layer_map_msg_t msg = {0};
-    memcpy(&msg, initiator2target_buffer, initiator2target_buffer_size);
+    memcpy(&msg, initiator2target_buffer, sizeof(layer_map_msg_t));
     if (msg.row >= LAYER_MAP_ROWS) {
         xprintf("Layer Map row out of bounds: %d (Valid range: 0-%d)\n", msg.row, LAYER_MAP_ROWS - 1);
         return;
