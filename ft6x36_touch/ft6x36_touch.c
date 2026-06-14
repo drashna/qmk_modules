@@ -224,9 +224,7 @@ __attribute__((weak)) void ft6x36_touch_event_kb(ft6x36_touch_data_t data) {
  *
  * @param data Latest touch snapshot.
  */
-__attribute__((weak)) void ft6x36_touch_event_user(ft6x36_touch_data_t data) {
-    xprintf("FT6x36: touch event received\n  x=%u y=%u\n", data.p[0].x, data.p[0].y);
-}
+__attribute__((weak)) void ft6x36_touch_event_user(ft6x36_touch_data_t data) {}
 
 // ──────────────────────────────────────────────────────────────────────────────
 // Public: read raw touch data
