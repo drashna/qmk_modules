@@ -18,8 +18,11 @@ bool apply_autocorrect(uint8_t backspaces, const char *str, char *typo, char *co
 
 bool autocorrect_is_enabled(void);
 void autocorrect_enable(void);
+void autocorrect_enable_noeeprom(void);
 void autocorrect_disable(void);
+void autocorrect_disable_noeeprom(void);
 void autocorrect_toggle(void);
+void autocorrect_toggle_noeeprom(void);
 
 void    autocorrect_dict_cycle(bool forward);
 uint8_t autocorrect_get_current_dictionary(void);

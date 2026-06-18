@@ -12,6 +12,9 @@
 #include "keycode_config.h"
 #include "send_string.h"
 #include "action_util.h"
+#include "eeconfig.h"
+
+ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(1, 1, 3);
 
 #if __has_include("autocorrect_data.h")
 #    include "autocorrect_data.h"
@@ -39,15 +42,45 @@ static const uint8_t  autocorrect_node_size[N_DICTS] PROGMEM   = {2};
 #    define AUTOCORRECT_PGM_READ_BYTE(offset) pgm_read_byte(current_dict_data + (offset))
 #endif
 
+typedef struct autocorrect_config_t {
+    bool    enabled    : 1;
+    uint8_t dict_index : 3;
+} autocorrect_config_t;
+
+static autocorrect_config_t autocorrect;
+
+// Helpers required to bind to debounce helper
+void eeconfig_read_autocorrect(autocorrect_config_t *value) {
+    eeconfig_read_autocorrect_datablock(value, 0, sizeof(autocorrect_config_t));
+}
+void eeconfig_update_autocorrect(autocorrect_config_t *value) {
+    eeconfig_update_autocorrect_datablock(value, 0, sizeof(autocorrect_config_t));
+}
+
+EECONFIG_DEBOUNCE_HELPER(autocorrect, autocorrect);
+
 static const uint8_t *current_dict_data;
 static uint16_t       current_dict_min_length;
 static uint16_t       current_dict_max_length;
 static uint32_t       current_dict_size;
 static uint8_t        current_dict_node_size;
-static uint8_t        current_dict_index = 0;
 
 static uint8_t typo_buffer[TYPO_BUFFER_SIZE] = {KC_SPC};
 static uint8_t typo_buffer_size                    = 1;
+
+/**
+ * @brief Updates the autocorrect enabled state.
+ *
+ * @param enabled New enabled state.
+ * @param save_eeprom True to persist the updated state to EEPROM.
+ */
+static void autocorrect_set_enabled(bool enabled, bool save_eeprom) {
+    autocorrect.enabled = enabled;
+    if (!enabled) {
+        typo_buffer_size = 0;
+    }
+    eeconfig_flush_autocorrect(save_eeprom);
+}
 
 const uint8_t number_dicts = N_DICTS;
 
@@ -70,11 +103,11 @@ void autocorrect_init_dict(void) {
     typo_buffer_size = 1;
 
     // make sure we dont access arbitrary addresses if eeprom has invalid state
-    if (current_dict_index >= number_dicts) {
-        current_dict_index = 0;
+    if (autocorrect.dict_index >= number_dicts) {
+        autocorrect.dict_index = 0;
     }
 
-    uint8_t  dict_index = current_dict_index;
+    uint8_t  dict_index = autocorrect.dict_index;
     uint32_t offset     = pgm_read_dword(&autocorrect_offsets[dict_index]);
 
     current_dict_data       = &(autocorrect_data[offset]);
@@ -91,7 +124,7 @@ void autocorrect_init_dict(void) {
  * @return false if disabled
  */
 bool autocorrect_is_enabled(void) {
-    return keymap_config.autocorrect_enable;
+    return autocorrect.enabled;
 }
 
 /**
@@ -99,8 +132,14 @@ bool autocorrect_is_enabled(void) {
  *
  */
 void autocorrect_enable(void) {
-    keymap_config.autocorrect_enable = true;
-    eeconfig_update_keymap(&keymap_config);
+    autocorrect_set_enabled(true, true);
+}
+
+/**
+ * @brief Enables autocorrect without saving state to EEPROM.
+ */
+void autocorrect_enable_noeeprom(void) {
+    autocorrect_set_enabled(true, false);
 }
 
 /**
@@ -108,9 +147,14 @@ void autocorrect_enable(void) {
  *
  */
 void autocorrect_disable(void) {
-    keymap_config.autocorrect_enable = false;
-    typo_buffer_size                 = 0;
-    eeconfig_update_keymap(&keymap_config);
+    autocorrect_set_enabled(false, true);
+}
+
+/**
+ * @brief Disables autocorrect without saving state to EEPROM.
+ */
+void autocorrect_disable_noeeprom(void) {
+    autocorrect_set_enabled(false, false);
 }
 
 /**
@@ -118,9 +162,14 @@ void autocorrect_disable(void) {
  *
  */
 void autocorrect_toggle(void) {
-    keymap_config.autocorrect_enable = !keymap_config.autocorrect_enable;
-    typo_buffer_size                 = 0;
-    eeconfig_update_keymap(&keymap_config);
+    autocorrect_set_enabled(!autocorrect.enabled, true);
+}
+
+/**
+ * @brief Toggles autocorrect's status without saving state to EEPROM.
+ */
+void autocorrect_toggle_noeeprom(void) {
+    autocorrect_set_enabled(!autocorrect.enabled, false);
 }
 
 /**
@@ -129,12 +178,13 @@ void autocorrect_toggle(void) {
  * @return uint8_t current dictionary index
  */
 uint8_t autocorrect_get_current_dictionary(void) {
-    return current_dict_index;
+    return autocorrect.dict_index;
 }
 
 void autocorrect_set_current_dictionary(uint8_t dict_index) {
     if (dict_index < number_dicts) {
-        current_dict_index = dict_index;
+        autocorrect.dict_index = dict_index;
+        eeconfig_flag_autocorrect(true);
         autocorrect_init_dict();
     }
 }
@@ -154,10 +204,11 @@ uint8_t autocorrect_get_number_of_dictionaries(void) {
  */
 void autocorrect_dict_cycle(bool forward) {
     if (forward) {
-        current_dict_index = (current_dict_index + 1) % number_dicts;
+        autocorrect.dict_index = (autocorrect.dict_index + 1) % number_dicts;
     } else {
-        current_dict_index = MIN(current_dict_index - 1, (uint8_t)(number_dicts - 1));
+        autocorrect.dict_index = MIN(autocorrect.dict_index - 1, (uint8_t)(number_dicts - 1));
     }
+    eeconfig_flag_autocorrect(true);
     autocorrect_init_dict();
 }
 
@@ -166,6 +217,15 @@ void autocorrect_dict_cycle(bool forward) {
  *
  */
 void keyboard_post_init_autocorrect(void) {
+    if (!eeconfig_is_autocorrect_datablock_valid()) {
+        eeconfig_init_autocorrect_datablock();
+        autocorrect.enabled    = true;
+        autocorrect.dict_index = 0;
+        eeconfig_flush_autocorrect(true);
+    }
+
+    eeconfig_init_autocorrect();
+
     autocorrect_init_dict();
     keyboard_post_init_autocorrect_kb();
 }
@@ -485,4 +545,9 @@ bool process_record_autocorrect(uint16_t keycode, keyrecord_t *record) {
         }
     }
     return true;
+}
+
+void housekeeping_task_autocorrect(void) {
+    eeconfig_flush_autocorrect_task(1000);
+    housekeeping_task_autocorrect_kb();
 }
