@@ -1,21 +1,35 @@
 // Copyright 2023 Christopher Courtney, aka Drashna Jael're  (@drashna) <drashna@live.com>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-#include "quantum.h"
-
-ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(1, 0, 0);
-
 #include "i2c_master.h"
+#include "community_modules.h"
+#include "eeconfig.h"
 #include "debug.h"
 
-static bool i2c_scanner_enable = true;
+ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(1, 1, 3);
 
 #ifndef I2C_SCANNER_TIMEOUT
 #    define I2C_SCANNER_TIMEOUT 50
 #endif // I2C_SCANNER_TIMEOUT
 
+typedef struct i2c_scanner_config_t {
+    bool enabled;
+} i2c_scanner_config_t;
+
+static i2c_scanner_config_t i2c_scanner;
+
+// Helpers required to bind to debounce helper
+void eeconfig_read_i2c_scanner(i2c_scanner_config_t *value) {
+    eeconfig_read_i2c_scanner_datablock(value, 0, sizeof(i2c_scanner_config_t));
+}
+void eeconfig_update_i2c_scanner(i2c_scanner_config_t *value) {
+    eeconfig_update_i2c_scanner_datablock(value, 0, sizeof(i2c_scanner_config_t));
+}
+
+EECONFIG_DEBOUNCE_HELPER(i2c_scanner, i2c_scanner);
+
 static void do_scan(void) {
-    if (!i2c_scanner_enable) {
+    if (!i2c_scanner.enabled) {
         return;
     }
     uint8_t nDevices = 0;
@@ -39,26 +53,36 @@ static void do_scan(void) {
     }
 }
 
-uint16_t scan_timer = 0;
-
 void housekeeping_task_i2c_scanner(void) {
+    static uint16_t scan_timer = 0;
+
     if (timer_elapsed(scan_timer) > 5000) {
         do_scan();
         scan_timer = timer_read();
     }
+    eeconfig_flush_i2c_scanner_task(1000);
     housekeeping_task_i2c_scanner_kb();
 }
 
 void keyboard_post_init_i2c_scanner(void) {
     i2c_init();
-    scan_timer = timer_read();
+
+    if (!eeconfig_is_i2c_scanner_datablock_valid()) {
+        eeconfig_init_i2c_scanner_datablock();
+        i2c_scanner.enabled = true;
+        eeconfig_flush_i2c_scanner(true);
+    }
+
+    eeconfig_init_i2c_scanner();
+
     keyboard_post_init_i2c_scanner_kb();
 }
 
 bool i2c_scanner_get_enabled(void) {
-    return i2c_scanner_enable;
+    return i2c_scanner.enabled;
 }
 
 void i2c_scanner_set_enabled(bool enable) {
-    i2c_scanner_enable = enable;
+    i2c_scanner.enabled = enable;
+    eeconfig_flag_i2c_scanner(true);
 }
