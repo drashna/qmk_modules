@@ -3,12 +3,18 @@
 
 #include "quantum.h"
 #include "rtc.h"
+#include "community_modules.h"
+#include "eeconfig.h"
 #include <stdlib.h>
 #include "print.h"
 #include "timer.h"
 #include "progmem.h"
 #include <stdio.h>
 #include <string.h>
+
+#if defined(SPLIT_KEYBOARD)
+#    include "transactions.h"
+#endif
 
 #ifdef DS3231_RTC_DRIVER_ENABLE
 #    include "drivers/ds3231.h"
@@ -35,9 +41,90 @@
 #    define RTC_READ_INTERVAL 250
 #endif
 
+#ifndef RTC_TIMEZONE
+#    define RTC_TIMEZONE -8
+#endif
+
+ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(1, 1, 3);
+
+typedef struct rtc_config_t {
+    bool   format_24h : 1;
+    bool   is_dst     : 1;
+    int8_t timezone   : 6;
+} rtc_config_t;
+
+_Static_assert(sizeof(rtc_config_t) <= EECONFIG_MODULE_RTC_DATA_SIZE, "EECONFIG_MODULE_RTC_DATA_SIZE is too small");
+
+static rtc_config_t rtc_config;
+
 static rtc_time_t rtc_time;
 static uint16_t   last_rtc_read   = 0;
 static bool       rtc_initialized = false, rtc_connected = false;
+static bool       rtc_time_needs_sync = false;
+
+void eeconfig_read_rtc(rtc_config_t *value) {
+    eeconfig_read_rtc_datablock(value, 0, sizeof(rtc_config_t));
+}
+
+void eeconfig_update_rtc(rtc_config_t *value) {
+    eeconfig_update_rtc_datablock(value, 0, sizeof(rtc_config_t));
+}
+
+EECONFIG_DEBOUNCE_HELPER(rtc, rtc_config);
+
+#ifdef SPLIT_KEYBOARD
+_Static_assert(sizeof(rtc_time_t) <= RPC_M2S_BUFFER_SIZE, "RTC time message size exceeds split buffer size");
+
+static void rtc_time_sync_handler(uint8_t initiator2target_buffer_size, const void *initiator2target_buffer,
+                                  uint8_t target2initiator_buffer_size, void *target2initiator_buffer) {
+    rtc_time_t incoming = {0};
+    (void)target2initiator_buffer_size;
+    (void)target2initiator_buffer;
+    memcpy(&incoming, initiator2target_buffer, initiator2target_buffer_size);
+
+    if (memcmp(&incoming, &rtc_time, sizeof(rtc_time_t)) != 0) {
+        rtc_set_time(incoming);
+        rtc_connected = true;
+    }
+}
+
+static void sync_rtc_time(void) {
+    static uint32_t last_rtc_sync = 0;
+
+    if (!rtc_is_connected()) {
+        return;
+    }
+
+    if (rtc_time_needs_sync || timer_elapsed32(last_rtc_sync) > (60 * 60 * 1000)) { // 1 hour
+        last_rtc_sync = timer_read32();
+        if (transaction_rpc_send(RPC_ID_RTC_TIME_SYNC, sizeof(rtc_time_t), &rtc_time)) {
+            rtc_time_needs_sync = false;
+        }
+    }
+}
+#endif // SPLIT_KEYBOARD
+
+static void rtc_config_set_defaults(void) {
+    rtc_config = (rtc_config_t){
+        .format_24h = true,
+        .is_dst     = false,
+        .timezone   = RTC_TIMEZONE,
+    };
+}
+
+static void rtc_config_from_time(const rtc_time_t *time, rtc_config_t *config) {
+    config->format_24h = (time->format == RTC_FORMAT_24H);
+    config->is_dst     = time->is_dst;
+    config->timezone   = time->timezone;
+}
+
+static void rtc_config_apply_to_time(const rtc_config_t *config, rtc_time_t *time) {
+#ifdef VENDOR_RTC_DRIVER_ENABLE
+    time->format = config->format_24h ? RTC_FORMAT_24H : RTC_FORMAT_12H;
+#endif // VENDOR_RTC_DRIVER_ENABLE
+    time->is_dst   = config->is_dst;
+    time->timezone = config->timezone;
+}
 
 const uint8_t days_in_month[12] PROGMEM = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
@@ -256,9 +343,18 @@ void rtc_set_time_split(rtc_time_t time, bool is_connected) {
     rtc_connected = is_connected;
 }
 
-__attribute__((weak)) void rtc_check_dst_format(rtc_time_t *time) {}
+__attribute__((weak)) void rtc_check_dst_format(rtc_time_t *time) {
+    (void)time;
+}
 
 void keyboard_post_init_rtc(void) {
+    if (!eeconfig_is_rtc_datablock_valid()) {
+        eeconfig_init_rtc_datablock();
+        rtc_config_set_defaults();
+        eeconfig_flush_rtc(true);
+    }
+    eeconfig_init_rtc();
+
 #ifdef DS3231_RTC_DRIVER_ENABLE
     rtc_initialized = ds3231_init(&rtc_time);
 #endif // DS3231_RTC_DRIVER_ENABLE
@@ -272,10 +368,16 @@ void keyboard_post_init_rtc(void) {
     rtc_initialized = vendor_rtc_init(&rtc_time);
 #endif // VENDOR_RTC_DRIVER_ENABLE
     if (rtc_initialized) {
+        rtc_config_apply_to_time(&rtc_config, &rtc_time);
         rtc_check_dst_format(&rtc_time);
         last_rtc_read = timer_read() + RTC_READ_INTERVAL;
         srand(rtc_time.unixtime);
     }
+
+#ifdef SPLIT_KEYBOARD
+    transaction_register_rpc(RPC_ID_RTC_TIME_SYNC, rtc_time_sync_handler);
+#endif
+
     keyboard_post_init_rtc_kb();
 }
 
@@ -284,7 +386,16 @@ void keyboard_post_init_rtc(void) {
  *
  */
 void housekeeping_task_rtc(void) {
+    eeconfig_flush_rtc_task(1000);
+
+#ifdef SPLIT_KEYBOARD
+    if (is_keyboard_master()) {
+        sync_rtc_time();
+    }
+#endif
+
     if (!rtc_initialized) {
+        housekeeping_task_rtc_kb();
         return;
     }
     if (timer_expired(timer_read(), last_rtc_read)) {
@@ -303,6 +414,7 @@ void housekeeping_task_rtc(void) {
 #endif // VENDOR_RTC_DRIVER_ENABLE
         if (connected) {
             last_rtc_read = timer_read() + RTC_READ_INTERVAL;
+            rtc_config_apply_to_time(&rtc_config, &rtc_time);
             rtc_check_dst_format(&rtc_time);
         } else {
             last_rtc_read = timer_read() + (RTC_READ_INTERVAL * 100);
@@ -446,6 +558,15 @@ void rtc_set_time(rtc_time_t time) {
     vendor_rtc_set_time(time);
 #endif // VENDOR_RTC_DRIVER_ENABLE
     rtc_time = time;
+
+    rtc_config_from_time(&time, &rtc_config);
+    eeconfig_flag_rtc(true);
+
+#ifdef SPLIT_KEYBOARD
+    if (is_keyboard_master()) {
+        rtc_time_needs_sync = true;
+    }
+#endif
 
     rtc_set_time_kb(&time);
 }

@@ -12,6 +12,20 @@ Add the following to the list of modules in your `keymap.json` to enable this mo
 
 If a time has not been set for the RTC, then the compile date and time are used for the initial initialization. This won't be completely accurate, but should only be off by a matter of seconds, in most cases. And should be good enough to get you going.
 
+## Persistent configuration
+
+The module keeps runtime state in `rtc_time_t` and persists display/settings configuration in its module eeconfig block (`EECONFIG_MODULE_RTC_DATA_SIZE`) via an internal compact `rtc_config` structure, rather than relying on userspace config storage.
+
+The following values are persisted by the module:
+
+- Time format (`12h`/`24h`)
+- Daylight Saving Time toggle (`is_dst`)
+- Timezone offset (`timezone`)
+
+The default timezone can be overridden with `RTC_TIMEZONE` in your build configuration.
+
+When `SPLIT_KEYBOARD` is enabled, this module synchronizes `rtc_time_t` from the master half to the secondary half.
+
 ## Keycodes
 
 | Keycode               | Description                                            |
@@ -29,8 +43,8 @@ If a time has not been set for the RTC, then the compile date and time are used 
 | `RTC_SECOND_INCREASE` | Increments the second by one.                          |
 | `RTC_SECOND_DECREASE` | Decrements the second by one.                          |
 | `RTC_AM_PM_TOGGLE`    | Toggles between AM and PM when in 12 Hour time format. |
-| `RTC_FORMAT_TOGGLE`   | Toggles between 12 and 24 hour format.                 |
-| `RTC_DST_TOGGLE`      | Toggles DST setting.                                   |
+| `RTC_FORMAT_TOGGLE`   | Toggles between 12 and 24 hour format (persisted).     |
+| `RTC_DST_TOGGLE`      | Toggles DST setting (persisted).                       |
 
 ## Functions
 
