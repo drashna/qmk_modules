@@ -4,12 +4,14 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include QMK_KEYBOARD_H
+#include "community_modules.h"
+#include "eeconfig.h"
 #include "pointing_device_internal.h"
 #include "pointing_device_accel.h"
 #include "math.h"
 #include <quantum/util.h>
 
-ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(1, 1, 0);
+ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(1, 1, 3);
 #if defined(__AVR__) || (defined(CORTEX_USE_FPU) && CORTEX_USE_FPU == FALSE)
 #    pragma message \
         "Warning: Pointing Device Accel module may not work properly without Floating Point support. Use at your own risk."
@@ -19,65 +21,159 @@ static uint32_t pointing_device_accel_timer;
 
 pointing_device_accel_config_t g_pointing_device_accel_config;
 
+void eeconfig_read_pointing_device_accel(pointing_device_accel_config_t *value) {
+    eeconfig_read_pointing_device_accel_datablock(value, 0, sizeof(pointing_device_accel_config_t));
+}
+
+void eeconfig_update_pointing_device_accel(pointing_device_accel_config_t *value) {
+    eeconfig_update_pointing_device_accel_datablock(value, 0, sizeof(pointing_device_accel_config_t));
+}
+
+EECONFIG_DEBOUNCE_HELPER(pointing_device_accel, g_pointing_device_accel_config);
+
+static void pointing_device_accel_set_defaults(void) {
+    g_pointing_device_accel_config = (pointing_device_accel_config_t){
+        .growth_rate = POINTING_DEVICE_ACCEL_GROWTH_RATE,
+        .offset      = POINTING_DEVICE_ACCEL_OFFSET,
+        .limit       = POINTING_DEVICE_ACCEL_LIMIT,
+        .takeoff     = POINTING_DEVICE_ACCEL_TAKEOFF,
+        .enabled     = true,
+    };
+}
+
+/**
+ * @brief Gets the takeoff parameter for the acceleration curve.
+ *
+ * @return Current takeoff value.
+ */
 float pointing_device_accel_get_takeoff(void) {
     return g_pointing_device_accel_config.takeoff;
 }
 
+/**
+ * @brief Sets the takeoff parameter for the acceleration curve.
+ *
+ * Values below 0.5 are ignored to avoid nonsensical curve behavior.
+ *
+ * @param val New takeoff value.
+ */
 void pointing_device_accel_set_takeoff(float val) {
     if (val >= 0.5) { // value less than 0.5 leads to nonsensical results
         g_pointing_device_accel_config.takeoff = val;
-        pointing_device_config_update(&g_pointing_device_accel_config);
+        eeconfig_flag_pointing_device_accel(true);
     }
 }
 
+/**
+ * @brief Gets the growth rate parameter for the acceleration curve.
+ *
+ * @return Current growth rate value.
+ */
 float pointing_device_accel_get_growth_rate(void) {
     return g_pointing_device_accel_config.growth_rate;
 }
+
+/**
+ * @brief Sets the growth rate parameter for the acceleration curve.
+ *
+ * Negative values are ignored to avoid nonsensical curve behavior.
+ *
+ * @param val New growth rate value.
+ */
 void pointing_device_accel_set_growth_rate(float val) {
     if (val >= 0) { // value less 0 leads to nonsensical results
         g_pointing_device_accel_config.growth_rate = val;
-        pointing_device_config_update(&g_pointing_device_accel_config);
+        eeconfig_flag_pointing_device_accel(true);
     }
 }
 
+/**
+ * @brief Gets the curve offset parameter.
+ *
+ * @return Current offset value.
+ */
 float pointing_device_accel_get_offset(void) {
     return g_pointing_device_accel_config.offset;
 }
 
+/**
+ * @brief Sets the curve offset parameter.
+ *
+ * @param val New offset value.
+ */
 void pointing_device_accel_set_offset(float val) {
     g_pointing_device_accel_config.offset = val;
-    pointing_device_config_update(&g_pointing_device_accel_config);
+    eeconfig_flag_pointing_device_accel(true);
 }
 
+/**
+ * @brief Gets the acceleration factor upper limit.
+ *
+ * @return Current limit value.
+ */
 float pointing_device_accel_get_limit(void) {
     return g_pointing_device_accel_config.limit;
 }
 
+/**
+ * @brief Sets the acceleration factor upper limit.
+ *
+ * Negative values are ignored.
+ *
+ * @param val New limit value.
+ */
 void pointing_device_accel_set_limit(float val) {
     if (val >= 0) {
         g_pointing_device_accel_config.limit = val;
-        pointing_device_config_update(&g_pointing_device_accel_config);
+        eeconfig_flag_pointing_device_accel(true);
     }
 }
 
+/**
+ * @brief Enables or disables pointer acceleration.
+ *
+ * @param enable True to enable acceleration, false to disable.
+ */
 void pointing_device_accel_enabled(bool enable) {
     g_pointing_device_accel_config.enabled = enable;
-    pointing_device_config_update(&g_pointing_device_accel_config);
+    eeconfig_flag_pointing_device_accel(true);
     pd_dprintf("PDACCEL: enabled: %d\n", g_pointing_device_accel_config.enabled);
 }
 
+/**
+ * @brief Gets the current acceleration enabled state.
+ *
+ * @return True if acceleration is enabled.
+ */
 bool pointing_device_accel_get_enabled(void) {
     return g_pointing_device_accel_config.enabled;
 }
 
+/**
+ * @brief Toggles pointer acceleration on or off.
+ */
 void pointing_device_accel_toggle_enabled(void) {
     pointing_device_accel_enabled(!pointing_device_accel_get_enabled());
 }
 
+/**
+ * @brief Determines whether acceleration processing should run.
+ *
+ * Weak hook for keyboard or userspace overrides.
+ *
+ * @return True when acceleration should be applied.
+ */
 __attribute__((weak)) bool pointing_device_accel_should_process(void) {
     return true;
 }
 
+/**
+ * @brief Applies acceleration processing to a mouse report.
+ *
+ * @param mouse_report Incoming mouse report from the pointing device.
+ *
+ * @return Processed mouse report with acceleration applied.
+ */
 report_mouse_t pointing_device_task_pointing_device_accel(report_mouse_t mouse_report) {
     // rounding carry to recycle dropped floats from int mouse reports, to smoothen low speed movements (credit
     // @ankostis)
@@ -153,6 +249,15 @@ report_mouse_t pointing_device_task_pointing_device_accel(report_mouse_t mouse_r
     return pointing_device_task_pointing_device_accel_kb(mouse_report);
 }
 
+/**
+ * @brief Scales and/or inverts a step value based on active modifiers.
+ *
+ * Control multiplies the step by 10, and shift inverts its sign.
+ *
+ * @param step Base step value.
+ *
+ * @return Modified step value.
+ */
 float pointing_device_accel_get_mod_step(float step) {
     const uint8_t mod_mask = get_mods();
     if (mod_mask & MOD_MASK_CTRL) {
@@ -164,6 +269,9 @@ float pointing_device_accel_get_mod_step(float step) {
     return step;
 }
 
+/**
+ * @brief Increments the takeoff parameter using configured step behavior.
+ */
 void pointing_device_accel_takeoff_increment(void) {
     pointing_device_accel_set_takeoff(pointing_device_accel_get_takeoff() +
                                       pointing_device_accel_get_mod_step(POINTING_DEVICE_ACCEL_TAKEOFF_STEP));
@@ -172,6 +280,9 @@ void pointing_device_accel_takeoff_increment(void) {
                g_pointing_device_accel_config.limit);
 }
 
+/**
+ * @brief Increments the growth rate parameter using configured step behavior.
+ */
 void pointing_device_accel_growth_rate_increment(void) {
     pointing_device_accel_set_growth_rate(pointing_device_accel_get_growth_rate() +
                                           pointing_device_accel_get_mod_step(POINTING_DEVICE_ACCEL_GROWTH_RATE_STEP));
@@ -180,6 +291,9 @@ void pointing_device_accel_growth_rate_increment(void) {
                g_pointing_device_accel_config.limit);
 }
 
+/**
+ * @brief Increments the offset parameter using configured step behavior.
+ */
 void pointing_device_accel_offset_increment(void) {
     pointing_device_accel_set_offset(pointing_device_accel_get_offset() +
                                      pointing_device_accel_get_mod_step(POINTING_DEVICE_ACCEL_OFFSET_STEP));
@@ -188,6 +302,9 @@ void pointing_device_accel_offset_increment(void) {
                g_pointing_device_accel_config.limit);
 }
 
+/**
+ * @brief Increments the acceleration limit using configured step behavior.
+ */
 void pointing_device_accel_set_limit_increment(void) {
     pointing_device_accel_set_limit(pointing_device_accel_get_limit() +
                                     pointing_device_accel_get_mod_step(POINTING_DEVICE_ACCEL_LIMIT_STEP));
@@ -196,6 +313,14 @@ void pointing_device_accel_set_limit_increment(void) {
                g_pointing_device_accel_config.limit);
 }
 
+/**
+ * @brief Handles pointing-device-acceleration keycodes.
+ *
+ * @param keycode Keycode to process.
+ * @param record Key event record.
+ *
+ * @return True to continue normal key processing.
+ */
 bool process_record_pointing_device_accel(uint16_t keycode, keyrecord_t *record) {
     if (!process_record_pointing_device_accel_kb(keycode, record)) {
         return true;
@@ -223,43 +348,49 @@ bool process_record_pointing_device_accel(uint16_t keycode, keyrecord_t *record)
     return true;
 }
 
-__attribute__((weak)) void pointing_device_config_update(pointing_device_accel_config_t *config) {
-    // Co nothing since we're saving/storing in memory.
-    // Can be overridden to implement NVM storage.  VIA module does this, in fact.
+/**
+ * @brief Persists the acceleration configuration to storage.
+ *
+ * Weak hook that can be overridden for alternate storage backends.
+ *
+ * @param config Configuration data to persist.
+ */
+void pointing_device_config_update(pointing_device_accel_config_t *config) {
+    eeconfig_write_pointing_device_accel(config);
 }
 
-__attribute__((weak)) void pointing_device_config_read(pointing_device_accel_config_t *config) {
-    g_pointing_device_accel_config = (pointing_device_accel_config_t){
-        .growth_rate = POINTING_DEVICE_ACCEL_GROWTH_RATE,
-        .offset      = POINTING_DEVICE_ACCEL_OFFSET,
-        .limit       = POINTING_DEVICE_ACCEL_LIMIT,
-        .takeoff     = POINTING_DEVICE_ACCEL_TAKEOFF,
-        .enabled     = true,
-    };
+/**
+ * @brief Loads the acceleration configuration from storage.
+ *
+ * @param config Destination for loaded configuration data.
+ */
+void pointing_device_config_read(pointing_device_accel_config_t *config) {
+    eeconfig_read_pointing_device_accel(config);
 }
 
-__attribute__((weak)) void keyboard_post_init_pointing_device_accel(void) {
+/**
+ * @brief Performs pre-init for the acceleration module.
+ *
+ * Reads persisted configuration into memory and calls keyboard hook.
+ */
+void keyboard_post_init_pointing_device_accel(void) {
     // Read initial config into memory.
-    // Via module reads settings from NVM into memory.
-    pointing_device_config_read(&g_pointing_device_accel_config);
+    if (!eeconfig_is_pointing_device_accel_datablock_valid()) {
+        eeconfig_init_pointing_device_accel_datablock();
+        pointing_device_accel_set_defaults();
+        eeconfig_flush_pointing_device_accel(true);
+    }
+    eeconfig_init_pointing_device_accel();
 
     keyboard_post_init_pointing_device_accel_kb();
 }
 
-// Unfortunately, there is no way to automatically call this as of 1.0.0 or 1.1.0
-// Compounding this is that NVM abstraction prevents us from saving to arbitrary locations, safely.
-// We could still do so, but to future proof this .... for now, it needs to be called from either
-// eeconfig_init_user(void) or eeconfig_init_kb(void).
-void eeconfig_init_pointing_device(void) {
-    g_pointing_device_accel_config = (pointing_device_accel_config_t){
-        .growth_rate = POINTING_DEVICE_ACCEL_GROWTH_RATE,
-        .offset      = POINTING_DEVICE_ACCEL_OFFSET,
-        .limit       = POINTING_DEVICE_ACCEL_LIMIT,
-        .takeoff     = POINTING_DEVICE_ACCEL_TAKEOFF,
-        .enabled     = true,
-    };
-    // Write default value to EEPROM now
-    pointing_device_config_update(&g_pointing_device_accel_config);
+/**
+ * @brief Periodically flushes pending configuration changes to EEPROM.
+ */
+void housekeeping_task_pointing_device_accel(void) {
+    eeconfig_flush_pointing_device_accel_task(1000);
+    housekeeping_task_pointing_device_accel_kb();
 }
 
 /**

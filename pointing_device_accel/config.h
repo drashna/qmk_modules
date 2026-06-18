@@ -3,5 +3,7 @@
 
 #pragma once
 
+#define EECONFIG_MODULE_POINTING_DEVICE_ACCEL_DATA_SIZE 20
+
 // Make sure that extended reports are enabled to maximize the possibilities of the reports
 #define MOUSE_EXTENDED_REPORT
