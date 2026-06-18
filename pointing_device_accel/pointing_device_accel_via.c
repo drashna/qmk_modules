@@ -5,8 +5,8 @@
 #include "pointing_device_internal.h"
 #include "via.h"
 
-_Static_assert(sizeof(g_pointing_device_accel_config) <= VIA_EEPROM_CUSTOM_CONFIG_SIZE,
-               "Mismatch in via custom eeprom stored data");
+_Static_assert(sizeof(g_pointing_device_accel_config) <= EECONFIG_MODULE_POINTING_DEVICE_ACCEL_DATA_SIZE,
+               "EECONFIG_MODULE_POINTING_DEVICE_ACCEL_DATA_SIZE is too small");
 
 enum via_pointing_device_channel {
     id_maccel = 24,
@@ -153,15 +153,6 @@ void pointing_device_config_get_value(uint8_t *data) {
                 break;
             }
     }
-}
-
-// Save the data to persistent memory after changes are made
-__attribute__((weak)) void pointing_device_config_update(pointing_device_accel_config_t *config) {
-    via_update_custom_config(config, 0, sizeof(pointing_device_accel_config_t));
-}
-
-__attribute__((weak)) void pointing_device_config_read(pointing_device_accel_config_t *config) {
-    via_read_custom_config(&g_pointing_device_accel_config, 0, sizeof(g_pointing_device_accel_config));
 }
 
 void via_custom_value_command_accel(uint8_t *data, uint8_t length) {
