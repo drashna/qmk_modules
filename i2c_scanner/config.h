@@ -1,0 +1,3 @@
+#pragma once
+
+#define EECONFIG_MODULE_I2C_SCANNER_DATA_SIZE 1
