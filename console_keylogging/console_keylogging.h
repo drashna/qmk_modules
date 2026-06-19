@@ -5,5 +5,6 @@
 
 #include <stdbool.h>
 
-bool console_keylogger_get_enabled(void);
-void console_keylogger_set_enabled(bool enable);
+bool console_keylogging_get_enabled(void);
+void console_keylogging_set_enabled(bool enable);
+void console_keylogging_print_handler(uint16_t keycode, keyrecord_t *record);
