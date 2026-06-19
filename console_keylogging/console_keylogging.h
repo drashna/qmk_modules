@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <stdbool.h>
+#include "action.h"
 
 bool console_keylogging_get_enabled(void);
 void console_keylogging_set_enabled(bool enable);
