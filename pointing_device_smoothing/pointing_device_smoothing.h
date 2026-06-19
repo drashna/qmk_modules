@@ -38,6 +38,14 @@
 #    define POINTING_DEVICE_SMOOTHING_TIMEOUT_STEP 25
 #endif // POINTING_DEVICE_SMOOTHING_TIMEOUT_STEP
 
+typedef struct {
+    float    factor;
+    uint32_t reset_timeout;
+    bool     enabled;
+} pointing_device_smoothing_config_t;
+
+extern pointing_device_smoothing_config_t pointing_device_smoothing_config;
+
 float    pointing_device_smoothing_get_factor(void);
 void     pointing_device_smoothing_set_factor(float factor);
 void     pointing_device_smoothing_factor_increment(void);
