@@ -4,15 +4,17 @@
 #include QMK_KEYBOARD_H
 #include "pointing_device_smoothing.h"
 
-ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(1, 1, 0);
+ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(1, 1, 3);
 
 #if defined(__AVR__) || (defined(CORTEX_USE_FPU) && CORTEX_USE_FPU == FALSE)
 #    pragma message "Warning: Pointing Device Smoothing module may not work properly without Floating Point support. Use at your own risk."
 #endif
 
-static bool     smooth_enabled       = true;
-static float    smooth_factor        = POINTING_DEVICE_SMOOTHING_FACTOR;
-static uint32_t smooth_reset_timeout = POINTING_DEVICE_SMOOTHING_RESET_TIMEOUT_MS;
+pointing_device_smoothing_config_t pointing_device_smoothing_config = {
+    .factor        = POINTING_DEVICE_SMOOTHING_FACTOR,
+    .reset_timeout = POINTING_DEVICE_SMOOTHING_RESET_TIMEOUT_MS,
+    .enabled       = true,
+};
 
 // Exponential moving average state
 static float ema_x = 0.0f;
@@ -24,12 +26,31 @@ static float carry_y = 0.0f;
 
 static uint32_t smooth_timer = 0;
 
+void eeconfig_read_pointing_device_smoothing(pointing_device_smoothing_config_t *value) {
+    eeconfig_read_pointing_device_smoothing_datablock(value, 0, sizeof(pointing_device_smoothing_config_t));
+}
+
+void eeconfig_update_pointing_device_smoothing(pointing_device_smoothing_config_t *value) {
+    eeconfig_update_pointing_device_smoothing_datablock(value, 0, sizeof(pointing_device_smoothing_config_t));
+}
+
+EECONFIG_DEBOUNCE_HELPER(pointing_device_smoothing, pointing_device_smoothing_config);
+
+static void pointing_device_smoothing_set_defaults(void) {
+    pointing_device_smoothing_config = (pointing_device_smoothing_config_t){
+        .factor        = POINTING_DEVICE_SMOOTHING_FACTOR,
+        .reset_timeout = POINTING_DEVICE_SMOOTHING_RESET_TIMEOUT_MS,
+        .enabled       = true,
+    };
+    eeconfig_flush_pointing_device_smoothing(true);
+}
+
 /**
  * @brief Returns the current EMA smoothing factor.
  * @return Factor in [0.0, 1.0].
  */
 float pointing_device_smoothing_get_factor(void) {
-    return smooth_factor;
+    return pointing_device_smoothing_config.factor;
 }
 
 /**
@@ -39,7 +60,8 @@ float pointing_device_smoothing_get_factor(void) {
  */
 void pointing_device_smoothing_set_factor(float factor) {
     if (factor >= 0.0f && factor <= 1.0f) {
-        smooth_factor = factor;
+        pointing_device_smoothing_config.factor = factor;
+        eeconfig_flag_pointing_device_smoothing(true);
     }
 }
 
@@ -48,7 +70,7 @@ void pointing_device_smoothing_set_factor(float factor) {
  * @return Timeout in milliseconds.
  */
 uint32_t pointing_device_smoothing_get_reset_timeout(void) {
-    return smooth_reset_timeout;
+    return pointing_device_smoothing_config.reset_timeout;
 }
 
 /**
@@ -56,7 +78,8 @@ uint32_t pointing_device_smoothing_get_reset_timeout(void) {
  * @param timeout_ms Timeout in milliseconds. 0 disables the auto-reset.
  */
 void pointing_device_smoothing_set_reset_timeout(uint32_t timeout_ms) {
-    smooth_reset_timeout = timeout_ms;
+    pointing_device_smoothing_config.reset_timeout = timeout_ms;
+    eeconfig_flag_pointing_device_smoothing(true);
 }
 
 /**
@@ -64,7 +87,7 @@ void pointing_device_smoothing_set_reset_timeout(uint32_t timeout_ms) {
  * @return true if smoothing is enabled, false otherwise.
  */
 bool pointing_device_smoothing_get_enabled(void) {
-    return smooth_enabled;
+    return pointing_device_smoothing_config.enabled;
 }
 
 /**
@@ -76,7 +99,8 @@ bool pointing_device_smoothing_get_enabled(void) {
  * @param enable true to enable smoothing; false to disable and reset state.
  */
 void pointing_device_smoothing_set_enabled(bool enable) {
-    smooth_enabled = enable;
+    pointing_device_smoothing_config.enabled = enable;
+    eeconfig_flag_pointing_device_smoothing(true);
     if (!enable) {
         // Reset state when disabling so stale EMA doesn't bleed into next enable
         ema_x   = 0.0f;
@@ -88,7 +112,7 @@ void pointing_device_smoothing_set_enabled(bool enable) {
 
 /** @brief Toggles EMA smoothing on/off. */
 void pointing_device_smoothing_toggle_enabled(void) {
-    pointing_device_smoothing_set_enabled(!smooth_enabled);
+    pointing_device_smoothing_set_enabled(!pointing_device_smoothing_config.enabled);
 }
 
 /**
@@ -137,7 +161,7 @@ bool pointing_device_smoothing_get_mod_step_u32(uint32_t step, int32_t *out) {
 void pointing_device_smoothing_factor_increment(void) {
     float step = 0.0f;
     pointing_device_smoothing_get_mod_step_f(POINTING_DEVICE_SMOOTHING_FACTOR_STEP, &step);
-    pointing_device_smoothing_set_factor(smooth_factor + step);
+    pointing_device_smoothing_set_factor(pointing_device_smoothing_config.factor + step);
 }
 
 /**
@@ -151,7 +175,7 @@ void pointing_device_smoothing_timeout_increment(void) {
     int32_t step = 0;
     pointing_device_smoothing_get_mod_step_u32(POINTING_DEVICE_SMOOTHING_TIMEOUT_STEP, &step);
     // Prevent wrapping below zero
-    int32_t new_timeout = (int32_t)smooth_reset_timeout + step;
+    int32_t new_timeout = (int32_t)pointing_device_smoothing_config.reset_timeout + step;
     if (new_timeout < 0) new_timeout = 0;
     pointing_device_smoothing_set_reset_timeout((uint32_t)new_timeout);
 }
@@ -173,13 +197,13 @@ void pointing_device_smoothing_timeout_increment(void) {
  * @return Smoothed mouse report.
  */
 report_mouse_t pointing_device_task_pointing_device_smoothing(report_mouse_t mouse_report) {
-    if (!smooth_enabled) {
+    if (!pointing_device_smoothing_config.enabled) {
         return pointing_device_task_pointing_device_smoothing_kb(mouse_report);
     }
 
     // Reset EMA after a period of inactivity
     if (mouse_report.x == 0 && mouse_report.y == 0) {
-        if (timer_elapsed32(smooth_timer) > smooth_reset_timeout) {
+        if (timer_elapsed32(smooth_timer) > pointing_device_smoothing_config.reset_timeout) {
             ema_x   = 0.0f;
             ema_y   = 0.0f;
             carry_x = 0.0f;
@@ -195,8 +219,10 @@ report_mouse_t pointing_device_task_pointing_device_smoothing(report_mouse_t mou
     if (mouse_report.y * carry_y < 0) carry_y = 0.0f;
 
     // Apply EMA
-    ema_x = smooth_factor * (float)mouse_report.x + (1.0f - smooth_factor) * ema_x;
-    ema_y = smooth_factor * (float)mouse_report.y + (1.0f - smooth_factor) * ema_y;
+    ema_x = pointing_device_smoothing_config.factor * (float)mouse_report.x +
+            (1.0f - pointing_device_smoothing_config.factor) * ema_x;
+    ema_y = pointing_device_smoothing_config.factor * (float)mouse_report.y +
+            (1.0f - pointing_device_smoothing_config.factor) * ema_y;
 
     // Accumulate rounding carry to avoid dropping sub-pixel movement
     float out_x = ema_x + carry_x;
@@ -243,4 +269,20 @@ bool process_record_pointing_device_smoothing(uint16_t keycode, keyrecord_t *rec
         }
     }
     return true;
+}
+
+void housekeeping_task_pointing_device_smoothing(void) {
+    eeconfig_flush_pointing_device_smoothing_task(1000);
+    housekeeping_task_pointing_device_smoothing_kb();
+}
+
+void keyboard_post_init_pointing_device_smoothing(void) {
+    if (!eeconfig_is_pointing_device_smoothing_datablock_valid()) {
+        eeconfig_init_pointing_device_smoothing_datablock();
+        pointing_device_smoothing_set_defaults();
+    }
+
+    eeconfig_init_pointing_device_smoothing();
+
+    keyboard_post_init_pointing_device_smoothing_kb();
 }
