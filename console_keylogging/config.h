@@ -1,0 +1,3 @@
+#pragma once
+
+#define EECONFIG_MODULE_CONSOLE_KEYLOGGING_DATA_SIZE 1
