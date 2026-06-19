@@ -17,6 +17,9 @@ ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(1, 1, 3);
         "Warning: Pointing Device Accel module may not work properly without Floating Point support. Use at your own risk."
 #endif
 
+_Static_assert(sizeof(pointing_device_accel_config_t) <= EECONFIG_MODULE_POINTING_DEVICE_ACCEL_DATA_SIZE,
+               "EECONFIG_MODULE_POINTING_DEVICE_ACCEL_DATA_SIZE is too small");
+
 static uint32_t pointing_device_accel_timer;
 
 pointing_device_accel_config_t g_pointing_device_accel_config;
