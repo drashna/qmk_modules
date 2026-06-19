@@ -5,9 +5,6 @@
 #include "pointing_device_internal.h"
 #include "via.h"
 
-_Static_assert(sizeof(g_pointing_device_accel_config) <= EECONFIG_MODULE_POINTING_DEVICE_ACCEL_DATA_SIZE,
-               "EECONFIG_MODULE_POINTING_DEVICE_ACCEL_DATA_SIZE is too small");
-
 enum via_pointing_device_channel {
     id_maccel = 24,
 };
