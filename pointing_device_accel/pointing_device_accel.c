@@ -61,10 +61,11 @@ float pointing_device_accel_get_takeoff(void) {
  * @param val New takeoff value.
  */
 void pointing_device_accel_set_takeoff(float val) {
-    if (val >= 0.5) { // value less than 0.5 leads to nonsensical results
-        g_pointing_device_accel_config.takeoff = val;
-        eeconfig_flag_pointing_device_accel(true);
+    if (val < 0.5) { // value less than 0.5 leads to nonsensical results
+        val = 0.5;
     }
+    g_pointing_device_accel_config.takeoff = val;
+    eeconfig_flag_pointing_device_accel(true);
 }
 
 /**
@@ -278,9 +279,9 @@ float pointing_device_accel_get_mod_step(float step) {
 void pointing_device_accel_takeoff_increment(void) {
     pointing_device_accel_set_takeoff(pointing_device_accel_get_takeoff() +
                                       pointing_device_accel_get_mod_step(POINTING_DEVICE_ACCEL_TAKEOFF_STEP));
-    pd_dprintf("PDACCEL:keycode: TKO: %.3f gro: %.3f ofs: %.3f lmt: %.3f\n", g_pointing_device_accel_config.takeoff,
-               g_pointing_device_accel_config.growth_rate, g_pointing_device_accel_config.offset,
-               g_pointing_device_accel_config.limit);
+    xprintf("PDACCEL:keycode: TKO: %.3f gro: %.3f ofs: %.3f lmt: %.3f\n", g_pointing_device_accel_config.takeoff,
+            g_pointing_device_accel_config.growth_rate, g_pointing_device_accel_config.offset,
+            g_pointing_device_accel_config.limit);
 }
 
 /**
