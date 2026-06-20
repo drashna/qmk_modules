@@ -1,0 +1,60 @@
+{
+    "module_name": "Dynamic Macros",
+    "maintainer": "drashna",
+    "keycodes": [
+        {
+            "key": "COMMUNITY_MODULE_DYNAMIC_MACRO_PROGRAM",
+            "aliases": [
+                "DM_PROG"
+            ]
+        },
+        {
+            "key": "COMMUNITY_MODULE_DYNAMIC_MACRO_KEY0",
+            "aliases": [
+                "DM_KEY0"
+            ]
+        },
+        {
+            "key": "COMMUNITY_MODULE_DYNAMIC_MACRO_KEY1",
+            "aliases": [
+                "DM_KEY1"
+            ]
+        },
+        {
+            "key": "COMMUNITY_MODULE_DYNAMIC_MACRO_KEY2",
+            "aliases": [
+                "DM_KEY2"
+            ]
+        },
+        {
+            "key": "COMMUNITY_MODULE_DYNAMIC_MACRO_KEY3",
+            "aliases": [
+                "DM_KEY3"
+            ]
+        },
+        {
+            "key": "COMMUNITY_MODULE_DYNAMIC_MACRO_KEY4",
+            "aliases": [
+                "DM_KEY4"
+            ]
+        },
+        {
+            "key": "COMMUNITY_MODULE_DYNAMIC_MACRO_KEY5",
+            "aliases": [
+                "DM_KEY5"
+            ]
+        },
+        {
+            "key": "COMMUNITY_MODULE_DYNAMIC_MACRO_KEY6",
+            "aliases": [
+                "DM_KEY6"
+            ]
+        },
+        {
+            "key": "COMMUNITY_MODULE_DYNAMIC_MACRO_KEY7",
+            "aliases": [
+                "DM_KEY7"
+            ]
+        },
+    ]
+}
