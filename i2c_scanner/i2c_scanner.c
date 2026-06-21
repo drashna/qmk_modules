@@ -18,16 +18,29 @@ typedef struct i2c_scanner_config_t {
 
 static i2c_scanner_config_t i2c_scanner;
 
-// Helpers required to bind to debounce helper
+/**
+ * @brief Read the I2C scanner configuration from EEPROM.
+ *
+ * @param value Pointer to the i2c_scanner_config_t structure to store the configuration.
+ */
 void eeconfig_read_i2c_scanner(i2c_scanner_config_t *value) {
     eeconfig_read_i2c_scanner_datablock(value, 0, sizeof(i2c_scanner_config_t));
 }
+
+/**
+ * @brief Update the I2C scanner configuration in EEPROM.
+ *
+ * @param value Pointer to the i2c_scanner_config_t structure containing the new configuration.
+ */
 void eeconfig_update_i2c_scanner(i2c_scanner_config_t *value) {
     eeconfig_update_i2c_scanner_datablock(value, 0, sizeof(i2c_scanner_config_t));
 }
 
 EECONFIG_DEBOUNCE_HELPER(i2c_scanner, i2c_scanner);
 
+/**
+ * @brief Perform a scan for I2C devices.
+ */
 static void do_scan(void) {
     if (!i2c_scanner.enabled) {
         return;
@@ -53,6 +66,10 @@ static void do_scan(void) {
     }
 }
 
+/**
+ * @brief Perform housekeeping tasks for the I2C scanner.
+ *
+ */
 void housekeeping_task_i2c_scanner(void) {
     static uint16_t scan_timer = 0;
 
@@ -64,24 +81,31 @@ void housekeeping_task_i2c_scanner(void) {
     housekeeping_task_i2c_scanner_kb();
 }
 
+/**
+ * @brief Initialize the I2C scanner.
+ */
 void keyboard_post_init_i2c_scanner(void) {
     i2c_init();
-
-    if (!eeconfig_is_i2c_scanner_datablock_valid()) {
-        eeconfig_init_i2c_scanner_datablock();
-        i2c_scanner.enabled = true;
-        eeconfig_flush_i2c_scanner(true);
-    }
 
     eeconfig_init_i2c_scanner();
 
     keyboard_post_init_i2c_scanner_kb();
 }
 
+/**
+ * @brief Get the enabled status of the I2C scanner.
+ *
+ * @return true if enabled, false otherwise
+ */
 bool i2c_scanner_get_enabled(void) {
     return i2c_scanner.enabled;
 }
 
+/**
+ * @brief Set the enabled status of the I2C scanner.
+ *
+ * @param enable true to enable, false to disable
+ */
 void i2c_scanner_set_enabled(bool enable) {
     i2c_scanner.enabled = enable;
     eeconfig_flag_i2c_scanner(true);

@@ -36,15 +36,6 @@ void eeconfig_update_pointing_device_smoothing(pointing_device_smoothing_config_
 
 EECONFIG_DEBOUNCE_HELPER(pointing_device_smoothing, pointing_device_smoothing_config);
 
-static void pointing_device_smoothing_set_defaults(void) {
-    pointing_device_smoothing_config = (pointing_device_smoothing_config_t){
-        .factor        = POINTING_DEVICE_SMOOTHING_FACTOR,
-        .reset_timeout = POINTING_DEVICE_SMOOTHING_RESET_TIMEOUT_MS,
-        .enabled       = true,
-    };
-    eeconfig_flush_pointing_device_smoothing(true);
-}
-
 /**
  * @brief Returns the current EMA smoothing factor.
  * @return Factor in [0.0, 1.0].
@@ -277,12 +268,16 @@ void housekeeping_task_pointing_device_smoothing(void) {
 }
 
 void keyboard_post_init_pointing_device_smoothing(void) {
-    if (!eeconfig_is_pointing_device_smoothing_datablock_valid()) {
-        eeconfig_init_pointing_device_smoothing_datablock();
-        pointing_device_smoothing_set_defaults();
-    }
-
     eeconfig_init_pointing_device_smoothing();
 
     keyboard_post_init_pointing_device_smoothing_kb();
+}
+
+void eeconfig_init_pointing_device_smoothing_datablock(void) {
+    pointing_device_smoothing_config = (pointing_device_smoothing_config_t){
+        .factor        = POINTING_DEVICE_SMOOTHING_FACTOR,
+        .reset_timeout = POINTING_DEVICE_SMOOTHING_RESET_TIMEOUT_MS,
+        .enabled       = true,
+    };
+    eeconfig_flush_pointing_device_smoothing(true);
 }

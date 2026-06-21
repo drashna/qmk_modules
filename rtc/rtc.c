@@ -104,14 +104,6 @@ static void sync_rtc_time(void) {
 }
 #endif // SPLIT_KEYBOARD
 
-static void rtc_config_set_defaults(void) {
-    rtc_config = (rtc_config_t){
-        .format_24h = true,
-        .is_dst     = false,
-        .timezone   = RTC_TIMEZONE,
-    };
-}
-
 static void rtc_config_from_time(const rtc_time_t *time, rtc_config_t *config) {
     config->format_24h = (time->format == RTC_FORMAT_24H);
     config->is_dst     = time->is_dst;
@@ -348,11 +340,6 @@ __attribute__((weak)) void rtc_check_dst_format(rtc_time_t *time) {
 }
 
 void keyboard_post_init_rtc(void) {
-    if (!eeconfig_is_rtc_datablock_valid()) {
-        eeconfig_init_rtc_datablock();
-        rtc_config_set_defaults();
-        eeconfig_flush_rtc(true);
-    }
     eeconfig_init_rtc();
 
 #ifdef DS3231_RTC_DRIVER_ENABLE
@@ -379,6 +366,20 @@ void keyboard_post_init_rtc(void) {
 #endif
 
     keyboard_post_init_rtc_kb();
+}
+
+/**
+ * @brief Initializes the RTC configuration in EEPROM.
+ *
+ * This function initializes the RTC configuration in EEPROM with default values.
+ */
+void eeconfig_init_rtc_datablock(void) {
+    rtc_config = (rtc_config_t){
+        .format_24h = true,
+        .is_dst     = false,
+        .timezone   = RTC_TIMEZONE,
+    };
+    eeconfig_flush_rtc(true);
 }
 
 /**

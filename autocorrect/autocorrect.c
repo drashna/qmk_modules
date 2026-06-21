@@ -217,19 +217,22 @@ void autocorrect_dict_cycle(bool forward) {
  *
  */
 void keyboard_post_init_autocorrect(void) {
-    if (!eeconfig_is_autocorrect_datablock_valid()) {
-        eeconfig_init_autocorrect_datablock();
-        autocorrect.enabled    = true;
-        autocorrect.dict_index = 0;
-        eeconfig_flush_autocorrect(true);
-    }
-
     eeconfig_init_autocorrect();
 
     autocorrect_init_dict();
     keyboard_post_init_autocorrect_kb();
 }
 
+/**
+ * @brief Initializes the autocorrect configuration in EEPROM.
+ *
+ * This function initializes the autocorrect configuration in EEPROM with default values.
+ */
+void eeconfig_init_autocorrect_datablock(void) {
+    autocorrect.enabled    = true;
+    autocorrect.dict_index = 0;
+    eeconfig_flush_autocorrect(true);
+}
 /**
  * @brief handler for user to override whether autocorrect should process this keypress
  *
