@@ -14,9 +14,20 @@ typedef struct console_keylogging_config_t {
 
 static console_keylogging_config_t console_keylogging_config = {.enabled = false};
 
+/**
+ * @brief Reads the console keylogging configuration from EEPROM.
+ *
+ * @param value Pointer to the console_keylogging_config_t structure to store the read values.
+ */
 void eeconfig_read_console_keylogging(console_keylogging_config_t *value) {
     eeconfig_read_console_keylogging_datablock(value, 0, sizeof(console_keylogging_config_t));
 }
+
+/**
+ * @brief Updates the console keylogging configuration in EEPROM.
+ *
+ * @param value Pointer to the console_keylogging_config_t structure containing the new values.
+ */
 void eeconfig_update_console_keylogging(console_keylogging_config_t *value) {
     eeconfig_update_console_keylogging_datablock(value, 0, sizeof(console_keylogging_config_t));
 }
@@ -64,15 +75,19 @@ void housekeeping_task_console_keylogging(void) {
  * @brief Initialize the console keylogging feature.
  */
 void keyboard_post_init_console_keylogging(void) {
-    if (!eeconfig_is_console_keylogging_datablock_valid()) {
-        eeconfig_init_console_keylogging_datablock();
-        console_keylogging_config.enabled = true;
-        eeconfig_flush_console_keylogging(true);
-    }
-
     eeconfig_init_console_keylogging();
 
     keyboard_post_init_console_keylogging_kb();
+}
+
+/**
+ * @brief Initialize the console keylogging configuration in EEPROM.
+ *
+ * This function initializes the console keylogging configuration in EEPROM with default values.
+ */
+void eeconfig_init_console_keylogging_datablock(void) {
+    console_keylogging_config.enabled = false;
+    eeconfig_flush_console_keylogging(true);
 }
 
 /**

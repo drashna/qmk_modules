@@ -34,16 +34,6 @@ void eeconfig_update_pointing_device_accel(pointing_device_accel_config_t *value
 
 EECONFIG_DEBOUNCE_HELPER(pointing_device_accel, g_pointing_device_accel_config);
 
-static void pointing_device_accel_set_defaults(void) {
-    g_pointing_device_accel_config = (pointing_device_accel_config_t){
-        .growth_rate = POINTING_DEVICE_ACCEL_GROWTH_RATE,
-        .offset      = POINTING_DEVICE_ACCEL_OFFSET,
-        .limit       = POINTING_DEVICE_ACCEL_LIMIT,
-        .takeoff     = POINTING_DEVICE_ACCEL_TAKEOFF,
-        .enabled     = true,
-    };
-}
-
 /**
  * @brief Gets the takeoff parameter for the acceleration curve.
  *
@@ -379,14 +369,26 @@ void pointing_device_config_read(pointing_device_accel_config_t *config) {
  */
 void keyboard_post_init_pointing_device_accel(void) {
     // Read initial config into memory.
-    if (!eeconfig_is_pointing_device_accel_datablock_valid()) {
-        eeconfig_init_pointing_device_accel_datablock();
-        pointing_device_accel_set_defaults();
-        eeconfig_flush_pointing_device_accel(true);
-    }
     eeconfig_init_pointing_device_accel();
 
     keyboard_post_init_pointing_device_accel_kb();
+}
+
+/**
+ * @brief Initializes the pointing device acceleration configuration in EEPROM.
+ *
+ * This function initializes the pointing device acceleration configuration in EEPROM
+ * with default values.
+ */
+void eeconfig_init_pointing_device_accel_datablock(void) {
+    g_pointing_device_accel_config = (pointing_device_accel_config_t){
+        .growth_rate = POINTING_DEVICE_ACCEL_GROWTH_RATE,
+        .offset      = POINTING_DEVICE_ACCEL_OFFSET,
+        .limit       = POINTING_DEVICE_ACCEL_LIMIT,
+        .takeoff     = POINTING_DEVICE_ACCEL_TAKEOFF,
+        .enabled     = true,
+    };
+    eeconfig_flush_pointing_device_accel(true);
 }
 
 /**

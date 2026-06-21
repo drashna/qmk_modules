@@ -284,3 +284,10 @@ void keyboard_post_init_dynamic_macros(void) {
 
     keyboard_post_init_dynamic_macros_kb();
 }
+
+void eeconfig_init_dynamic_macros_datablock(void) {
+    memset(&dynamic_macros, 0, DYNAMIC_MACRO_COUNT * sizeof(dynamic_macro_t));
+    for (uint8_t i = 0; i < DYNAMIC_MACRO_COUNT; ++i) {
+        dynamic_macro_save_eeprom(i);
+    }
+}
