@@ -218,3 +218,17 @@ __attribute__((weak)) bool via_command_kb(uint8_t *data, uint8_t length) {
     return false;
 }
 #endif // VIA_ENABLE
+
+#ifdef XAP_ENABLE
+bool xap_execute_dynamic_keymap_set_keycode(xap_token_t token, xap_route_remapping_set_keymap_keycode_arg_t *arg);
+bool xap_respond_dynamic_keymap_set_keycode(xap_token_t token, const uint8_t *data, size_t data_len) {
+    if (data_len != sizeof(xap_route_remapping_set_keymap_keycode_arg_t)) {
+        return false;
+    }
+    set_layer_map_dirty();
+    xap_route_remapping_set_keymap_keycode_arg_t arg;
+    memcpy(&arg, data, sizeof(xap_route_remapping_set_keymap_keycode_arg_t));
+
+    return xap_execute_dynamic_keymap_set_keycode(token, &arg);
+}
+#endif // XAP_ENABLE
