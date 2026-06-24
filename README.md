@@ -80,8 +80,9 @@ These are modules that add additional functionality to displays (both OLED drive
 | Module                                | Description                                                      |
 |---------------------------------------|------------------------------------------------------------------|
 | [Better RGB Keys](./better_rgb_keys/) | RGB keycodes that you can hold down to cycle through the values. |
-| [OpenRGB](./openrgb/)                 | Proof of concept for OpenRGB support as a community module.      |
 | [SignalRGB](./signalrgb/)             | Proof of concept for SignalRGB support as a community module.    |
+
+OpenRGB is no longer supported here, as support has officially been picked up by [OpenRGB](https://gitlab.com/OpenRGBDevelopers/QMK-OpenRGB)!! 
 
 ## In development
 
