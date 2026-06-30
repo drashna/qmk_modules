@@ -1,0 +1,7 @@
+{
+    "maintainer": "drashna",
+    "module_name": "Velocikey",
+    "features": {
+        "rgb_matrix": true
+    }
+}
