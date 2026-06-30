@@ -81,6 +81,7 @@ These are modules that add additional functionality to displays (both OLED drive
 |---------------------------------------|------------------------------------------------------------------|
 | [Better RGB Keys](./better_rgb_keys/) | RGB keycodes that you can hold down to cycle through the values. |
 | [SignalRGB](./signalrgb/)             | Proof of concept for SignalRGB support as a community module.    |
+| [Velocikey](./velocikey/)             | Naive implementatino for Velocikey support under RGB Matrix.     |
 
 OpenRGB is no longer supported here, as support has officially been picked up by [OpenRGB](https://gitlab.com/OpenRGBDevelopers/QMK-OpenRGB)!! 
 
