@@ -4,6 +4,7 @@
 #include "velocikey.h"
 #include "rgb_matrix.h"
 #include "community_modules.h"
+#include "eeconfig.h"
 
 ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(1, 1, 0);
 
@@ -23,7 +24,29 @@ typedef struct velocikey_config_t {
 
 static velocikey_config_t velocikey_config;
 
+STATIC_ASSERT(sizeof(velocikey_config_t) == EECONFIG_MODULE_VELOCIKEY_DATA_SIZE, "Velocikey config size mismatch");
+
 static uint8_t typing_speed;
+
+/**
+ * @brief Read the Velocikey configuration from EEPROM.
+ *
+ * @param value Pointer to the velocikey_config_t structure to store the configuration.
+ */
+void eeconfig_read_velocikey(velocikey_config_t *value) {
+    eeconfig_read_velocikey_datablock(value, 0, sizeof(velocikey_config_t));
+}
+
+/**
+ * @brief Update the Velocikey configuration in EEPROM.
+ *
+ * @param value Pointer to the velocikey_config_t structure containing the new configuration.
+ */
+void eeconfig_update_velocikey(velocikey_config_t *value) {
+    eeconfig_update_velocikey_datablock(value, 0, sizeof(velocikey_config_t));
+}
+
+EECONFIG_DEBOUNCE_HELPER(velocikey, velocikey_config);
 
 /**
  * @brief Get the current state of Velocikey.
@@ -39,6 +62,7 @@ bool velocikey_get_enabled(void) {
  */
 void velocikey_enable(void) {
     velocikey_config.enabled = true;
+    eeconfig_flag_velocikey(true);
 }
 
 /**
@@ -46,13 +70,16 @@ void velocikey_enable(void) {
  */
 void velocikey_disable(void) {
     velocikey_config.enabled = false;
+    typing_speed             = velocikey_config.min_speed;
+    rgb_matrix_set_speed_noeeprom(typing_speed);
+    eeconfig_flag_velocikey(true);
 }
 
 /**
  * @brief Toggle the state of Velocikey.
  */
 void velocikey_toggle(void) {
-    velocikey_config.enabled = !velocikey_config.enabled;
+    velocikey_config.enabled ? velocikey_disable() : velocikey_enable();
 }
 
 /**
@@ -62,6 +89,7 @@ void velocikey_toggle(void) {
  */
 void velocikey_set_min_speed(uint8_t min_speed) {
     velocikey_config.min_speed = min_speed;
+    eeconfig_flag_velocikey(true);
 }
 
 /**
@@ -80,6 +108,7 @@ uint8_t velocikey_get_min_speed(void) {
  */
 void velocikey_set_max_speed(uint8_t max_speed) {
     velocikey_config.max_speed = max_speed;
+    eeconfig_flag_velocikey(true);
 }
 
 /**
@@ -149,6 +178,7 @@ void housekeeping_task_velocikey(void) {
     if (velocikey_get_enabled()) {
         velocikey_decelerate();
     }
+    eeconfig_flush_velocikey_task(1000);
     housekeeping_task_velocikey_kb();
 }
 
@@ -156,9 +186,7 @@ void housekeeping_task_velocikey(void) {
  * @brief Initialize Velocikey after keyboard initialization.
  */
 void keyboard_post_init_velocikey(void) {
-    velocikey_config.enabled = true;
-    velocikey_config.min_speed = TYPING_SPEED_MIN_VALUE;
-    velocikey_config.max_speed = TYPING_SPEED_MAX_VALUE;
+    eeconfig_init_velocikey();
     typing_speed = velocikey_config.min_speed;
     rgb_matrix_set_speed_noeeprom(velocikey_config.min_speed);
 }
