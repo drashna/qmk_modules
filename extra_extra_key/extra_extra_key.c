@@ -4,7 +4,7 @@
 
 #include QMK_KEYBOARD_H
 
-bool process_record_dnd_key(uint16_t keycode, keyrecord_t *record) {
+bool process_record_extra_extra_key(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case KC_DO_NOT_DISTURB:
              if (record->event.pressed) {
@@ -12,7 +12,14 @@ bool process_record_dnd_key(uint16_t keycode, keyrecord_t *record) {
             } else {
                 host_system_send(0);
             }
-            return false;
+            break;
+        case KC_DICTATION:
+             if (record->event.pressed) {
+                host_consumer_send(0xC3);
+            } else {
+                host_consumer_send(0);
+            }
+            break;
     }
     return true;
 }
