@@ -1,10 +1,17 @@
 {
     "module_name": "Do Not Distrurb Key",
     "maintainer": "drashna",
+    "features": {
+        "extrakey": true
+    },
     "keycodes": [
         {
             "key": "KC_DO_NOT_DISTURB",
             "aliases": ["KC_DND"]
+        },
+        {
+            "key": "KC_DICTATION",
+            "aliases": ["KC_DICT"]
         }
     ]
 }
