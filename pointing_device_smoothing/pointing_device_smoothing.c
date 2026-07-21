@@ -3,6 +3,12 @@
 
 #include QMK_KEYBOARD_H
 #include "pointing_device_smoothing.h"
+#ifdef SPLIT_KEYBOARD
+#    include "transactions.h"
+#    ifndef FORCED_SYNC_THROTTLE_MS
+#        define FORCED_SYNC_THROTTLE_MS 100
+#    endif // FORCED_SYNC_THROTTLE_MS
+#endif     // SPLIT_KEYBOARD
 
 ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(1, 1, 3);
 
@@ -262,13 +268,60 @@ bool process_record_pointing_device_smoothing(uint16_t keycode, keyrecord_t *rec
     return true;
 }
 
+#ifdef SPLIT_KEYBOARD
+_Static_assert(sizeof(pointing_device_smoothing_config_t) <= RPC_M2S_BUFFER_SIZE,
+               "Config message size exceeds buffer size!");
+
+void pointing_device_smoothing_sync_handler(uint8_t initiator2target_buffer_size, const void *initiator2target_buffer,
+                                            uint8_t target2initiator_buffer_size, void *target2initiator_buffer) {
+    if (memcmp(initiator2target_buffer, &pointing_device_smoothing_config,
+               sizeof(pointing_device_smoothing_config_t)) != 0) {
+        memcpy(&pointing_device_smoothing_config, initiator2target_buffer, initiator2target_buffer_size);
+        eeconfig_flag_pointing_device_smoothing(true);
+    }
+}
+#endif
+
+/**
+ * @brief Synchronizes the pointing device smoothing configuration across split keyboards.
+ */
+void pointing_device_smoothing_sync(void) {
+#ifdef SPLIT_KEYBOARD
+    static pointing_device_smoothing_config_t last_pointing_device_smoothing_config = {0};
+#    if FORCED_SYNC_THROTTLE_MS > 0
+    static uint16_t last_sync_time = 0;
+#    endif
+
+    if (memcmp(&pointing_device_smoothing_config, &last_pointing_device_smoothing_config,
+               sizeof(pointing_device_smoothing_config_t)) != 0
+#    if FORCED_SYNC_THROTTLE_MS > 0
+        || timer_elapsed(last_sync_time) >= FORCED_SYNC_THROTTLE_MS
+#    endif
+    ) {
+        memcpy(&last_pointing_device_smoothing_config, &pointing_device_smoothing_config,
+               sizeof(pointing_device_smoothing_config_t));
+        if (transaction_rpc_send(RPC_ID_POINTING_DEVICE_SMOOTHING_SYNC, sizeof(pointing_device_smoothing_config_t),
+                                 &pointing_device_smoothing_config)) {
+#    if FORCED_SYNC_THROTTLE_MS > 0
+            last_sync_time = timer_read();
+#    endif
+        }
+    }
+#endif // SPLIT_KEYBOARD
+}
+
 void housekeeping_task_pointing_device_smoothing(void) {
+    pointing_device_smoothing_sync();
     eeconfig_flush_pointing_device_smoothing_task(1000);
     housekeeping_task_pointing_device_smoothing_kb();
 }
 
 void keyboard_post_init_pointing_device_smoothing(void) {
     eeconfig_init_pointing_device_smoothing();
+#ifdef SPLIT_KEYBOARD
+    // Register pointing device smoothing sync split transaction
+    transaction_register_rpc(RPC_ID_POINTING_DEVICE_SMOOTHING_SYNC, pointing_device_smoothing_sync_handler);
+#endif // SPLIT_KEYBOARD
 
     keyboard_post_init_pointing_device_smoothing_kb();
 }
