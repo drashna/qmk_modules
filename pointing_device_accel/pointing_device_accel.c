@@ -10,6 +10,12 @@
 #include "pointing_device_accel.h"
 #include "math.h"
 #include <quantum/util.h>
+#ifdef SPLIT_KEYBOARD
+#    include "transactions.h"
+#    ifndef FORCED_SYNC_THROTTLE_MS
+#        define FORCED_SYNC_THROTTLE_MS 100
+#    endif // FORCED_SYNC_THROTTLE_MS
+#endif     // SPLIT_KEYBOARD
 
 ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(1, 1, 3);
 #if defined(__AVR__) || (defined(CORTEX_USE_FPU) && CORTEX_USE_FPU == FALSE)
@@ -362,6 +368,19 @@ void pointing_device_config_read(pointing_device_accel_config_t *config) {
     eeconfig_read_pointing_device_accel(config);
 }
 
+#ifdef SPLIT_KEYBOARD
+_Static_assert(sizeof(pointing_device_accel_config_t) <= RPC_M2S_BUFFER_SIZE,
+               "Layer map message size exceeds buffer size!");
+
+void pointing_device_accel_sync_handler(uint8_t initiator2target_buffer_size, const void *initiator2target_buffer,
+                                        uint8_t target2initiator_buffer_size, void *target2initiator_buffer) {
+    if (memcmp(initiator2target_buffer, &g_pointing_device_accel_config, sizeof(g_pointing_device_accel_config)) != 0) {
+        memcpy(&g_pointing_device_accel_config, initiator2target_buffer, initiator2target_buffer_size);
+        eeconfig_flag_pointing_device_accel(true);
+    }
+}
+#endif
+
 /**
  * @brief Performs pre-init for the acceleration module.
  *
@@ -370,6 +389,10 @@ void pointing_device_config_read(pointing_device_accel_config_t *config) {
 void keyboard_post_init_pointing_device_accel(void) {
     // Read initial config into memory.
     eeconfig_init_pointing_device_accel();
+#ifdef SPLIT_KEYBOARD
+    // Register pointing device accel sync split transaction
+    transaction_register_rpc(RPC_ID_POINTING_DEVICE_ACCEL_SYNC, pointing_device_accel_sync_handler);
+#endif // SPLIT_KEYBOARD
 
     keyboard_post_init_pointing_device_accel_kb();
 }
@@ -392,9 +415,38 @@ void eeconfig_init_pointing_device_accel_datablock(void) {
 }
 
 /**
+ * @brief Synchronizes the pointing device acceleration configuration across split keyboards.
+ */
+void pointing_device_accel_sync(void) {
+#ifdef SPLIT_KEYBOARD
+    static pointing_device_accel_config_t last_pointing_device_accel_config = {0};
+#    if FORCED_SYNC_THROTTLE_MS > 0
+    static uint16_t last_sync_time = 0;
+#    endif
+
+    if (memcmp(&g_pointing_device_accel_config, &last_pointing_device_accel_config,
+               sizeof(pointing_device_accel_config_t)) != 0
+#    if FORCED_SYNC_THROTTLE_MS > 0
+        || timer_elapsed(last_sync_time) >= FORCED_SYNC_THROTTLE_MS
+#    endif
+    ) {
+        memcpy(&last_pointing_device_accel_config, &g_pointing_device_accel_config,
+               sizeof(pointing_device_accel_config_t));
+        if (transaction_rpc_send(RPC_ID_POINTING_DEVICE_ACCEL_SYNC, sizeof(pointing_device_accel_config_t),
+                                 &g_pointing_device_accel_config)) {
+#    if FORCED_SYNC_THROTTLE_MS > 0
+            last_sync_time = timer_read();
+#    endif
+        }
+    }
+#endif // SPLIT_KEYBOARD
+}
+
+/**
  * @brief Periodically flushes pending configuration changes to EEPROM.
  */
 void housekeeping_task_pointing_device_accel(void) {
+    pointing_device_accel_sync();
     eeconfig_flush_pointing_device_accel_task(1000);
     housekeeping_task_pointing_device_accel_kb();
 }
