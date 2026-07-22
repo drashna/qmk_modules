@@ -205,32 +205,29 @@ void housekeeping_task_layer_map(void) {
     housekeeping_task_layer_map_kb();
 }
 
-#ifdef VIA_ENABLE
-#    include "via.h"
-
-__attribute__((weak)) bool via_command_kb(uint8_t *data, uint8_t length) {
-    switch (data[0]) {
-        case id_dynamic_keymap_set_keycode:
-        case id_dynamic_keymap_reset:
-        case id_dynamic_keymap_set_buffer:
-        case id_dynamic_keymap_set_encoder:
-            set_layer_map_dirty();
-            break;
-    }
-    return false;
-}
-#endif // VIA_ENABLE
-
-#ifdef XAP_ENABLE
-bool xap_execute_dynamic_keymap_set_keycode(xap_token_t token, xap_route_remapping_set_keymap_keycode_arg_t *arg);
-bool xap_respond_dynamic_keymap_set_keycode(xap_token_t token, const uint8_t *data, size_t data_len) {
-    if (data_len != sizeof(xap_route_remapping_set_keymap_keycode_arg_t)) {
-        return false;
-    }
+/**
+ * Uses --wrap to replace the dynamic_keymap_set_* functions so that we can hijack it to mark the layer map as
+ * dirty, without having to modify or maintain the dynamic_keymap code itself. This is a bit of a hack, but it works.
+ */
+#ifdef DYNAMIC_KEYMAP_ENABLE
+void __wrap_dynamic_keymap_set_keycode(uint8_t layer, uint8_t row, uint8_t col, uint16_t keycode) {
     set_layer_map_dirty();
-    xap_route_remapping_set_keymap_keycode_arg_t arg;
-    memcpy(&arg, data, sizeof(xap_route_remapping_set_keymap_keycode_arg_t));
 
-    return xap_execute_dynamic_keymap_set_keycode(token, &arg);
+    void __real_dynamic_keymap_set_keycode(uint8_t layer, uint8_t row, uint8_t column, uint16_t keycode);
+    __real_dynamic_keymap_set_keycode(layer, row, col, keycode);
 }
-#endif // XAP_ENABLE
+
+void __wrap_dynamic_keymap_set_encoder(uint8_t layer, uint8_t encoder_id, bool clockwise, uint16_t keycode) {
+    set_layer_map_dirty();
+
+    void __real_dynamic_keymap_set_encoder(uint8_t layer, uint8_t encoder_id, bool clockwise, uint16_t keycode);
+    __real_dynamic_keymap_set_encoder(layer, encoder_id, clockwise, keycode);
+}
+
+void __wrap_dynamic_keymap_set_buffer(uint16_t offset, uint16_t size, uint8_t *data) {
+    set_layer_map_dirty();
+
+    void __real_dynamic_keymap_set_buffer(uint16_t offset, uint16_t size, uint8_t *data);
+    __real_dynamic_keymap_set_buffer(offset, size, data);
+}
+#endif // DYNAMIC_KEYMAP_ENABLE
