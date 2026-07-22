@@ -446,7 +446,9 @@ void pointing_device_accel_sync(void) {
  * @brief Periodically flushes pending configuration changes to EEPROM.
  */
 void housekeeping_task_pointing_device_accel(void) {
-    pointing_device_accel_sync();
+    if (is_keyboard_master()) {
+        pointing_device_accel_sync();
+    }
     eeconfig_flush_pointing_device_accel_task(1000);
     housekeeping_task_pointing_device_accel_kb();
 }

@@ -141,6 +141,7 @@ void layer_map_sync_handler(uint8_t initiator2target_buffer_size, const void *in
  * If differences are detected, it sends the updated layer map to the other half.
  */
 void sync_layer_map(void) {
+#    ifdef SPLIT_KEYBOARD
     static uint16_t last_layer_map[LAYER_MAP_ROWS][LAYER_MAP_COLS] = {0};
     static uint16_t last_sync_time                                 = 0;
 
@@ -158,6 +159,7 @@ void sync_layer_map(void) {
         }
         last_sync_time = timer_read();
     }
+#    endif // SPLIT_KEYBOARD
 }
 #endif // SPLIT_KEYBOARD
 
