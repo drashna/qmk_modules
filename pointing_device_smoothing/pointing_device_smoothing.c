@@ -311,7 +311,9 @@ void pointing_device_smoothing_sync(void) {
 }
 
 void housekeeping_task_pointing_device_smoothing(void) {
-    pointing_device_smoothing_sync();
+    if (is_keyboard_master()) {
+        pointing_device_smoothing_sync();
+    }
     eeconfig_flush_pointing_device_smoothing_task(1000);
     housekeeping_task_pointing_device_smoothing_kb();
 }
