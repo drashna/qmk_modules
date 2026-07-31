@@ -60,6 +60,7 @@ static rtc_config_t rtc_config;
 static rtc_time_t rtc_time;
 static uint16_t   last_rtc_read   = 0;
 static bool       rtc_initialized = false, rtc_connected = false;
+static bool       rtc_time_needs_sync = false;
 
 void eeconfig_read_rtc(rtc_config_t *value) {
     eeconfig_read_rtc_datablock(value, 0, sizeof(rtc_config_t));
@@ -88,8 +89,7 @@ static void rtc_time_sync_handler(uint8_t initiator2target_buffer_size, const vo
 }
 
 static void sync_rtc_time(void) {
-    static uint32_t last_rtc_sync       = 0;
-    static bool     rtc_time_needs_sync = false;
+    static uint32_t last_rtc_sync = 0;
 
     if (!rtc_is_connected()) {
         return;
