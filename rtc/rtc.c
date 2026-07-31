@@ -60,7 +60,6 @@ static rtc_config_t rtc_config;
 static rtc_time_t rtc_time;
 static uint16_t   last_rtc_read   = 0;
 static bool       rtc_initialized = false, rtc_connected = false;
-static bool       rtc_time_needs_sync = false;
 
 void eeconfig_read_rtc(rtc_config_t *value) {
     eeconfig_read_rtc_datablock(value, 0, sizeof(rtc_config_t));
@@ -74,6 +73,8 @@ EECONFIG_DEBOUNCE_HELPER(rtc, rtc_config);
 
 #ifdef SPLIT_KEYBOARD
 _Static_assert(sizeof(rtc_time_t) <= RPC_M2S_BUFFER_SIZE, "RTC time message size exceeds split buffer size");
+
+static bool rtc_time_needs_sync = false;
 
 static void rtc_time_sync_handler(uint8_t initiator2target_buffer_size, const void *initiator2target_buffer,
                                   uint8_t target2initiator_buffer_size, void *target2initiator_buffer) {
