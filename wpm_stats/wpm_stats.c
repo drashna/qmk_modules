@@ -17,10 +17,15 @@ ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(1, 1, 3);
 ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(1, 0, 0);
 #endif
 
+#define WPM_STATS_EMA_ALPHA_UP_NUMERATOR     3u
+#define WPM_STATS_EMA_ALPHA_UP_DENOMINATOR   10u
+#define WPM_STATS_EMA_ALPHA_DOWN_NUMERATOR   1u
+#define WPM_STATS_EMA_ALPHA_DOWN_DENOMINATOR 20u
+
 static bool     g_initialized = false;
 static uint16_t g_last_update;
 static uint16_t g_max_wpm   = 0;
-static uint32_t g_wpm_sum   = 0;
+static uint32_t g_avg_wpm   = 0;
 static uint16_t g_wpm_count = 0;
 
 #ifdef SPLIT_KEYBOARD
@@ -50,7 +55,7 @@ static void wpm_state_sync_handler(uint8_t initiator2target_buffer_size, const v
     if (memcmp(initiator2target_buffer, &wpm_stat_config, sizeof(wpm_stat_config_t)) != 0) {
         memcpy(&wpm_stat_config, initiator2target_buffer, sizeof(wpm_stat_config_t));
         g_max_wpm   = wpm_stat_config.max_wpm;
-        g_wpm_sum   = wpm_stat_config.wpm_sum;
+        g_avg_wpm   = wpm_stat_config.wpm_sum;
         g_wpm_count = wpm_stat_config.wpm_count;
     }
 }
@@ -59,7 +64,7 @@ static void wpm_state_sync_handler(uint8_t initiator2target_buffer_size, const v
 void wpm_stats_init(void) {
     g_initialized = true;
     g_max_wpm     = 0;
-    g_wpm_sum     = 0;
+    g_avg_wpm     = 0;
     g_wpm_count   = 0;
     g_last_update = timer_read();
 }
@@ -80,22 +85,22 @@ void housekeeping_task_wpm_stats(void) {
     if (timer_elapsed(g_last_update) >= 1000) { // Update every second
         uint16_t current_wpm = wpm_stats_get_current();
 
-        // Only track when actively typing (WPM > 0)
-        if (current_wpm > 0) {
-            // Update max WPM
-            if (current_wpm > g_max_wpm) {
-                g_max_wpm = current_wpm;
-            }
+        if (current_wpm > g_max_wpm) {
+            g_max_wpm = current_wpm;
+        }
 
-            // Update running average (prevent overflow)
-            if (g_wpm_count < 1000) {
-                g_wpm_sum += current_wpm;
-                g_wpm_count++;
-            } else {
-                // Reset to prevent overflow, keeping recent average
-                g_wpm_sum   = (g_wpm_sum / g_wpm_count) * 100 + current_wpm;
-                g_wpm_count = 101;
-            }
+        g_wpm_count++;
+
+        if (g_avg_wpm == 0) {
+            g_avg_wpm = current_wpm;
+        } else if (current_wpm > g_avg_wpm) {
+            g_avg_wpm = ((WPM_STATS_EMA_ALPHA_UP_NUMERATOR * current_wpm) +
+                         ((WPM_STATS_EMA_ALPHA_UP_DENOMINATOR - WPM_STATS_EMA_ALPHA_UP_NUMERATOR) * g_avg_wpm)) /
+                        WPM_STATS_EMA_ALPHA_UP_DENOMINATOR;
+        } else {
+            g_avg_wpm = ((WPM_STATS_EMA_ALPHA_DOWN_NUMERATOR * current_wpm) +
+                         ((WPM_STATS_EMA_ALPHA_DOWN_DENOMINATOR - WPM_STATS_EMA_ALPHA_DOWN_NUMERATOR) * g_avg_wpm)) /
+                        WPM_STATS_EMA_ALPHA_DOWN_DENOMINATOR;
         }
 
         g_last_update = timer_read();
@@ -109,7 +114,7 @@ void housekeeping_task_wpm_stats(void) {
         static wpm_stat_config_t last_wpm_stat_config = {0};
         wpm_stat_config_t        wpm_stat_config      = {
             .max_wpm   = g_max_wpm,
-            .wpm_sum   = g_wpm_sum,
+            .wpm_sum   = g_avg_wpm,
             .wpm_count = g_wpm_count,
         };
 
@@ -151,7 +156,7 @@ uint16_t wpm_stats_get_current(void) {
 uint16_t wpm_stats_get_avg(void) {
     if (!g_initialized) return UINT16_MAX;
 
-    return (g_wpm_count > 0) ? (uint16_t)(g_wpm_sum / g_wpm_count) : 0;
+    return (g_wpm_count > 0) ? (uint16_t)g_avg_wpm : 0;
 }
 
 uint16_t wpm_stats_get_max(void) {
