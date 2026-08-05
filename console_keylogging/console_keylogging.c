@@ -5,6 +5,9 @@
 #include "community_modules.h"
 #include "eeconfig.h"
 #include "print.h"
+#ifdef KEYCODE_STRING_ENABLE
+#    include "keycode_string.h"
+#endif
 
 ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(1, 1, 3);
 
@@ -41,9 +44,13 @@ EECONFIG_DEBOUNCE_HELPER(console_keylogging, console_keylogging_config);
  * @param record The keyrecord_t structure containing information about the key event.
  */
 __attribute__((weak)) void console_keylogging_print_handler(uint16_t keycode, keyrecord_t *record) {
-    xprintf("KL: 0x%04X, col: %2u, row: %2u, pressed: %1d, time: %5u, int: %1d, count: %u\n", keycode,
-            record->event.key.col, record->event.key.row, record->event.pressed, record->event.time,
-            record->tap.interrupted, record->tap.count);
+    xprintf("KL: 0x%04X, ", keycode);
+#ifdef KEYCODE_STRING_ENABLE
+    xprintf("keycode: %s,  ", get_keycode_string(keycode));
+#endif
+    xprintf("col: %2u, row: %2u, pressed: %1d, time: %5u, int: %1d, count: %u\n", record->event.key.col,
+            record->event.key.row, record->event.pressed, record->event.time, record->tap.interrupted,
+            record->tap.count);
 }
 
 /**
