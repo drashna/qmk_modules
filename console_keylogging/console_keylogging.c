@@ -46,7 +46,7 @@ EECONFIG_DEBOUNCE_HELPER(console_keylogging, console_keylogging_config);
 __attribute__((weak)) void console_keylogging_print_handler(uint16_t keycode, keyrecord_t *record) {
     xprintf("KL: 0x%04X, ", keycode);
 #ifdef KEYCODE_STRING_ENABLE
-    xprintf("keycode: %s,  ", get_keycode_string(keycode));
+    xprintf("keycode: %s, ", get_keycode_string(keycode));
 #endif
     xprintf("col: %2u, row: %2u, pressed: %1d, time: %5u, int: %1d, count: %u\n", record->event.key.col,
             record->event.key.row, record->event.pressed, record->event.time, record->tap.interrupted,
@@ -113,4 +113,5 @@ bool console_keylogging_get_enabled(void) {
  */
 void console_keylogging_set_enabled(bool enable) {
     console_keylogging_config.enabled = enable;
+    eeconfig_flag_console_keylogging(true);
 }
