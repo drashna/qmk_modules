@@ -554,3 +554,7 @@ void housekeeping_task_autocorrect(void) {
     eeconfig_flush_autocorrect_task(1000);
     housekeeping_task_autocorrect_kb();
 }
+
+bool process_autocorrect(uint16_t keycode, keyrecord_t *record) {
+    return true;
+}
