@@ -44,6 +44,7 @@ The syntax is `typo -> correction`. Typos and corrections are case insensitive, 
 
 This module can auto-generate `autocorrect_data.h` at compile time via `post_rules.mk`.
 
+- If `autocorrect_data.h` already exists in the search paths, generation is skipped
 - Output file is generated at: `$(INTERMEDIATE_OUTPUT)/src/autocorrect_data.h`
 - Dictionary search uses `VPATH` plus module/current-directory paths
 - Candidate file names are provided by: `AUTOCORRECT_DICT_LIST`
@@ -58,6 +59,8 @@ AUTOCORRECT_DICT_LIST ?= autocorrection_dict.txt autocorrect_dict.txt
 ```
 
 The generated header target depends on the resolved dictionary file, so it will regenerate when that dictionary changes.
+
+When an existing `autocorrect_data.h` is found in the same search paths, the auto-generation rule is intentionally bypassed so the existing header is used as-is.
 
 ### Manual generation
 
