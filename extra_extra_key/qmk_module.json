@@ -12,6 +12,12 @@
         {
             "key": "KC_DICTATION",
             "aliases": ["KC_DICT"]
+        },
+        {
+            "key": "KC_GLOBE",
+            "aliases": [
+                "KC_GLB"
+            ]
         }
     ]
 }

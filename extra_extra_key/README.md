@@ -18,3 +18,4 @@ Afterwards, you can use the following keycodes in your keymap, with the specifie
 |---------------------|-----------|---------------------------------|
 | `KC_DO_NOT_DISTURB` | `KC_DND`  | Toggle Do Not Distirb mode.     |
 | `KC_DICTATION`      | `KC_DICT` | Trigger Dication mode on macOS. |
+| `KC_GLOBE`          | `KC_GLB`  | Trigger the Globe key on macOS. |

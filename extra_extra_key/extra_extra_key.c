@@ -7,18 +7,13 @@
 bool process_record_extra_extra_key(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case KC_DO_NOT_DISTURB:
-             if (record->event.pressed) {
-                host_system_send(0x9B);
-            } else {
-                host_system_send(0);
-            }
+            host_system_send(record->event.pressed ? 0x9B : 0);
             break;
         case KC_DICTATION:
-             if (record->event.pressed) {
-                host_consumer_send(0xC3);
-            } else {
-                host_consumer_send(0);
-            }
+            host_consumer_send(record->event.pressed ? 0xC3 : 0);
+            break;
+        case KC_GLOBE:
+            host_consumer_send(record->event.pressed ? AC_NEXT_KEYBOARD_LAYOUT_SELECT : 0);
             break;
     }
     return true;
