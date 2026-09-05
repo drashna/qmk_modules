@@ -46,13 +46,14 @@ These are modules that extend hardware functionality, such as extending (unused)
 
 These are modules that add additional functionality to displays (both OLED driver, and Quantum Painter)
 
-| Module                                                  | Description                                                                                                 |
-|---------------------------------------------------------|-------------------------------------------------------------------------------------------------------------|
-| [Drag Scroll](./drag_scroll/)                           | Adds Drag Scrolling support as a module.                                                                    |
-| [Pointing Device Accel](./pointing_device_accel/)       | Adds maccel/pointing device acceleration support, ported directly from Burkfers and Wimad's implementation. |
-| [Pointing Device Gestures](./pointing_device_gestures/) | Adds a module that allows triggering behavior based on which of the cardinal and ordinal direction moved.   |
+| Module                                                    | Description                                                                                                 |
+|-----------------------------------------------------------|-------------------------------------------------------------------------------------------------------------|
+| [Drag Scroll](./drag_scroll/)                             | Adds Drag Scrolling support as a module.                                                                    |
+| [Pointing Device Accel](./pointing_device_accel/)         | Adds maccel/pointing device acceleration support, ported directly from Burkfers and Wimad's implementation. |
+| [Pointing Device Gestures](./pointing_device_gestures/)   | Adds a module that allows triggering behavior based on which of the cardinal and ordinal direction moved.   |
 | [Pointing Device Smoothing](./pointing_device_smoothing/) | Smooths out jittery pointing device reports using an Exponential Moving Average (EMA).                      |
-| [Wiggle Ball](./wiggle_ball/)                           | Adds a module that triggers a behavior when wiggling the ball/mouse.                                        |
+| [Tractyl Config](./tractyl/)                              | Adds the Tractyl Manuform dpi and snipping mode config as a module.                                         |
+| [Wiggle Ball](./wiggle_ball/)                             | Adds a module that triggers a behavior when wiggling the ball/mouse.                                        |
 
 ## Display Helper Modules
 

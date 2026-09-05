@@ -1,0 +1,46 @@
+{
+    "features": {
+        "pointing_device": true
+    },
+    "keycodes": [
+        {
+            "aliases": [
+                "DPI_MOD"
+            ],
+            "key": "POINTER_DEFAULT_DPI_FORWARD"
+        },
+        {
+            "aliases": [
+                "DPI_RMD"
+            ],
+            "key": "POINTER_DEFAULT_DPI_REVERSE"
+        },
+        {
+            "aliases": [
+                "S_D_MOD"
+            ],
+            "key": "POINTER_SNIPING_DPI_FORWARD"
+        },
+        {
+            "aliases": [
+                "S_D_RMD"
+            ],
+            "key": "POINTER_SNIPING_DPI_REVERSE"
+        },
+        {
+            "aliases": [
+                "SNIPING"
+            ],
+            "key": "SNIPING_MODE"
+        },
+        {
+            "aliases": [
+                "SNP_TOG"
+            ],
+            "key": "SNIPING_MODE_TOGGLE"
+        }
+    ],
+    "license": "GPL-2.0-or-later",
+    "maintainer": "drashna",
+    "module_name": "Tractyl Pointer Config"
+}
