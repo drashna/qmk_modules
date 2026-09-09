@@ -19,9 +19,7 @@ typedef struct {
     int8_t hue;
     int8_t sat;
     int8_t val;
-#if defined(RGB_MATRIX_ENABLE) && defined(RGBLIGHT_ENABLE)
     bool   is_rgb_matrix;
-#endif
 } rgb_change_state_t;
 
 // timer to control color change speed
