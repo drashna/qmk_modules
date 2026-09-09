@@ -7,6 +7,10 @@
 #include <lib/lib8tion/lib8tion.h>
 #include "better_rgb_keys.h"
 
+#if !defined(RGB_MATRIX_ENABLE) && !defined(RGBLIGHT_ENABLE)
+#    error "Better RGB Keys module requires either RGB_MATRIX_ENABLE or RGBLIGHT_ENABLE to be defined."
+#endif
+
 #ifndef BETTER_RGB_TICK_MS
 #    define BETTER_RGB_TICK_MS 15
 #endif // BETTER_RGB_TICK_MS
@@ -15,7 +19,9 @@ typedef struct {
     int8_t hue;
     int8_t sat;
     int8_t val;
+#if defined(RGB_MATRIX_ENABLE) && defined(RGBLIGHT_ENABLE)
     bool   is_rgb_matrix;
+#endif
 } rgb_change_state_t;
 
 // timer to control color change speed
@@ -25,15 +31,23 @@ static deferred_token      change_token = 0;
 
 static uint32_t change_cb(uint32_t trigger_time, void *cb_arg) {
     if (change_state.hue != 0 || change_state.sat != 0 || change_state.val != 0) {
+#if defined(RGB_MATRIX_ENABLE) && defined(RGBLIGHT_ENABLE)
         HSV hsv = change_state.is_rgb_matrix ? rgb_matrix_get_hsv() : rgblight_get_hsv();
+#elif defined(RGB_MATRIX_ENABLE)
+        HSV hsv = rgb_matrix_get_hsv();
+#elif defined(RGBLIGHT_ENABLE)
+        HSV hsv = rgblight_get_hsv();
+#endif
         hsv.h += change_state.hue;
         hsv.s = change_state.sat > 0 ? qadd8(hsv.s, (uint8_t)change_state.sat) : qsub8(hsv.s, (uint8_t)-change_state.sat);
         hsv.v = change_state.val > 0 ? qadd8(hsv.v, (uint8_t)change_state.val) : qsub8(hsv.v, (uint8_t)-change_state.val);
-        if (change_state.is_rgb_matrix) {
-            rgb_matrix_sethsv_noeeprom(hsv.h, hsv.s, hsv.v);
-        } else {
-            rgblight_sethsv_noeeprom(hsv.h, hsv.s, hsv.v);
-        }
+#if defined(RGB_MATRIX_ENABLE) && defined(RGBLIGHT_ENABLE)
+        change_state.is_rgb_matrix ? rgb_matrix_sethsv_noeeprom(hsv.h, hsv.s, hsv.v) : rgblight_sethsv_noeeprom(hsv.h, hsv.s, hsv.v);
+#elif defined(RGB_MATRIX_ENABLE)
+        rgb_matrix_sethsv_noeeprom(hsv.h, hsv.s, hsv.v);
+#elif defined(RGBLIGHT_ENABLE)
+        rgblight_sethsv_noeeprom(hsv.h, hsv.s, hsv.v);
+#endif
     }
     return change_tick;
 }
@@ -56,18 +70,22 @@ static void start_change(int8_t hue, int8_t sat, int8_t val, bool is_rgb_matrix)
 bool process_record_better_rgb_keys(uint16_t keycode, keyrecord_t *record) {
     if (record->event.pressed) {
         switch (keycode) {
+#ifdef RGBLIGHT_ENABLE
             case UG_HUEU: start_change( 1,  0,  0, false); return false;
             case UG_HUED: start_change(-1,  0,  0, false); return false;
             case UG_SATU: start_change( 0,  1,  0, false); return false;
             case UG_SATD: start_change( 0, -1,  0, false); return false;
             case UG_VALU: start_change( 0,  0,  1, false); return false;
             case UG_VALD: start_change( 0,  0, -1, false); return false;
+#endif
+#ifdef RGB_MATRIX_ENABLE
             case RM_HUEU: start_change( 1,  0,  0, true);  return false;
             case RM_HUED: start_change(-1,  0,  0, true);  return false;
             case RM_SATU: start_change( 0,  1,  0, true);  return false;
             case RM_SATD: start_change( 0, -1,  0, true);  return false;
             case RM_VALU: start_change( 0,  0,  1, true);  return false;
             case RM_VALD: start_change( 0,  0, -1, true);  return false;
+#endif
         }
     } else {
         switch (keycode) {
@@ -75,11 +93,17 @@ bool process_record_better_rgb_keys(uint16_t keycode, keyrecord_t *record) {
             case UG_HUEU ... UG_VALD:
                 if (change_token && cancel_deferred_exec(change_token)) {
                     change_token = 0;
+#if defined(RGB_MATRIX_ENABLE) && defined(RGBLIGHT_ENABLE)
                     if (change_state.is_rgb_matrix) {
                         eeconfig_force_flush_rgb_matrix();
                     } else {
                         eeconfig_update_rgblight_current();
                     }
+#elif defined(RGB_MATRIX_ENABLE)
+                    eeconfig_force_flush_rgb_matrix();
+#elif defined(RGBLIGHT_ENABLE)
+                    eeconfig_update_rgblight_current();
+#endif
                 }
                 return false;
         }
