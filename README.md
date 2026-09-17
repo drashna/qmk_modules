@@ -37,6 +37,8 @@ These are modules that extend hardware functionality, such as extending (unused)
 
 | Module                                    | Description                                                                                                                                     |
 |-------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
+| [Dynamic Debounce](./dynamic_debounce/)   | Supports runtime adjustment of debounce algorithm and times for keys, allowing for more responsive and customizable keypress handling.          |
+| [FT6x36 Touch Sensor](./ft6x36_touch/)    | Add support for the FT6x36 Capacitive touch sensor. No default input support, but can be used for touch screen or trackpad input.               |
 | [KVM Helper](./kvm_helper/)               | Improves USB stability when using a keyboard through a KVM switch by detecting stuck enumeration states and performing a soft reset to recover. |
 | [RTC](./rtc/)                             | Adds support for hardware RTC functionality (RP2040 built in RTC not working).                                                                  |
 | [Spacemouse Module](./spacemouse_module/) | Add basic support for UART based Spacemouse Module. Lacks pointing device support intentionally, as it could be used for many other things too. |
@@ -68,6 +70,7 @@ These are modules that add additional functionality to displays (both OLED drive
 
 | Module                              | Description                                                                                                                                                                         |
 |-------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [Autocorrect](./autocorrect/)       | A rewrite of the autocorrect feature to much larger library sizes, and multiple libraries.                                                                                          |
 | [DnD Key](./dnd_key/)               | Adds the Do Not Disturb keycode from the HID system page.                                                                                                                           |
 | [Guarded Reset](./guarded_reset/)   | Prevents reset keycodes from triggering without behing held for set specific time.                                                                                                  |
 | [Typing Stats](./typing_stats/)     | A comprehensive keyboard usage tracking module for QMK that collects detailed typing statistics and stores them persistently in EEPROM. Copied from dmyoung9 and put into a module. |
@@ -90,7 +93,5 @@ OpenRGB is no longer supported here, as support has officially been picked up by
 
 These modules are either not working properly yet (and are listed here for visibility) or are unsupported while waiting on PR merges/code changes. While it may be possible to rework these to function currently, .... eh.
 
-| Module                                 | Status            | Description                                                                                |
-|----------------------------------------|-------------------|--------------------------------------------------------------------------------------------|
-| [Autocorrect](./autocorrect/)          | Tested            | A rewrite of the autocorrect feature to much larger library sizes, and multiple libraries. |
-| [FT6x36 Touch Sensor](./ft6x36_touch/) | WIP (not working) | Add support for the FT6x36 Capacitive touch sensor.                                        |
+| Module | Status | Description |
+|--------|--------|-------------|
