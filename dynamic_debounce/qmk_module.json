@@ -1,0 +1,31 @@
+{
+    "keycodes": [
+        {
+            "key": "CM_DYNAMIC_DEBOUNCE_NEXT",
+            "aliases": [
+                "DD_NEXT"
+            ]
+        },
+        {
+            "key": "CM_DYNAMIC_DEBOUNCE_PREV",
+            "aliases": [
+                "DD_PREV"
+            ]
+        },
+        {
+            "key": "CM_DYNAMIC_DEBOUNCE_TIME_UP",
+            "aliases": [
+                "DD_TUP"
+            ]
+        },
+        {
+            "key": "CM_DYNAMIC_DEBOUNCE_TIME_DOWN",
+            "aliases": [
+                "DD_TDN"
+            ]
+        }
+    ],
+    "license": "GPL-2.0-or-later",
+    "maintainer": "drashna",
+    "module_name": "Dynamic Debounce"
+}
