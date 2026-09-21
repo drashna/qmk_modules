@@ -7,18 +7,14 @@
 
 // Supported debounce algorithms, mirroring quantum/debounce/*.c upstream implementations.
 typedef enum {
-    DYNAMIC_DEBOUNCE_SYM_DEFER_G = 0,
-    DYNAMIC_DEBOUNCE_SYM_EAGER_PR,
-    DYNAMIC_DEBOUNCE_SYM_DEFER_PR,
-    DYNAMIC_DEBOUNCE_SYM_EAGER_PK,
-    DYNAMIC_DEBOUNCE_SYM_DEFER_PK,
-    DYNAMIC_DEBOUNCE_ASYM_EAGER_DEFER_PK,
-    DYNAMIC_DEBOUNCE_NONE,
+#define DEBOUNCE_ALGORITHM(name) DYNAMIC_DEBOUNCE_##name,
+#include "debounce.inc"
+#undef DEBOUNCE_ALGORITHM
     DYNAMIC_DEBOUNCE_ALGO_COUNT,
 } dynamic_debounce_algo_t;
 
 #ifndef DYNAMIC_DEBOUNCE_DEFAULT_ALGO
-#    define DYNAMIC_DEBOUNCE_DEFAULT_ALGO DYNAMIC_DEBOUNCE_SYM_DEFER_G
+#    define DYNAMIC_DEBOUNCE_DEFAULT_ALGO 0
 #endif
 
 // Returns the currently active debounce algorithm.
@@ -41,5 +37,5 @@ uint8_t dynamic_debounce_get_time(void);
 void dynamic_debounce_set_time(uint8_t time_ms);
 
 // Raises/lowers the debounce time by the given step, clamping at 0/UINT8_MAX.
-void dynamic_debounce_increase_time(uint8_t step);
-void dynamic_debounce_decrease_time(uint8_t step);
+void dynamic_debounce_increase_time(void);
+void dynamic_debounce_decrease_time(void);
