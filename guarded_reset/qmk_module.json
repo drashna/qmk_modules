@@ -5,5 +5,19 @@
     "url": "https://github.com/drashna/qmk_modules",
     "features": {
         "deferred_exec": true
-    }
+    },
+    "keycodes": [
+        {
+            "key": "CM_GUARDED_RESET_INC",
+            "aliases": [
+                "GR_INC"
+            ]
+        },
+        {
+            "key": "CM_GUARDED_RESET_DEC",
+            "aliases": [
+                "GR_DEC"
+            ]
+        }
+    ]
 }

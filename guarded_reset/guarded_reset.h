@@ -4,24 +4,16 @@
 #pragma once
 
 #include <stdint.h>
+#include <stdbool.h>
+#include "action.h"
 
-/**
- * @brief Compile-time default duration in milliseconds a guarded keycode must
- *        be held before it triggers.  Override in your config.h to customise.
- *
- * Default: 3000 ms (3 seconds)
- */
-#ifndef GUARDED_RESET_HOLD_MS
-#    define GUARDED_RESET_HOLD_MS 3000
-#endif
+typedef bool (*guarded_reset_handler_t)(uint16_t keycode, keyrecord_t *record);
 
+typedef struct {
+    uint16_t                 keycode;
+    guarded_reset_handler_t  handler;
+} guarded_reset_entry_t;
 
-/** @brief Get the current hold duration in milliseconds. */
 uint16_t get_guarded_reset_hold_ms(void);
-
-/**
- * @brief Set the hold duration in milliseconds at runtime.
- *        Valid range: 1–65535 ms. Passing 0 resets to the compiled default
- *        (GUARDED_RESET_HOLD_MS).
- */
 void set_guarded_reset_hold_ms(uint16_t ms);
+void guarded_reset_hold_ms_step(bool increase);
