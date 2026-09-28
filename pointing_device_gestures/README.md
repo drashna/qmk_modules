@@ -14,7 +14,7 @@ And adding an array for the gestures. The array is for the cardinal and ordinal 
 
 ```c
 const uint16_t PROGMEM pointing_device_gestures[NUM_GESTURE_DIRECTIONS] =
-    GESTURES_CARDNAL_AND_ORDINAL_DIRECTIONS(KC_UP, KC_1, KC_RIGHT, KC_2, KC_DOWN, KC_3, KC_LEFT, KC_4);
+    GESTURES_CARDINAL_AND_ORDINAL_DIRECTIONS(KC_UP, KC_1, KC_RIGHT, KC_2, KC_DOWN, KC_3, KC_LEFT, KC_4);
 ```
 
 ## Configuration

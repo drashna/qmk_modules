@@ -92,8 +92,9 @@ void pointing_device_gestures_set_threshold(uint16_t threshold) {
     pointing_device_gestures_cancel();
 }
 
-void housekeeping_task_pointing_device_accel(void) {
+void housekeeping_task_pointing_device_gestures(void) {
     deferred_exec_advanced_task(gesture_exec, 1, &gesture_deferred_exec_check);
+    housekeeping_task_pointing_device_gestures_kb();
 }
 
 report_mouse_t pointing_device_task_pointing_device_gestures(report_mouse_t mouse_report) {
