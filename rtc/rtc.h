@@ -44,6 +44,10 @@ typedef struct {
 
 #define SECONDS_FROM_1970_TO_2000 946684800
 
+uint8_t    rtc_hour_to_24h(uint8_t hour, rtc_time_am_pm_t am_pm);
+void       rtc_hour_from_24h(uint8_t hour24, uint8_t *hour, rtc_time_am_pm_t *am_pm);
+rtc_time_t rtc_time_to_24h(rtc_time_t time);
+
 uint32_t   convert_to_unixtime(rtc_time_t time);
 rtc_time_t convert_date_time(const char *date, const char *time);
 rtc_time_t convert_timestamp(const char *timestamp);

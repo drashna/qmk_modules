@@ -22,12 +22,8 @@ void convert_halrtc_to_local_rtc_struct(RTCDateTime *halrtc, rtc_time_t *local) 
     local->second          = (halrtc->millisecond / 1000) % 60;
     local->minute          = (halrtc->millisecond / (1000 * 60)) % 60;
     local->format          = RTC_FORMAT_24H;
-    if (local->format == RTC_FORMAT_12H) {
-        local->hour = (halrtc->millisecond / (1000 * 60 * 60)) % 12;
-    } else {
-        local->hour = (halrtc->millisecond / (1000 * 60 * 60)) % 24;
-    }
-    local->am_pm = (halrtc->millisecond / (1000 * 60 * 60)) <= 12;
+    local->hour            = (halrtc->millisecond / (1000 * 60 * 60)) % 24;
+    local->am_pm           = (local->hour >= 12) ? RTC_PM : RTC_AM;
 
     local->is_dst = (bool)halrtc->dstflag;
 

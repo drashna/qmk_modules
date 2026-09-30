@@ -60,16 +60,17 @@ i2c_status_t ds1307_get_time(rtc_time_t *time) {
     time->month           = rtc_bcd2bin(data[5]);                       /* get month */
     time->day_of_the_week = rtc_bcd2bin(data[3]);                       /* get week */
     time->date            = rtc_bcd2bin(data[4]);                       /* get date */
-    time->am_pm           = (rtc_time_am_pm_t)((data[2] >> 5) & 0x01);  /* get am pm */
-    time->format          = (rtc_time_format_t)((data[2] >> 6) & 0x01); /* get format */
     time->minute          = rtc_bcd2bin(data[1]);                       /* get minute */
     time->second          = rtc_bcd2bin(data[0] & 0x7F);                /* get second */
 
-    if (time->format == RTC_FORMAT_12H) {         /* if 12H */
-        time->hour = rtc_bcd2bin(data[2] & 0x1F); /* get hour */
+    // Always report 24h to the module; convert if the chip happens to be in 12h mode (bit 6).
+    if (data[2] & 0x40) {
+        time->hour = rtc_hour_to_24h(rtc_bcd2bin(data[2] & 0x1F), (data[2] >> 5) & 0x01 ? RTC_PM : RTC_AM);
     } else {
-        time->hour = rtc_bcd2bin(data[2] & 0x3F); /* get hour */
+        time->hour = rtc_bcd2bin(data[2] & 0x3F);
     }
+    time->format = RTC_FORMAT_24H;
+    time->am_pm  = (time->hour >= 12) ? RTC_PM : RTC_AM;
 
     time->unixtime = convert_to_unixtime(*time);
 

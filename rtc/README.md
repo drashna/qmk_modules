@@ -65,7 +65,7 @@ All of these functions return a pre-formatted date/time in a string. Great for O
 | `rtc_read_date_str()`              | `12/30/2024`                                                           |
 | `rtc_read_time_str()`              | `02:32:12PM` or `13:16:54`                                             |
 | `rtc_read_date_time_str()`         | `12/30/2024 02:32:12PM` (eg, the previous two combined).               |
-| `rtc_read_date_time_iso8601_str()` | `2024-12-30T02:32:12PM` (a close approximation if the ISO 8601 format) |
+| `rtc_read_date_time_iso8601_str()` | `2024-12-30T14:32:12` (ISO 8601; always 24h)                           |
 
 ## Supported Hardware
 

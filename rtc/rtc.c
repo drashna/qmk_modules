@@ -112,14 +112,45 @@ static void rtc_config_from_time(const rtc_time_t *time, rtc_config_t *config) {
 }
 
 static void rtc_config_apply_to_time(const rtc_config_t *config, rtc_time_t *time) {
-#ifdef VENDOR_RTC_DRIVER_ENABLE
-    time->format = config->format_24h ? RTC_FORMAT_24H : RTC_FORMAT_12H;
-#endif // VENDOR_RTC_DRIVER_ENABLE
+    // Drivers/hardware always report 24h. The 12h/24h setting is purely a display format applied here.
+    *time = rtc_time_to_24h(*time);
+    if (!config->format_24h) {
+        rtc_hour_from_24h(time->hour, &time->hour, &time->am_pm);
+        time->format = RTC_FORMAT_12H;
+    }
     time->is_dst   = config->is_dst;
     time->timezone = config->timezone;
 }
 
 const uint8_t days_in_month[12] PROGMEM = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+
+/**
+ * @brief Convert a 12h hour (1-12) plus AM/PM to a 24h hour (0-23)
+ */
+uint8_t rtc_hour_to_24h(uint8_t hour, rtc_time_am_pm_t am_pm) {
+    return (hour % 12) + (am_pm == RTC_PM ? 12 : 0);
+}
+
+/**
+ * @brief Convert a 24h hour (0-23) to a 12h hour (1-12) plus AM/PM
+ */
+void rtc_hour_from_24h(uint8_t hour24, uint8_t *hour, rtc_time_am_pm_t *am_pm) {
+    uint8_t h = hour24 % 12;
+    *am_pm    = (hour24 >= 12) ? RTC_PM : RTC_AM;
+    *hour     = (h == 0) ? 12 : h;
+}
+
+/**
+ * @brief Return a copy of the time with hour in 24h form (format = 24H, am_pm consistent)
+ */
+rtc_time_t rtc_time_to_24h(rtc_time_t time) {
+    if (time.format == RTC_FORMAT_12H) {
+        time.hour   = rtc_hour_to_24h(time.hour, time.am_pm);
+        time.format = RTC_FORMAT_24H;
+    }
+    time.am_pm = (time.hour >= 12) ? RTC_PM : RTC_AM;
+    return time;
+}
 
 /**
  * @brief Get the unixtime object
@@ -131,6 +162,8 @@ uint32_t convert_to_unixtime(rtc_time_t time) {
     uint16_t days;
     int16_t  years;
     uint32_t unixtime;
+
+    time = rtc_time_to_24h(time);
 
     if (time.year >= 2000) {
         years = time.year - 2000;
@@ -427,6 +460,14 @@ void housekeeping_task_rtc(void) {
 }
 
 /**
+ * @brief Current hour in 24h form, with the DST offset applied
+ */
+static uint8_t rtc_display_hour24(void) {
+    uint8_t hour = rtc_time_to_24h(rtc_time).hour;
+    return rtc_time.is_dst ? (hour + 1) % 24 : hour;
+}
+
+/**
  * @brief Generates a string with the date
  *
  * @return char* MM/DD/YYYY
@@ -443,25 +484,12 @@ char *rtc_read_date_str(void) {
  * @return char* HH:MM:SS
  */
 char *rtc_read_time_str(void) {
-    static char      time_str[11] = {0};
-    uint8_t          hour         = rtc_time.hour;
-    rtc_time_am_pm_t am_pm        = rtc_time.am_pm;
+    static char             time_str[11] = {0};
+    uint8_t          hour         = rtc_display_hour24();
+    rtc_time_am_pm_t am_pm        = RTC_AM;
 
-    if (rtc_time.is_dst) {
-        if (rtc_time.format == RTC_FORMAT_12H) {
-            if (hour == 12) {
-                hour  = 1;
-                am_pm = am_pm == RTC_AM ? RTC_PM : RTC_AM;
-            } else {
-                hour++;
-            }
-        } else {
-            if (hour == 23) {
-                hour = 0;
-            } else {
-                hour++;
-            }
-        }
+    if (rtc_time.format == RTC_FORMAT_12H) {
+        rtc_hour_from_24h(hour, &hour, &am_pm);
     }
 
     snprintf_nowarn(time_str, sizeof(time_str), "%02d:%02d:%02d%s", hour, rtc_time.minute, rtc_time.second,
@@ -486,29 +514,10 @@ char *rtc_read_date_time_str(void) {
  * @return char* YYYY-MM-DDTHH:MM:SS
  */
 char *rtc_read_date_time_iso8601_str(void) {
-    static char      date_time_str[22] = {0};
-    uint8_t          hour              = rtc_time.hour;
-    rtc_time_am_pm_t am_pm             = rtc_time.am_pm;
-
-    if (rtc_time.is_dst) {
-        if (rtc_time.format == RTC_FORMAT_12H) {
-            if (hour == 12) {
-                hour  = 1;
-                am_pm = am_pm == RTC_AM ? RTC_PM : RTC_AM;
-            } else {
-                hour++;
-            }
-        } else {
-            if (hour == 23) {
-                hour = 0;
-            } else {
-                hour++;
-            }
-        }
-    }
-    snprintf_nowarn(date_time_str, sizeof(date_time_str), "%04d-%02d-%02dT%02d:%02d:%02d%s", rtc_time.year,
-                    rtc_time.month, rtc_time.date, hour, rtc_time.minute, rtc_time.second,
-                    rtc_time.format == RTC_FORMAT_24H ? "" : (am_pm == RTC_AM ? "AM" : "PM"));
+    static char date_time_str[20] = {0};
+    // ISO 8601 is always 24h, regardless of the display format
+    snprintf_nowarn(date_time_str, sizeof(date_time_str), "%04d-%02d-%02dT%02d:%02d:%02d", rtc_time.year,
+                    rtc_time.month, rtc_time.date, rtc_display_hour24(), rtc_time.minute, rtc_time.second);
     return date_time_str;
 }
 
@@ -518,8 +527,8 @@ char *rtc_read_date_time_iso8601_str(void) {
  */
 __attribute__((weak)) uint32_t get_fattime(void) {
     return (((uint32_t)rtc_time.year - 1980) << 25U) | ((uint32_t)rtc_time.month << 21U) |
-           ((uint32_t)rtc_time.date << 16U) | ((uint32_t)rtc_time.hour << 11U) | ((uint32_t)rtc_time.minute << 5U) |
-           ((uint32_t)rtc_time.second >> 1U);
+           ((uint32_t)rtc_time.date << 16U) | ((uint32_t)rtc_time_to_24h(rtc_time).hour << 11U) |
+           ((uint32_t)rtc_time.minute << 5U) | ((uint32_t)rtc_time.second >> 1U);
 }
 
 __attribute__((weak)) bool rtc_set_time_user(rtc_time_t *time) {
@@ -544,20 +553,24 @@ __attribute__((weak)) bool rtc_set_time_kb(rtc_time_t *time) {
  * @param is_dst Set daylight saving time
  */
 void rtc_set_time(rtc_time_t time) {
-    time.day_of_the_week = (rtc_time_day_of_the_week_t)day_of_the_week(time);
-    time.unixtime        = (uint32_t)convert_to_unixtime(time);
+    // Hardware and unixtime always use 24h; `time` keeps the user-facing (12h/24h) representation
+    rtc_time_t hw        = rtc_time_to_24h(time);
+    hw.day_of_the_week   = (rtc_time_day_of_the_week_t)day_of_the_week(hw);
+    hw.unixtime          = (uint32_t)convert_to_unixtime(hw);
+    time.day_of_the_week = hw.day_of_the_week;
+    time.unixtime        = hw.unixtime;
 
 #ifdef DS3231_RTC_DRIVER_ENABLE
-    ds3231_set_time(time);
+    ds3231_set_time(hw);
 #endif // DS3231_RTC_DRIVER_ENABLE
 #ifdef DS1307_RTC_DRIVER_ENABLE
-    ds1307_set_time(time);
+    ds1307_set_time(hw);
 #endif // DS1307_RTC_DRIVER_ENABLE
 #ifdef PCF8523_RTC_DRIVER_ENABLE
-    pcf8523_set_time(time);
+    pcf8523_set_time(hw);
 #endif // PCF8523_RTC_DRIVER_ENABLE
 #ifdef VENDOR_RTC_DRIVER_ENABLE
-    vendor_rtc_set_time(time);
+    vendor_rtc_set_time(hw);
 #endif // VENDOR_RTC_DRIVER_ENABLE
     rtc_time = time;
 
@@ -664,18 +677,16 @@ void rtc_date_decrease(void) {
 void rtc_hour_increase(void) {
     rtc_time_t time = rtc_read_time_struct();
     if (time.format == RTC_FORMAT_12H) {
-        if (time.hour == 12) {
-            time.hour  = 1;
-            time.am_pm = time.am_pm == RTC_AM ? RTC_PM : RTC_AM;
+        if (time.hour == 11) {
+            time.hour  = 12;
+            time.am_pm = time.am_pm == RTC_AM ? RTC_PM : RTC_AM; // 11 -> 12 flips AM/PM
+        } else if (time.hour >= 12) {
+            time.hour = 1;
         } else {
             time.hour++;
         }
     } else {
-        if (time.hour == 23) {
-            time.hour = 0;
-        } else {
-            time.hour++;
-        }
+        time.hour = (time.hour >= 23) ? 0 : time.hour + 1;
     }
     rtc_set_time(time);
 }
@@ -687,18 +698,16 @@ void rtc_hour_increase(void) {
 void rtc_hour_decrease(void) {
     rtc_time_t time = rtc_read_time_struct();
     if (time.format == RTC_FORMAT_12H) {
-        if (time.hour == 1) {
-            time.hour  = 12;
-            time.am_pm = time.am_pm == RTC_AM ? RTC_PM : RTC_AM;
+        if (time.hour == 12) {
+            time.hour  = 11;
+            time.am_pm = time.am_pm == RTC_AM ? RTC_PM : RTC_AM; // 12 -> 11 flips AM/PM
+        } else if (time.hour <= 1) {
+            time.hour = 12;
         } else {
             time.hour--;
         }
     } else {
-        if (time.hour == 0) {
-            time.hour = 24;
-        } else {
-            time.hour--;
-        }
+        time.hour = (time.hour == 0) ? 23 : time.hour - 1;
     }
     rtc_set_time(time);
 }
@@ -787,19 +796,11 @@ void rtc_am_pm_toggle(void) {
  */
 void rtc_format_toggle(void) {
     rtc_time_t time = rtc_read_time_struct();
-    time.format     = (rtc_time_format_t)(time.format == RTC_FORMAT_12H ? RTC_FORMAT_24H : RTC_FORMAT_12H);
     if (time.format == RTC_FORMAT_12H) {
-        if (time.hour == 0) {
-            time.hour  = 12;
-            time.am_pm = RTC_AM;
-        } else if (time.hour > 12) {
-            time.hour -= 12;
-            time.am_pm = RTC_PM;
-        } else if (time.hour == 12) {
-            time.am_pm = RTC_PM;
-        } else {
-            time.am_pm = RTC_AM;
-        }
+        time = rtc_time_to_24h(time);
+    } else {
+        rtc_hour_from_24h(time.hour, &time.hour, &time.am_pm);
+        time.format = RTC_FORMAT_12H;
     }
     rtc_set_time(time);
 }
