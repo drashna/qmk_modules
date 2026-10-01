@@ -15,6 +15,19 @@
 #    define DISPLAY_MENU_UPDATE_INTERVAL 500
 #endif // !DISPLAY_MENU_UPDATE_INTERVAL
 
+#ifndef DISPLAY_MENU_REPEAT_DELAY
+#    define DISPLAY_MENU_REPEAT_DELAY 400
+#endif // !DISPLAY_MENU_REPEAT_DELAY
+
+#ifndef DISPLAY_MENU_REPEAT_RATE
+#    define DISPLAY_MENU_REPEAT_RATE 100
+#endif // !DISPLAY_MENU_REPEAT_RATE
+
+static deferred_token menu_repeat_token   = INVALID_DEFERRED_TOKEN;
+static uint16_t       menu_repeat_keycode = KC_NO;
+
+static void display_menu_repeat_stop(void);
+
 menu_state_runtime_t menu_state_runtime  = {.dirty = true, .has_rendered = false};
 deferred_token       menu_deferred_token = INVALID_DEFERRED_TOKEN;
 menu_state_t         menu_state          = (menu_state_t){
@@ -81,6 +94,7 @@ bool menu_handle_input(menu_input_t input) {
     }
     switch (input) {
         case menu_input_exit:
+            display_menu_repeat_stop();
             menu_state.is_in_menu = false;
             memset(menu_state.menu_stack, 0xFF, sizeof(menu_state.menu_stack));
             menu_state.selected_child = 0xFF;
@@ -176,6 +190,39 @@ __attribute__((weak)) bool process_record_display_menu_handling_user(uint16_t ke
 }
 
 /**
+ * @brief Which keycodes should auto-repeat while held in the menu.
+ */
+__attribute__((weak)) bool display_menu_is_repeatable_user(uint16_t keycode) {
+    switch (keycode) {
+        case KC_UP:
+        case KC_DOWN:
+        case KC_LEFT:
+        case KC_RIGHT:
+            return true;
+        default:
+            return false;
+    }
+}
+
+static void display_menu_repeat_stop(void) {
+    if (menu_repeat_token != INVALID_DEFERRED_TOKEN) {
+        cancel_deferred_exec(menu_repeat_token);
+        menu_repeat_token = INVALID_DEFERRED_TOKEN;
+    }
+    menu_repeat_keycode = KC_NO;
+}
+
+static uint32_t display_menu_repeat_cb(uint32_t trigger_time, void *cb_arg) {
+    if (!menu_state.is_in_menu) {
+        menu_repeat_token   = INVALID_DEFERRED_TOKEN;
+        menu_repeat_keycode = KC_NO;
+        return 0; // stop repeating
+    }
+    process_record_display_menu_handling_user(menu_repeat_keycode, false);
+    return DISPLAY_MENU_REPEAT_RATE; // reschedule
+}
+
+/**
  * @brief Process the keycode and record for the display menu
  *
  * @param keycode raw keycodes to hangle
@@ -233,11 +280,22 @@ bool process_record_display_menu(uint16_t keycode, keyrecord_t *record) {
     }
     if (menu_state.is_in_menu) {
         if (record->event.pressed) {
-            return process_record_display_menu_handling_user(keycode, keep_processing);
+            bool result = process_record_display_menu_handling_user(keycode, keep_processing);
+
+            display_menu_repeat_stop(); // a new press replaces any active repeat
+            if (menu_state.is_in_menu && display_menu_is_repeatable_user(keycode)) {
+                menu_repeat_keycode = keycode;
+                menu_repeat_token   = defer_exec(DISPLAY_MENU_REPEAT_DELAY, display_menu_repeat_cb, NULL);
+            }
+            return result;
+        }
+
+        // Only the key that's repeating can stop the repeat
+        if (keycode == menu_repeat_keycode) {
+            display_menu_repeat_stop();
         }
         return keep_processing;
     }
-
     return true;
 }
 
