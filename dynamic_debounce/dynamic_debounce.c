@@ -16,6 +16,7 @@
 #include "timer.h"
 #include "util.h"
 #include <string.h>
+#include <ctype.h>
 
 #ifdef SPLIT_KEYBOARD
 #    include "transactions.h"
