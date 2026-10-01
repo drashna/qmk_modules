@@ -24,16 +24,17 @@
         .child.display_handler = display_handler_##name,            \
     }
 
-#define DISPLAY_MENU_ENTRY_PARENT(display_text, short_display, child) \
-    {                                                                 \
-        .flags              = menu_flag_is_parent,                    \
-        .text               = display_text,                           \
-        .short_text         = short_display,                          \
-        .parent.children    = child,                                  \
-        .parent.child_count = ARRAY_SIZE(child),                      \
+#define DISPLAY_MENU_ENTRY_PARENT(display_text, short_display, child_item, child_index) \
+    {                                                                              \
+        .flags                           = menu_flag_is_parent,                    \
+        .text                            = display_text,                           \
+        .short_text                      = short_display,                          \
+        .parent.children                 = child_item,                             \
+        .parent.child_count              = ARRAY_SIZE(child_item),                 \
+        .parent.get_selected_child_index = child_index,                            \
     }
 
-#define DISPLAY_MENU_ENTRY_MULTI(display_text, short_display, child_item, name) \
+#define DISPLAY_MENU_ENTRY_MULTI(display_text, short_display, child_item, child_index, name) \
     {                                                                           \
         .flags                 = menu_flag_is_parent | menu_flag_is_value,      \
         .text                  = display_text,                                  \
@@ -42,6 +43,7 @@
         .child.display_handler = display_handler_##name,                        \
         .parent.children       = child_item,                                    \
         .parent.child_count    = ARRAY_SIZE(child_item),                        \
+        .parent.get_selected_child_index = child_index,                        \
     }
 
 typedef enum _menu_flags_t {
@@ -66,6 +68,7 @@ typedef struct _menu_entry_t {
     struct {
         struct _menu_entry_t *children;
         size_t                child_count;
+        uint8_t (*get_selected_child_index)(void);
     } parent;
     struct {
         bool (*menu_handler)(menu_input_t input);

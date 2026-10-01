@@ -125,7 +125,14 @@ bool menu_handle_input(menu_input_t input) {
                 for (uint8_t i = 0; i < sizeof(menu_state.menu_stack); ++i) {
                     if (menu_state.menu_stack[i] == 0xFF) {
                         menu_state.menu_stack[i]  = menu_state.selected_child;
-                        menu_state.selected_child = 0;
+                        uint8_t start             = 0;
+                        if (selected->parent.get_selected_child_index != NULL) {
+                            start = selected->parent.get_selected_child_index();
+                        }
+                        if (start >= selected->parent.child_count) {
+                            start = 0;
+                        }
+                        menu_state.selected_child = start;
                         break;
                     }
                 }
