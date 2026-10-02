@@ -490,10 +490,12 @@ char *rtc_read_time_str(void) {
 
     if (rtc_time.format == RTC_FORMAT_12H) {
         rtc_hour_from_24h(hour, &hour, &am_pm);
-    }
+        snprintf_nowarn(time_str, sizeof(time_str), "%2d:%02d:%02d%s", hour, rtc_time.minute, rtc_time.second,
+                        am_pm == RTC_AM ? "AM" : "PM");
 
-    snprintf_nowarn(time_str, sizeof(time_str), "%02d:%02d:%02d%s", hour, rtc_time.minute, rtc_time.second,
-                    rtc_time.format == RTC_FORMAT_24H ? "" : (am_pm == RTC_AM ? "AM" : "PM"));
+    } else {
+        snprintf_nowarn(time_str, sizeof(time_str), "%02d:%02d:%02d", hour, rtc_time.minute, rtc_time.second);
+    }
     return time_str;
 }
 
