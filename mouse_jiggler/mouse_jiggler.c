@@ -27,7 +27,7 @@
 #endif // PD_JIGGLER_INTRO_TIMEOUT
 
 #if !defined(PD_JIGGLER_PATTERN)
-#    define PD_JIGGLER_PATTERN PD_JIGGLER_PATTERN_SUBTLE
+#    define PD_JIGGLER_PATTERN PD_JIGGLER_PATTERN_XLINE
 #endif // defined(PD_JIGGLER_PATTERN)
 
 #if !defined(PD_JIGGLER_PATTERN_INTRO)
@@ -44,7 +44,7 @@
  * The value can be changed at runtime via jiggler_set_backoff().
  */
 #if !defined(PD_JIGGLER_BACKOFF)
-#    define PD_JIGGLER_BACKOFF 30
+#    define PD_JIGGLER_BACKOFF 5
 #endif // defined(PD_JIGGLER_BACKOFF)
 
 report_mouse_t msJigReport          = {0};
@@ -55,6 +55,9 @@ deferred_token msJigIntroTimerToken = INVALID_DEFERRED_TOKEN;
 static uint8_t jiggler_active_pattern = PD_JIGGLER_PATTERN;
 static uint8_t jiggler_active_intro   = PD_JIGGLER_PATTERN_INTRO;
 static uint8_t jiggler_active_ending  = PD_JIGGLER_PATTERN_ENDING;
+static uint8_t jiggler_main_phase;
+static uint8_t jiggler_intro_phase;
+static uint8_t jiggler_ending_phase;
 
 /**
  * @brief Whether intro/outro animations are enabled at runtime.
@@ -119,32 +122,32 @@ uint8_t jiggler_get_state(void) {
 }
 
 /**
- * @brief Core jiggler tick: advances one step through a movement delta array
- *        and sends the resulting mouse report.
+ * @brief Core jiggler tick: advances one step through the movement delta
+ *        arrays and sends the resulting mouse report.
  *
- * The X axis is driven by @p deltas[phase] and the Y axis by
- * @p deltas[(phase + numdeltas/phasefraction) & (numdeltas-1)], creating a
- * phase-offset Lissajous-style path.  @p numdeltas **must** be a power of 2.
+ * The X and Y axes use independent delta arrays, with an optional Y phase
+ * offset. @p numdeltas **must** be a power of 2.
  *
- * @param deltas       Circular array of signed per-tick movement deltas.
- * @param numdeltas    Length of @p deltas (must be a power of 2).
- * @param phasefraction Divisor used to compute the Y-axis phase offset.
+ * @param x_deltas     Circular array of signed per-tick X movement deltas.
+ * @param y_deltas     Circular array of signed per-tick Y movement deltas.
+ * @param numdeltas    Length of each delta array (must be a power of 2).
+ * @param y_phase      Offset into the Y delta array.
  * @param scalex       Multiplier applied to the X delta.
  * @param scaley       Multiplier applied to the Y delta.
- * @param randomdelay  When true, adds a phase-dependent jitter to the delay.
+ * @param variable_delay When true, adds a phase-dependent variation to the delay.
  * @param basedelay    Base delay in milliseconds between ticks.
+ * @param phase        Independent phase counter for this deferred callback.
  * @return Milliseconds until the next tick.
  */
-uint32_t jiggler_pattern(int8_t deltas[], int8_t numdeltas, int8_t phasefraction, int8_t scalex, int8_t scaley,
-                         bool randomdelay, int16_t basedelay) {
-    static uint8_t phase = 0;
+uint32_t jiggler_pattern(int8_t x_deltas[], int8_t y_deltas[], uint8_t numdeltas, uint8_t y_phase, int8_t scalex,
+                         int8_t scaley, bool variable_delay, int16_t basedelay, uint8_t *phase) {
     uint32_t       delay;
-    msJigReport.x = scalex * deltas[phase];
-    msJigReport.y = scaley * deltas[(phase + (numdeltas / phasefraction)) & (numdeltas - 1)];
+    msJigReport.x = scalex * x_deltas[*phase];
+    msJigReport.y = scaley * y_deltas[(*phase + y_phase) & (numdeltas - 1)];
     host_mouse_send(&msJigReport);
-    phase = (phase + 1) & (numdeltas - 1);
-    if (randomdelay) {
-        delay = basedelay + deltas[phase] * basedelay / 4 + phase * basedelay / 10;
+    *phase               = (*phase + 1) & (numdeltas - 1);
+    if (variable_delay) {
+        delay = basedelay + x_deltas[*phase] * basedelay / 4 + *phase * basedelay / 10;
     } else {
         delay = basedelay;
     }
@@ -180,111 +183,114 @@ void jiggler_intro_end(void) {
  *       jiggler_pattern() to work correctly.
  * @{
  */
-/** @brief 32-entry delta table that traces a circle (or figure-eight). */
+/** @brief 32-entry delta table that traces a circle. */
 int8_t circledeltas[32] = {0, -1, -2, -2, -3, -3, -4, -4, -4, -4, -3, -3, -2, -2, -1, 0,
                            0, 1,  2,  2,  3,  3,  4,  4,  4,  4,  3,  3,  2,  2,  1,  0};
 /** @brief 16-entry delta table for a small, irregular "subtle" motion. */
 int8_t subtledeltas[16] = {1, -1, 1, 1, -2, 2, -2, -2, 2, -2, 2, 2, -1, 1, -1, -1};
 /** @brief 16-entry delta table that traces a square path. */
 int8_t squaredeltas[16] = {1, 1, 1, 1, 0, 0, 0, 0, -1, -1, -1, -1, 0, 0, 0, 0};
+/** @brief 32-entry Y-axis delta table that gives the figure-eight a second lobe. */
+int8_t figureydeltas[32] = {0, -1, -2, -2, -3, -3, -4, -4, 0, 1, 2, 2, 3, 3, 4, 4,
+                            0, -1, -2, -2, -3, -3, -4, -4, 0, 1, 2, 2, 3, 3, 4, 4};
 /** @} */
 
 /**
  * @name Deferred-exec pattern callbacks
  * Each callback is registered with defer_exec() and returns the delay until
- * its next invocation. The @p trigger_time and @p cb_arg parameters are
- * supplied by the deferred-exec subsystem and are unused by these callbacks.
+ * its next invocation. The @p trigger_time parameter is unused; @p cb_arg
+ * points to the phase counter belonging to this deferred execution.
  * @{
  */
 
 /**
  * @brief Clockwise circle pattern, normal size (64 ms/tick).
  * @param trigger_time Scheduled trigger time (unused).
- * @param cb_arg       Callback argument (unused).
+ * @param cb_arg       Pointer to this callback's phase counter.
  * @return Delay in milliseconds until the next tick.
  */
 uint32_t jiggler_circle(uint32_t trigger_time, void *cb_arg) {
-    return jiggler_pattern(circledeltas, 32, 4, -2, 2, 0, 64);
+    return jiggler_pattern(circledeltas, circledeltas, 32, 8, -2, 2, 0, 64, cb_arg);
 }
 
 /**
  * @brief Clockwise circle pattern, small size (24 ms/tick).
  * @param trigger_time Scheduled trigger time (unused).
- * @param cb_arg       Callback argument (unused).
+ * @param cb_arg       Pointer to this callback's phase counter.
  * @return Delay in milliseconds until the next tick.
  */
 uint32_t jiggler_circle_small(uint32_t trigger_time, void *cb_arg) {
-    return jiggler_pattern(circledeltas, 32, 4, -1, 1, 0, 24);
+    return jiggler_pattern(circledeltas, circledeltas, 32, 8, -1, 1, 0, 24, cb_arg);
 }
 
 /**
  * @brief Counter-clockwise circle pattern, normal size (64 ms/tick).
  * @param trigger_time Scheduled trigger time (unused).
- * @param cb_arg       Callback argument (unused).
+ * @param cb_arg       Pointer to this callback's phase counter.
  * @return Delay in milliseconds until the next tick.
  */
 uint32_t jiggler_circle_ccw(uint32_t trigger_time, void *cb_arg) {
-    return jiggler_pattern(circledeltas, 32, 4, 2, 2, 0, 64);
+    return jiggler_pattern(circledeltas, circledeltas, 32, 8, 2, 2, 0, 64, cb_arg);
 }
 
 /**
  * @brief Counter-clockwise circle pattern, small size (24 ms/tick).
  * @param trigger_time Scheduled trigger time (unused).
- * @param cb_arg       Callback argument (unused).
+ * @param cb_arg       Pointer to this callback's phase counter.
  * @return Delay in milliseconds until the next tick.
  */
 uint32_t jiggler_circle_ccw_small(uint32_t trigger_time, void *cb_arg) {
-    return jiggler_pattern(circledeltas, 32, 4, 1, 1, 0, 24);
+    return jiggler_pattern(circledeltas, circledeltas, 32, 8, 1, 1, 0, 24, cb_arg);
 }
 
 /**
  * @brief Square path pattern (64 ms/tick).
  * @param trigger_time Scheduled trigger time (unused).
- * @param cb_arg       Callback argument (unused).
+ * @param cb_arg       Pointer to this callback's phase counter.
  * @return Delay in milliseconds until the next tick.
  */
 uint32_t jiggler_square(uint32_t trigger_time, void *cb_arg) {
-    return jiggler_pattern(squaredeltas, 16, 4, 2, 2, 0, 64);
+    return jiggler_pattern(squaredeltas, squaredeltas, 16, 4, 2, 2, 0, 64, cb_arg);
 }
 
 /**
  * @brief Large figure-eight pattern (64 ms/tick).
  * @param trigger_time Scheduled trigger time (unused).
- * @param cb_arg       Callback argument (unused).
+ * @param cb_arg       Pointer to this callback's phase counter.
  * @return Delay in milliseconds until the next tick.
  */
 uint32_t jiggler_figure(uint32_t trigger_time, void *cb_arg) {
-    return jiggler_pattern(circledeltas, 32, 4, 4, 4, 0, 64);
+    return jiggler_pattern(circledeltas, figureydeltas, 32, 0, 4, 4, 0, 64, cb_arg);
 }
 
 /**
- * @brief Subtle random-delay jitter pattern (~16 s base tick).
+ * @brief Subtle movement pattern with phase-varying delays (~16 s base tick).
  * @param trigger_time Scheduled trigger time (unused).
- * @param cb_arg       Callback argument (unused).
+ * @param cb_arg       Pointer to this callback's phase counter.
  * @return Delay in milliseconds until the next tick.
  */
 uint32_t jiggler_subtle(uint32_t trigger_time, void *cb_arg) {
-    return jiggler_pattern(subtledeltas, 16, 4, 1, 1, 1, 16384);
+    return jiggler_pattern(subtledeltas, subtledeltas, 16, 4, 1, 1, 1, 16384, cb_arg);
 }
 
 /**
  * @brief Horizontal line pattern (X axis only, 24 ms/tick).
  * @param trigger_time Scheduled trigger time (unused).
- * @param cb_arg       Callback argument (unused).
+ * @param cb_arg       Pointer to this callback's phase counter.
  * @return Delay in milliseconds until the next tick.
  */
 uint32_t jiggler_xline(uint32_t trigger_time, void *cb_arg) {
-    return jiggler_pattern(circledeltas, 32, 4, 1, 0, 0, 24);
+    return jiggler_pattern(circledeltas, circledeltas, 32, 8, 1, 0, 0, 24, cb_arg);
 }
 
 /**
  * @brief Vertical line pattern (Y axis only, 24 ms/tick).
  * @param trigger_time Scheduled trigger time (unused).
- * @param cb_arg       Callback argument (unused).
+ * @param cb_arg       Pointer to this callback's phase counter.
  * @return Delay in milliseconds until the next tick.
  */
 uint32_t jiggler_yline(uint32_t trigger_time, void *cb_arg) {
-    return jiggler_pattern(circledeltas, 32, 4, 0, 1, 0, 24);
+    return jiggler_pattern(circledeltas, circledeltas, 32, 8, 0, 1, 0, 24, cb_arg);
 }
 
 /** @} */
@@ -345,13 +351,15 @@ uint32_t jiggler_introtimer(uint32_t trigger_time, void *cb_arg) {
 void jiggler_end(void) {
     pd_dprintf("jiggler_end\n");
     cancel_deferred_exec(msJigMainToken);
+    jiggler_intro_end();
     msJigReport = (report_mouse_t){}; // Clear the mouse.
     host_mouse_send(&msJigReport);
     if (jiggler_intro_enabled) {
         deferred_exec_callback outro_cb = pattern_cb(jiggler_active_ending);
         if (outro_cb != NULL) {
             pd_dprintf("jiggler_end outro: pattern %d\n", jiggler_active_ending);
-            msJigIntroToken = defer_exec(1, outro_cb, NULL);
+            jiggler_ending_phase = 0;
+            msJigIntroToken      = defer_exec(1, outro_cb, &jiggler_ending_phase);
         }
         if (jiggler_intro_timeout > 0) {
             msJigIntroTimerToken = defer_exec(jiggler_intro_timeout, jiggler_introtimer, NULL);
@@ -370,16 +378,23 @@ void jiggler_end(void) {
  * a timer is scheduled to cancel the intro after that many milliseconds.
  */
 void jiggler_start(void) {
+    if (msJigMainToken != INVALID_DEFERRED_TOKEN) {
+        cancel_deferred_exec(msJigMainToken);
+        msJigMainToken = INVALID_DEFERRED_TOKEN;
+    }
+    jiggler_intro_end();
+    jiggler_main_phase  = 0;
+    jiggler_intro_phase = 0;
     deferred_exec_callback cb = pattern_cb(jiggler_active_pattern);
     if (cb != NULL) {
         pd_dprintf("jiggler_start: pattern %d\n", jiggler_active_pattern);
-        msJigMainToken = defer_exec(1, cb, NULL);
+        msJigMainToken = defer_exec(1, cb, &jiggler_main_phase);
     }
     if (jiggler_intro_enabled) {
         deferred_exec_callback intro_cb = pattern_cb(jiggler_active_intro);
         if (intro_cb != NULL) {
             pd_dprintf("intro: pattern %d\n", jiggler_active_intro);
-            msJigIntroToken = defer_exec(1, intro_cb, NULL);
+            msJigIntroToken = defer_exec(1, intro_cb, &jiggler_intro_phase);
         }
         if (jiggler_intro_timeout > 0) {
             pd_dprintf("intro timer: %" PRIu32 "ms\n", jiggler_intro_timeout);

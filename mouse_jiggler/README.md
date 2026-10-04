@@ -48,7 +48,7 @@ The following pattern identifiers are available as `pd_jiggler_pattern_t` enum v
 
 | Pattern                             | Value | Description                            |
 |-------------------------------------|-------|----------------------------------------|
-| `PD_JIGGLER_PATTERN_SUBTLE`         | `1`   | Small, irregular random-delay jitter.  |
+| `PD_JIGGLER_PATTERN_SUBTLE`         | `1`   | Small, irregular movement with varying delay. |
 | `PD_JIGGLER_PATTERN_XLINE`          | `2`   | Horizontal (X-axis only) oscillation.  |
 | `PD_JIGGLER_PATTERN_YLINE`          | `3`   | Vertical (Y-axis only) oscillation.    |
 | `PD_JIGGLER_PATTERN_CIRCLE`         | `4`   | Clockwise circle, normal size.         |
