@@ -542,29 +542,7 @@ bool process_record_display_keylogger(uint16_t code, keyrecord_t *record) {
     uint16_t keycode = display_keylogger_extract_basic_keycode(code, record, true);
 
     // dont want to show some keycodes
-    // clang-format off
-    if ((IS_QK_LAYER_TAP(keycode) && !record->tap.count)
-        || IS_QK_LAYER_MOD(keycode)
-        || IS_QK_TO(keycode)
-        || IS_QK_MOMENTARY(keycode)
-        || IS_QK_DEF_LAYER(keycode)
-        || IS_QK_TOGGLE_LAYER(keycode)
-        || IS_QK_ONE_SHOT_LAYER(keycode)
-        || IS_QK_ONE_SHOT_MOD(keycode)
-        || IS_QK_LAYER_TAP_TOGGLE(keycode)
-        || IS_QK_PERSISTENT_DEF_LAYER(keycode)
-        || IS_SWAP_HANDS_KEYCODE(keycode)
-        || IS_QK_MAGIC(keycode)
-        || IS_RGB_KEYCODE(keycode)
-        || IS_QK_LIGHTING(keycode)
-        || IS_QK_AUDIO(keycode)
-        || IS_QK_QUANTUM(keycode)
-        || IS_MODIFIER_KEYCODE(keycode)
-        || IS_USER_KEYCODE(keycode)
-        || IS_KB_KEYCODE(keycode)
-       )
-    {
-        // clang-format on
+    if (!((IS_QK_BASIC(keycode) && !IS_MODIFIER_KEYCODE(keycode)) || IS_QK_MODS(keycode))) {
         return true;
     }
 
@@ -624,33 +602,15 @@ const char *get_keycode_character(uint16_t keycode, keypos_t *key) {
     if (str == NULL) {
         return NULL;
     }
-    switch (keycode) {
-        case KC_NO:
-            if (key->row == 255 && key->col == 255) {
-                return " ";
-            } else {
-                return "X";
-            }
-            break;
-        case MAGIC_KEYCODE_RANGE:
-        case QK_LIGHTING ... QK_LIGHTING_MAX:
-        case QK_LAYER_MOD ... QK_LAYER_MOD_MAX:
-        case QK_TO ... QK_TO_MAX:
-        case QK_MOMENTARY ... QK_MOMENTARY_MAX:
-        case QK_DEF_LAYER ... QK_DEF_LAYER_MAX:
-        case QK_TOGGLE_LAYER ... QK_TOGGLE_LAYER_MAX:
-        case QK_ONE_SHOT_LAYER ... QK_ONE_SHOT_LAYER_MAX:
-        case QK_LAYER_TAP_TOGGLE ... QK_LAYER_TAP_TOGGLE_MAX:
-        case QK_PERSISTENT_DEF_LAYER ... QK_PERSISTENT_DEF_LAYER_MAX:
-        case QK_COMMUNITY_MODULE ... QK_COMMUNITY_MODULE_MAX:
-        case QK_TAP_DANCE ... QK_TAP_DANCE_MAX:
-        case USER_KEYCODE_RANGE:
-        case KB_KEYCODE_RANGE:
-        case AUDIO_KEYCODE_RANGE:
-        case QUANTUM_KEYCODE_RANGE:
-            return "x";
-        default:
-            break;
+    if (keycode == KC_NO) {
+        if (key->row == 255 && key->col == 255) {
+            return " ";
+        } else {
+            return "X";
+        }
+
+    } else if (!IS_QK_BASIC(keycode) && !IS_QK_MODS(keycode)) {
+        return "x";
     }
 
     skip_prefix(&str);

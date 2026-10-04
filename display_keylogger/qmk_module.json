@@ -1,7 +1,8 @@
 {
     "features": {
         "deferred_exec": true,
-        "quantum_painter": true
+        "quantum_painter": true,
+        "keycode_string": true
     },
     "maintainer": "drashna",
     "module_name": "Display Keylogger"
