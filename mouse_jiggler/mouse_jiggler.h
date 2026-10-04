@@ -4,6 +4,14 @@
 #include <stdint.h>
 #include "deferred_exec.h"
 
+/** @brief Persistent jiggler settings, stored in the module eeconfig datablock. */
+typedef struct PACKED jiggler_config_t {
+    uint16_t intro_timeout; /**< Intro/outro timeout in ms (0 disables). */
+    uint16_t backoff;       /**< Backoff in seconds after real input. */
+    bool     intro_enabled; /**< Whether intro/outro animations run. */
+    bool     autostop;      /**< Stop the jiggler on any keypress. */
+} jiggler_config_t;
+
 /**
  * @brief Movement pattern identifiers.
  *

@@ -14,11 +14,12 @@
 #include <stdbool.h>
 #include "mouse_jiggler.h"
 #include "pointing_device_internal.h"
+#include "eeconfig.h"
 
 /**
  * @brief Default intro/outro animation timeout in milliseconds.
  *
- * Used to initialise @c jiggler_intro_timeout at startup.  Override in
+ * Used as the default for @c jiggler_config.intro_timeout at startup.  Override in
  * @c config.h before the header is included.  Set @c PD_JIGGLER_NOINTRO to
  * have the runtime variable start at 0 (timeout disabled) regardless.
  */
@@ -40,12 +41,25 @@
 /**
  * @brief Default backoff delay in seconds after any real user input.
  *
- * Used to initialise @c jiggler_backoff at startup.  Override in @c config.h.
+ * Used as the default for @c jiggler_config.backoff at startup.  Override in @c config.h.
  * The value can be changed at runtime via jiggler_set_backoff().
  */
 #if !defined(PD_JIGGLER_BACKOFF)
 #    define PD_JIGGLER_BACKOFF 5
 #endif // defined(PD_JIGGLER_BACKOFF)
+
+#if defined(PD_JIGGLER_NOINTRO)
+#    define PD_JIGGLER_INTRO_DEFAULT false
+#else
+#    define PD_JIGGLER_INTRO_DEFAULT true
+#endif // defined(PD_JIGGLER_NOINTRO)
+#if defined(PD_JIGGLER_AUTOSTOP)
+#    define PD_JIGGLER_AUTOSTOP_DEFAULT true
+#else
+#    define PD_JIGGLER_AUTOSTOP_DEFAULT false
+#endif // defined(PD_JIGGLER_AUTOSTOP)
+
+#define JIGGLER_CONFIG_DEFAULTS { .intro_timeout = PD_JIGGLER_INTRO_TIMEOUT, .backoff = PD_JIGGLER_BACKOFF, .intro_enabled = PD_JIGGLER_INTRO_DEFAULT, .autostop = PD_JIGGLER_AUTOSTOP_DEFAULT }
 
 report_mouse_t msJigReport          = {0};
 deferred_token msJigMainToken       = INVALID_DEFERRED_TOKEN;
@@ -60,48 +74,29 @@ static uint8_t jiggler_intro_phase;
 static uint8_t jiggler_ending_phase;
 
 /**
- * @brief Whether intro/outro animations are enabled at runtime.
+ * @brief Persistent jiggler settings, saved to the module eeconfig datablock.
  *
- * Initialised to @c false when @c PD_JIGGLER_NOINTRO is defined at compile
- * time, @c true otherwise.  Can be toggled at runtime via
- * jiggler_set_intro_enabled().
+ * Defaults come from @c PD_JIGGLER_NOINTRO, @c PD_JIGGLER_INTRO_TIMEOUT,
+ * @c PD_JIGGLER_BACKOFF and @c PD_JIGGLER_AUTOSTOP.
  */
-#if defined(PD_JIGGLER_NOINTRO)
-static bool jiggler_intro_enabled = false;
-#else
-static bool jiggler_intro_enabled = true;
-#endif
+static jiggler_config_t jiggler_config = JIGGLER_CONFIG_DEFAULTS;
 
-/**
- * @brief Intro/outro animation timeout in milliseconds.
- *
- * When the timer expires jiggler_introtimer() cancels the intro/outro.
- * Set to 0 to disable the timeout entirely.  Initialised from
- * @c PD_JIGGLER_INTRO_TIMEOUT.
- */
-static uint32_t jiggler_intro_timeout = PD_JIGGLER_INTRO_TIMEOUT;
+_Static_assert(sizeof(jiggler_config_t) <= EECONFIG_MODULE_MOUSE_JIGGLER_DATA_SIZE, "Mouse jiggler EECONFIG block is not large enough.");
 
-/**
- * @brief Backoff delay in seconds applied after any real user input.
- *
- * Whenever a key or pointing-device event is detected the next jiggler tick
- * is pushed forward by this many seconds, preventing simulated movement from
- * colliding with real input.  Initialised from @c PD_JIGGLER_BACKOFF.
- */
-static uint32_t jiggler_backoff = PD_JIGGLER_BACKOFF;
+static void jiggler_config_save(void) {
+    eeconfig_update_mouse_jiggler_datablock(&jiggler_config, 0, sizeof(jiggler_config));
+}
 
-/**
- * @brief Whether the jiggler automatically stops on any keypress.
- *
- * Initialised to @c true when @c PD_JIGGLER_AUTOSTOP is defined at compile
- * time, @c false otherwise.  Can be changed at runtime via
- * jiggler_set_autostop().
- */
-#if defined(PD_JIGGLER_AUTOSTOP)
-static bool jiggler_autostop = true;
-#else
-static bool jiggler_autostop = false;
-#endif
+void eeconfig_init_mouse_jiggler_datablock(void) {
+    jiggler_config = (jiggler_config_t)JIGGLER_CONFIG_DEFAULTS;
+    jiggler_config_save();
+}
+
+void keyboard_pre_init_mouse_jiggler(void) {
+    if (eeconfig_is_mouse_jiggler_datablock_valid()) {
+        eeconfig_read_mouse_jiggler_datablock(&jiggler_config, 0, sizeof(jiggler_config));
+    }
+}
 
 /**
  * @brief Returns the current jiggler state.
@@ -345,7 +340,7 @@ uint32_t jiggler_introtimer(uint32_t trigger_time, void *cb_arg) {
  * Cancels @c msJigMainToken, sends a zeroed mouse report to stop movement,
  * and (when intro is enabled via jiggler_set_intro_enabled()) schedules the
  * runtime-configured outro pattern (see jiggler_set_pattern_ending()).  When
- * @c jiggler_intro_timeout is non-zero, a timer is also scheduled to cancel
+ * @c jiggler_config.intro_timeout is non-zero, a timer is also scheduled to cancel
  * the outro after that many milliseconds.
  */
 void jiggler_end(void) {
@@ -354,15 +349,15 @@ void jiggler_end(void) {
     jiggler_intro_end();
     msJigReport = (report_mouse_t){}; // Clear the mouse.
     host_mouse_send(&msJigReport);
-    if (jiggler_intro_enabled) {
+    if (jiggler_config.intro_enabled) {
         deferred_exec_callback outro_cb = pattern_cb(jiggler_active_ending);
         if (outro_cb != NULL) {
             pd_dprintf("jiggler_end outro: pattern %d\n", jiggler_active_ending);
             jiggler_ending_phase = 0;
             msJigIntroToken      = defer_exec(1, outro_cb, &jiggler_ending_phase);
         }
-        if (jiggler_intro_timeout > 0) {
-            msJigIntroTimerToken = defer_exec(jiggler_intro_timeout, jiggler_introtimer, NULL);
+        if (jiggler_config.intro_timeout > 0) {
+            msJigIntroTimerToken = defer_exec(jiggler_config.intro_timeout, jiggler_introtimer, NULL);
         }
     }
     msJigMainToken = INVALID_DEFERRED_TOKEN;
@@ -374,7 +369,7 @@ void jiggler_end(void) {
  * Schedules the runtime-configured main pattern (see jiggler_set_pattern()) as
  * a deferred callback.  When intro is enabled (see jiggler_set_intro_enabled()),
  * also schedules the runtime-configured intro pattern
- * (see jiggler_set_pattern_intro()).  When @c jiggler_intro_timeout is non-zero
+ * (see jiggler_set_pattern_intro()).  When @c jiggler_config.intro_timeout is non-zero
  * a timer is scheduled to cancel the intro after that many milliseconds.
  */
 void jiggler_start(void) {
@@ -390,15 +385,15 @@ void jiggler_start(void) {
         pd_dprintf("jiggler_start: pattern %d\n", jiggler_active_pattern);
         msJigMainToken = defer_exec(1, cb, &jiggler_main_phase);
     }
-    if (jiggler_intro_enabled) {
+    if (jiggler_config.intro_enabled) {
         deferred_exec_callback intro_cb = pattern_cb(jiggler_active_intro);
         if (intro_cb != NULL) {
             pd_dprintf("intro: pattern %d\n", jiggler_active_intro);
             msJigIntroToken = defer_exec(1, intro_cb, &jiggler_intro_phase);
         }
-        if (jiggler_intro_timeout > 0) {
-            pd_dprintf("intro timer: %" PRIu32 "ms\n", jiggler_intro_timeout);
-            msJigIntroTimerToken = defer_exec(jiggler_intro_timeout, jiggler_introtimer, NULL);
+        if (jiggler_config.intro_timeout > 0) {
+            pd_dprintf("intro timer: %" PRIu16 "ms\n", jiggler_config.intro_timeout);
+            msJigIntroTimerToken = defer_exec(jiggler_config.intro_timeout, jiggler_introtimer, NULL);
         }
     }
 }
@@ -408,7 +403,7 @@ void jiggler_start(void) {
  * @return @c true if intro/outro will play, @c false if disabled.
  */
 bool jiggler_get_intro_enabled(void) {
-    return jiggler_intro_enabled;
+    return jiggler_config.intro_enabled;
 }
 
 /**
@@ -416,7 +411,8 @@ bool jiggler_get_intro_enabled(void) {
  * @param enabled @c true to play intro/outro sequences, @c false to skip them.
  */
 void jiggler_set_intro_enabled(bool enabled) {
-    jiggler_intro_enabled = enabled;
+    jiggler_config.intro_enabled = enabled;
+    jiggler_config_save();
 }
 
 /**
@@ -424,7 +420,7 @@ void jiggler_set_intro_enabled(bool enabled) {
  * @return Timeout in ms, or 0 if the timeout is disabled.
  */
 uint32_t jiggler_get_intro_timeout(void) {
-    return jiggler_intro_timeout;
+    return jiggler_config.intro_timeout;
 }
 
 /**
@@ -432,7 +428,8 @@ uint32_t jiggler_get_intro_timeout(void) {
  * @param timeout_ms Timeout in milliseconds; pass 0 to disable.
  */
 void jiggler_set_intro_timeout(uint32_t timeout_ms) {
-    jiggler_intro_timeout = timeout_ms;
+    jiggler_config.intro_timeout = timeout_ms > UINT16_MAX ? UINT16_MAX : timeout_ms;
+    jiggler_config_save();
 }
 
 /**
@@ -470,7 +467,7 @@ uint8_t jiggler_get_pattern_ending(void) {
 void jiggler_set_pattern(uint8_t pattern) {
     if (pattern_cb(pattern) != NULL) {
         jiggler_active_pattern = pattern;
-        jiggle_delay(jiggler_backoff);
+        jiggle_delay(jiggler_config.backoff);
     }
 }
 
@@ -515,7 +512,7 @@ void jiggler_pattern_prev(void) {
 void jiggler_set_pattern_intro(uint8_t pattern) {
     if (pattern_cb(pattern) != NULL) {
         jiggler_active_intro = pattern;
-        jiggle_delay(jiggler_backoff);
+        jiggle_delay(jiggler_config.backoff);
     }
 }
 
@@ -546,7 +543,7 @@ void jiggler_pattern_intro_prev(void) {
 void jiggler_set_pattern_ending(uint8_t pattern) {
     if (pattern_cb(pattern) != NULL) {
         jiggler_active_ending = pattern;
-        jiggle_delay(jiggler_backoff);
+        jiggle_delay(jiggler_config.backoff);
     }
 }
 
@@ -609,7 +606,7 @@ void jiggler_disable(void) {
  * @return @c true if the jiggler stops automatically on any keypress.
  */
 bool jiggler_get_autostop(void) {
-    return jiggler_autostop;
+    return jiggler_config.autostop;
 }
 
 /**
@@ -617,7 +614,8 @@ bool jiggler_get_autostop(void) {
  * @param enabled @c true to stop the jiggler on any keypress, @c false to keep it running.
  */
 void jiggler_set_autostop(bool enabled) {
-    jiggler_autostop = enabled;
+    jiggler_config.autostop = enabled;
+    jiggler_config_save();
 }
 
 /**
@@ -625,7 +623,7 @@ void jiggler_set_autostop(bool enabled) {
  * @return Backoff duration in seconds applied after any real user input.
  */
 uint32_t jiggler_get_backoff(void) {
-    return jiggler_backoff;
+    return jiggler_config.backoff;
 }
 
 /**
@@ -637,7 +635,8 @@ uint32_t jiggler_get_backoff(void) {
  * @param backoff_sec Backoff duration in seconds; 0 disables the backoff.
  */
 void jiggler_set_backoff(uint32_t backoff_sec) {
-    jiggler_backoff = backoff_sec;
+    jiggler_config.backoff = backoff_sec > UINT16_MAX ? UINT16_MAX : backoff_sec;
+    jiggler_config_save();
     jiggle_delay(backoff_sec);
 }
 
@@ -670,7 +669,7 @@ void jiggle_delay(uint32_t delay_sec) {
  */
 bool process_record_mouse_jiggler(uint16_t keycode, keyrecord_t *record) {
     // Delay the next jiggler tick to avoid simulated movement colliding with real input.
-    jiggle_delay(jiggler_backoff);
+    jiggle_delay(jiggler_config.backoff);
     if (record->event.pressed) {
         switch (keycode) {
             case COMMUNITY_MODULE_MOUSE_JIGGLER_TOGGLE:
@@ -701,10 +700,10 @@ bool process_record_mouse_jiggler(uint16_t keycode, keyrecord_t *record) {
                 jiggler_pattern_ending_prev();
                 break;
             case COMMUNITY_MODULE_MOUSE_JIGGLER_AUTOSTOP:
-                jiggler_set_autostop(true);
+                jiggler_set_autostop(!jiggler_get_autostop());
                 break;
             default:
-                if (jiggler_autostop && jiggler_get_state()) {
+                if (jiggler_config.autostop && jiggler_get_state()) {
                     jiggler_intro_end();
                     jiggler_end();
                 }
@@ -725,7 +724,7 @@ bool process_record_mouse_jiggler(uint16_t keycode, keyrecord_t *record) {
  */
 report_mouse_t pointing_device_task_mouse_jiggler(report_mouse_t mouse_report) {
     if (mouse_report.x || mouse_report.y || mouse_report.h || mouse_report.v) {
-        jiggle_delay(jiggler_backoff);
+        jiggle_delay(jiggler_config.backoff);
     }
     return mouse_report;
 }

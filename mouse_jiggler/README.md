@@ -19,7 +19,7 @@ Three keycodes are available:
 | `COMMUNITY_MODULE_MOUSE_JIGGLER_TOGGLE`        | `MS_JGTG` | Toggle the jiggler on/off                    |
 | `COMMUNITY_MODULE_MOUSE_JIGGLER_ON`            | `MS_JGON` | Turn the jiggler on                          |
 | `COMMUNITY_MODULE_MOUSE_JIGGLER_OFF`           | `MS_JGOF`| Turn the jiggler off                         |
-| `COMMUNITY_MODULE_MOUSE_JIGGLER_AUTOSTOP`      | `MS_JGAS` | Stop the jiggler immediately                 |
+| `COMMUNITY_MODULE_MOUSE_JIGGLER_AUTOSTOP`      | `MS_JGAS` | Toggle autostop (saved to EEPROM)  |
 | `COMMUNITY_MODULE_MOUSE_JIGGLER_PATTERN_NEXT`  | `MS_JGPN` | Cycle to the next primary movement pattern   |
 | `COMMUNITY_MODULE_MOUSE_JIGGLER_PATTERN_PREV`  | `MS_JGPP` | Cycle to the previous primary movement pattern |
 | `COMMUNITY_MODULE_MOUSE_JIGGLER_INTRO_NEXT`    | `MS_JGIN` | Cycle to the next intro pattern              |
@@ -94,8 +94,10 @@ The following pattern identifiers are available as `pd_jiggler_pattern_t` enum v
 
 ### Backoff
 
+> **Persistence:** The backoff, intro enabled, intro timeout and autostop settings are stored in a `jiggler_config_t` in the module's EEPROM datablock and saved whenever a setter is called. The `PD_JIGGLER_*` macros above only provide the defaults used when the datablock is initialised (e.g. after an EEPROM reset).
+
 - `jiggler_get_backoff(void)` - Returns the current backoff delay in seconds.
-- `jiggler_set_backoff(uint32_t backoff_sec)` - Sets the backoff delay and immediately applies it to the current cycle. Pass `0` to disable.
+- `jiggler_set_backoff(uint32_t backoff_sec)` - Sets the backoff delay (saved to EEPROM, clamped to 65535) and immediately applies it to the current cycle. Pass `0` to disable.
 
 ### Autostop
 
