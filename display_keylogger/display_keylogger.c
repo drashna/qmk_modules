@@ -533,10 +533,10 @@ void keycode_repr(const char **str, const uint8_t mods) {
  * @param keycode The keycode of the key being processed.
  * @param record  The key event record containing information about the key event.
  */
-void keylogger_process(uint16_t code, keyrecord_t *record) {
+bool process_record_display_keylogger(uint16_t code, keyrecord_t *record) {
     // nothing on release (for now)
     if (!record->event.pressed) {
-        return;
+        return true;
     }
 
     uint16_t keycode = display_keylogger_extract_basic_keycode(code, record, true);
@@ -565,7 +565,7 @@ void keylogger_process(uint16_t code, keyrecord_t *record) {
        )
     {
         // clang-format on
-        return;
+        return true;
     }
 
     keylog_dirty = true;
@@ -592,12 +592,12 @@ void keylogger_process(uint16_t code, keyrecord_t *record) {
         else {
             keylog_shift_right();
         }
-        return;
+        return true;
     }
 
     // unknown keycode, quit
     if (str == NULL) {
-        return;
+        return true;
     }
 
     // convert string into symbols
@@ -607,6 +607,7 @@ void keylogger_process(uint16_t code, keyrecord_t *record) {
     apply_casing(&str);
 
     keylog_append(str);
+    return true;
 }
 
 void split_sync_keylogger_str(const uint8_t *data, uint8_t size) {
@@ -618,7 +619,7 @@ void split_sync_keylogger_str(const uint8_t *data, uint8_t size) {
     }
 }
 
-const char *get_keyode_character(uint16_t keycode, keypos_t *key) {
+const char *get_keycode_character(uint16_t keycode, keypos_t *key) {
     const char *str = get_keycode_string(display_keylogger_extract_basic_keycode(keycode, NULL, false));
     if (str == NULL) {
         return NULL;
