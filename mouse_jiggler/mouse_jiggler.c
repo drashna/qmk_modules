@@ -482,6 +482,36 @@ uint8_t jiggler_get_pattern_ending(void) {
 }
 
 /**
+ * @brief Returns the display name for a movement pattern.
+ * @param index Pattern ID from @c pd_jiggler_pattern_t.
+ * @return The pattern name, or "Unknown" for an invalid ID.
+ */
+const char *mouse_jiggler_get_name(uint8_t index) {
+    switch (index) {
+        case PD_JIGGLER_PATTERN_SUBTLE:
+            return "Subtle";
+        case PD_JIGGLER_PATTERN_XLINE:
+            return "X-Line";
+        case PD_JIGGLER_PATTERN_YLINE:
+            return "Y-Line";
+        case PD_JIGGLER_PATTERN_CIRCLE:
+            return "Circle";
+        case PD_JIGGLER_PATTERN_CIRCLESMALL:
+            return "Circle Small";
+        case PD_JIGGLER_PATTERN_CIRCLECCW:
+            return "Circle CCW";
+        case PD_JIGGLER_PATTERN_CIRCLECCWSMALL:
+            return "Circle CCW Small";
+        case PD_JIGGLER_PATTERN_FIGURE:
+            return "Figure";
+        case PD_JIGGLER_PATTERN_SQUARE:
+            return "Square";
+        default:
+            return "Unknown";
+    }
+}
+
+/**
  * @brief Sets the primary movement pattern at runtime.
  *
  * The change takes effect the next time jiggler_start() is called.

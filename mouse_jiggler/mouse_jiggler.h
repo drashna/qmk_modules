@@ -52,6 +52,7 @@ bool     jiggler_get_enabled(void);
 uint8_t jiggler_get_pattern(void);
 uint8_t jiggler_get_pattern_intro(void);
 uint8_t jiggler_get_pattern_ending(void);
+const char *mouse_jiggler_get_name(uint8_t index);
 
 void jiggler_set_pattern(uint8_t pattern);
 void jiggler_set_pattern_intro(uint8_t pattern);

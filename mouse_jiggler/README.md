@@ -76,6 +76,7 @@ The following pattern identifiers are available as `pd_jiggler_pattern_t` enum v
 
 ### Pattern
 
+- `mouse_jiggler_get_name(uint8_t index)` - Returns the display name for a pattern ID, or `"Unknown"` for an invalid ID.
 - `jiggler_get_pattern(void)` - Returns the current primary movement pattern ID.
 - `jiggler_set_pattern(uint8_t pattern)` - Sets the primary movement pattern. Takes effect on the next start. Invalid patterns are ignored.
 - `jiggler_pattern_next(void)` - Advances to the next primary pattern, wrapping around. Takes effect immediately if running.
