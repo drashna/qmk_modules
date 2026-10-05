@@ -65,6 +65,18 @@
             "aliases": [
                 "MS_JGAS"
             ]
+        },
+        {
+            "key": "COMMUNITY_MODULE_MOUSE_JIGGLER_TIMEOUT_UP",
+            "aliases": [
+                "MS_JGTU"
+            ]
+        },
+        {
+            "key": "COMMUNITY_MODULE_MOUSE_JIGGLER_TIMEOUT_DOWN",
+            "aliases": [
+                "MS_JGTD"
+            ]
         }
     ]
 }

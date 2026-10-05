@@ -12,7 +12,7 @@ It can be integrated into your keymap by adding the following to your `keymap.js
 }
 ```
 
-Three keycodes are available:
+The following keycodes are available:
 
 | Keycode                                        | Alias      | Description                                  |
 |------------------------------------------------|------------|----------------------------------------------|
@@ -20,6 +20,8 @@ Three keycodes are available:
 | `COMMUNITY_MODULE_MOUSE_JIGGLER_ON`            | `MS_JGON` | Turn the jiggler on                          |
 | `COMMUNITY_MODULE_MOUSE_JIGGLER_OFF`           | `MS_JGOF`| Turn the jiggler off                         |
 | `COMMUNITY_MODULE_MOUSE_JIGGLER_AUTOSTOP`      | `MS_JGAS` | Toggle autostop (saved to EEPROM)  |
+| `COMMUNITY_MODULE_MOUSE_JIGGLER_TIMEOUT_UP`    | `MS_JGTU` | Increase backoff timeout (saved to EEPROM) |
+| `COMMUNITY_MODULE_MOUSE_JIGGLER_TIMEOUT_DOWN`  | `MS_JGTD` | Decrease backoff timeout (saved to EEPROM) |
 | `COMMUNITY_MODULE_MOUSE_JIGGLER_PATTERN_NEXT`  | `MS_JGPN` | Cycle to the next primary movement pattern   |
 | `COMMUNITY_MODULE_MOUSE_JIGGLER_PATTERN_PREV`  | `MS_JGPP` | Cycle to the previous primary movement pattern |
 | `COMMUNITY_MODULE_MOUSE_JIGGLER_INTRO_NEXT`    | `MS_JGIN` | Cycle to the next intro pattern              |
@@ -38,9 +40,11 @@ The following defines can be set in `config.h` to change the startup defaults. A
 | `PD_JIGGLER_PATTERN_INTRO`  | `PD_JIGGLER_PATTERN_CIRCLESMALL`    | Initial intro animation pattern played when the jiggler starts.                        |
 | `PD_JIGGLER_PATTERN_ENDING` | `PD_JIGGLER_PATTERN_CIRCLECCWSMALL` | Initial outro animation pattern played when the jiggler stops.                         |
 | `PD_JIGGLER_INTRO_TIMEOUT`  | `1000`                              | Duration in milliseconds before the intro/outro animation is cancelled automatically.  |
-| `PD_JIGGLER_BACKOFF`        | `5`                                 | Seconds to delay the next jiggler tick after any real key or pointing-device activity. |
+| `PD_JIGGLER_BACKOFF`        | `30`                                | Seconds to delay the next jiggler tick after any real key or pointing-device activity. |
+| `PD_JIGGLER_ENABLED`        | `false`                             | Whether the jiggler starts automatically; the runtime setting is saved to EEPROM. |
 | `PD_JIGGLER_NOINTRO`        | *(not set)*                         | Define this to disable intro/outro animations at startup.                              |
 | `PD_JIGGLER_AUTOSTOP`       | *(not set)*                         | Define this to start with autostop enabled (also settable at runtime via `jiggler_set_autostop()`). |
+| `PD_JIGGLER_BACKOFF_STEP`   | `1`                                 | Seconds changed per timeout up/down keycode or `jiggler_backoff_increase()`/`jiggler_backoff_decrease()`. |
 
 ## Movement Patterns
 
@@ -94,10 +98,12 @@ The following pattern identifiers are available as `pd_jiggler_pattern_t` enum v
 
 ### Backoff
 
-> **Persistence:** The backoff, intro enabled, intro timeout and autostop settings are stored in a `jiggler_config_t` in the module's EEPROM datablock and saved whenever a setter is called. The `PD_JIGGLER_*` macros above only provide the defaults used when the datablock is initialised (e.g. after an EEPROM reset).
+> **Persistence:** The enabled state, backoff, intro enabled, intro timeout and autostop settings are stored in a `jiggler_config_t` in the module's EEPROM datablock and saved whenever a setter is called. The `PD_JIGGLER_*` macros above only provide the defaults used when the datablock is initialised (e.g. after an EEPROM reset).
 
 - `jiggler_get_backoff(void)` - Returns the current backoff delay in seconds.
 - `jiggler_set_backoff(uint32_t backoff_sec)` - Sets the backoff delay (saved to EEPROM, clamped to 65535) and immediately applies it to the current cycle. Pass `0` to disable.
+- `jiggler_backoff_increase(void)` / `jiggler_backoff_decrease(void)` - Increase/decrease the delay by `PD_JIGGLER_BACKOFF_STEP` seconds, saturating at 65535 and 0 respectively.
+- `jiggler_get_enabled(void)` - Returns whether the jiggler is configured to run; this setting is restored at startup.
 
 ### Autostop
 

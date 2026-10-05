@@ -10,6 +10,7 @@ typedef struct PACKED jiggler_config_t {
     uint16_t backoff;       /**< Backoff in seconds after real input. */
     bool     intro_enabled; /**< Whether intro/outro animations run. */
     bool     autostop;      /**< Stop the jiggler on any keypress. */
+    bool     enabled;       /**< Whether the jiggler is running (restored at boot). */
 } jiggler_config_t;
 
 /**
@@ -42,8 +43,11 @@ void    jiggle_delay(uint32_t delay_sec);
 
 bool     jiggler_get_autostop(void);
 void     jiggler_set_autostop(bool enabled);
-uint32_t jiggler_get_backoff(void);
-void jiggler_set_backoff(uint32_t backoff_sec);
+uint16_t jiggler_get_backoff(void);
+void     jiggler_set_backoff(uint16_t backoff_sec);
+void     jiggler_backoff_increase(void);
+void     jiggler_backoff_decrease(void);
+bool     jiggler_get_enabled(void);
 
 uint8_t jiggler_get_pattern(void);
 uint8_t jiggler_get_pattern_intro(void);
@@ -61,5 +65,5 @@ void jiggler_pattern_ending_prev(void);
 
 bool     jiggler_get_intro_enabled(void);
 void     jiggler_set_intro_enabled(bool enabled);
-uint32_t jiggler_get_intro_timeout(void);
-void jiggler_set_intro_timeout(uint32_t timeout_ms);
+uint16_t jiggler_get_intro_timeout(void);
+void jiggler_set_intro_timeout(uint16_t timeout_ms);
