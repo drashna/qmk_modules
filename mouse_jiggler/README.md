@@ -14,21 +14,19 @@ It can be integrated into your keymap by adding the following to your `keymap.js
 
 The following keycodes are available:
 
-| Keycode                                        | Alias      | Description                                  |
-|------------------------------------------------|------------|----------------------------------------------|
-| `COMMUNITY_MODULE_MOUSE_JIGGLER_TOGGLE`        | `MS_JGTG` | Toggle the jiggler on/off                    |
-| `COMMUNITY_MODULE_MOUSE_JIGGLER_ON`            | `MS_JGON` | Turn the jiggler on                          |
-| `COMMUNITY_MODULE_MOUSE_JIGGLER_OFF`           | `MS_JGOF`| Turn the jiggler off                         |
-| `COMMUNITY_MODULE_MOUSE_JIGGLER_AUTOSTOP`      | `MS_JGAS` | Toggle autostop (saved to EEPROM)  |
-| `COMMUNITY_MODULE_MOUSE_JIGGLER_TIMEOUT_UP`    | `MS_JGTU` | Increase backoff timeout (saved to EEPROM) |
-| `COMMUNITY_MODULE_MOUSE_JIGGLER_TIMEOUT_DOWN`  | `MS_JGTD` | Decrease backoff timeout (saved to EEPROM) |
-| `COMMUNITY_MODULE_MOUSE_JIGGLER_PATTERN_NEXT`  | `MS_JGPN` | Cycle to the next primary movement pattern   |
-| `COMMUNITY_MODULE_MOUSE_JIGGLER_PATTERN_PREV`  | `MS_JGPP` | Cycle to the previous primary movement pattern |
-| `COMMUNITY_MODULE_MOUSE_JIGGLER_INTRO_NEXT`    | `MS_JGIN` | Cycle to the next intro pattern              |
-| `COMMUNITY_MODULE_MOUSE_JIGGLER_INTRO_PREV`    | `MS_JGIP` | Cycle to the previous intro pattern          |
-| `COMMUNITY_MODULE_MOUSE_JIGGLER_ENDING_NEXT`   | `MS_JGEN` | Cycle to the next ending pattern             |
-| `COMMUNITY_MODULE_MOUSE_JIGGLER_ENDING_PREV`   | `MS_JGEP` | Cycle to the previous ending pattern         |
+| Keycode                                        | Alias      | Description                                                    |
+|------------------------------------------------|------------|----------------------------------------------------------------|
+| `COMMUNITY_MODULE_MOUSE_JIGGLER_TOGGLE`        | `MS_JGTG`  | Toggle the jiggler on/off                                      |
+| `COMMUNITY_MODULE_MOUSE_JIGGLER_ON`            | `MS_JGON`  | Turn the jiggler on                                            |
+| `COMMUNITY_MODULE_MOUSE_JIGGLER_OFF`           | `MS_JGOF ` | Turn the jiggler off                                           |
+| `COMMUNITY_MODULE_MOUSE_JIGGLER_AUTOSTOP`      | `MS_JGAS`  | Toggle autostop (saved to EEPROM)                              |
+| `COMMUNITY_MODULE_MOUSE_JIGGLER_TIMEOUT_UP`    | `MS_JGTU`  | Increase backoff timeout (saved to EEPROM)                     |
+| `COMMUNITY_MODULE_MOUSE_JIGGLER_TIMEOUT_DOWN`  | `MS_JGTD`  | Decrease backoff timeout (saved to EEPROM)                     |
+| `COMMUNITY_MODULE_MOUSE_JIGGLER_PATTERN_CYCLE` | `MS_JGPN`  | Cycle patterns forward, or backward while Shift is held        |
+| `COMMUNITY_MODULE_MOUSE_JIGGLER_INTRO_CYCLE`   | `MS_JGIN`  | Cycle intro patterns forward, or backward while Shift is held  |
+| `COMMUNITY_MODULE_MOUSE_JIGGLER_ENDING_CYCLE`  | `MS_JGEN`  | Cycle ending patterns forward, or backward while Shift is held |
 
+Hold Shift with a directional keycode to reverse its action.
 
 ## Configuration
 

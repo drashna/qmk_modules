@@ -1,40 +1,40 @@
 {
     "keycodes": [
         {
-            "key": "RTC_YEAR_INCREASE"
+            "key": "RTC_YEAR_CYCLE",
+            "aliases": [
+                "RTC_YR"
+            ]
         },
         {
-            "key": "RTC_YEAR_DECREASE"
+            "key": "RTC_MONTH_CYCLE",
+            "aliases": [
+                "RTC_MO"
+            ]
         },
         {
-            "key": "RTC_MONTH_INCREASE"
+            "key": "RTC_DATE_CYCLE",
+            "aliases": [
+                "RTC_DT"
+            ]
         },
         {
-            "key": "RTC_MONTH_DECREASE"
+            "key": "RTC_HOUR_CYCLE",
+            "aliases": [
+                "RTC_HR"
+            ]
         },
         {
-            "key": "RTC_DATE_INCREASE"
+            "key": "RTC_MINUTE_CYCLE",
+            "aliases": [
+                "RTC_MIN"
+            ]
         },
         {
-            "key": "RTC_DATE_DECREASE"
-        },
-        {
-            "key": "RTC_HOUR_INCREASE"
-        },
-        {
-            "key": "RTC_HOUR_DECREASE"
-        },
-        {
-            "key": "RTC_MINUTE_INCREASE"
-        },
-        {
-            "key": "RTC_MINUTE_DECREASE"
-        },
-        {
-            "key": "RTC_SECOND_INCREASE"
-        },
-        {
-            "key": "RTC_SECOND_DECREASE"
+            "key": "RTC_SECOND_CYCLE",
+            "aliases": [
+                "RTC_SEC"
+            ]
         },
         {
             "key": "RTC_AM_PM_TOGGLE"

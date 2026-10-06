@@ -25,39 +25,21 @@
             ]
         },
         {
-            "key": "COMMUNITY_MODULE_MOUSE_JIGGLER_PATTERN_NEXT",
+            "key": "COMMUNITY_MODULE_MOUSE_JIGGLER_PATTERN_CYCLE",
             "aliases": [
                 "MS_JGPN"
             ]
         },
         {
-            "key": "COMMUNITY_MODULE_MOUSE_JIGGLER_PATTERN_PREV",
-            "aliases": [
-                "MS_JGPP"
-            ]
-        },
-        {
-            "key": "COMMUNITY_MODULE_MOUSE_JIGGLER_INTRO_NEXT",
+            "key": "COMMUNITY_MODULE_MOUSE_JIGGLER_INTRO_CYCLE",
             "aliases": [
                 "MS_JGIN"
             ]
         },
         {
-            "key": "COMMUNITY_MODULE_MOUSE_JIGGLER_INTRO_PREV",
-            "aliases": [
-                "MS_JGIP"
-            ]
-        },
-        {
-            "key": "COMMUNITY_MODULE_MOUSE_JIGGLER_ENDING_NEXT",
+            "key": "COMMUNITY_MODULE_MOUSE_JIGGLER_ENDING_CYCLE",
             "aliases": [
                 "MS_JGEN"
-            ]
-        },
-        {
-            "key": "COMMUNITY_MODULE_MOUSE_JIGGLER_ENDING_PREV",
-            "aliases": [
-                "MS_JGEP"
             ]
         },
         {

@@ -831,42 +831,54 @@ bool process_record_rtc(uint16_t keycode, keyrecord_t *record) {
         return false;
     }
     if (record->event.pressed) {
+        mod_t mods = {.raw = get_mods()};
+#ifndef NO_ONESHOT_MODS
+        mods.raw |= get_oneshot_mods();
+#endif
+        bool reverse = mods.left_shift || mods.right_shift;
+
         switch (keycode) {
-            case RTC_DATE_INCREASE:
-                rtc_date_increase();
+            case RTC_DATE_CYCLE:
+                if (reverse) {
+                    rtc_date_decrease();
+                } else {
+                    rtc_date_increase();
+                }
                 break;
-            case RTC_DATE_DECREASE:
-                rtc_date_decrease();
+            case RTC_MONTH_CYCLE:
+                if (reverse) {
+                    rtc_month_decrease();
+                } else {
+                    rtc_month_increase();
+                }
                 break;
-            case RTC_MONTH_INCREASE:
-                rtc_month_increase();
+            case RTC_YEAR_CYCLE:
+                if (reverse) {
+                    rtc_year_decrease();
+                } else {
+                    rtc_year_increase();
+                }
                 break;
-            case RTC_MONTH_DECREASE:
-                rtc_month_decrease();
+            case RTC_HOUR_CYCLE:
+                if (reverse) {
+                    rtc_hour_decrease();
+                } else {
+                    rtc_hour_increase();
+                }
                 break;
-            case RTC_YEAR_INCREASE:
-                rtc_year_increase();
+            case RTC_MINUTE_CYCLE:
+                if (reverse) {
+                    rtc_minute_decrease();
+                } else {
+                    rtc_minute_increase();
+                }
                 break;
-            case RTC_YEAR_DECREASE:
-                rtc_year_decrease();
-                break;
-            case RTC_HOUR_INCREASE:
-                rtc_hour_increase();
-                break;
-            case RTC_HOUR_DECREASE:
-                rtc_hour_decrease();
-                break;
-            case RTC_MINUTE_INCREASE:
-                rtc_minute_increase();
-                break;
-            case RTC_MINUTE_DECREASE:
-                rtc_minute_decrease();
-                break;
-            case RTC_SECOND_INCREASE:
-                rtc_second_increase();
-                break;
-            case RTC_SECOND_DECREASE:
-                rtc_second_decrease();
+            case RTC_SECOND_CYCLE:
+                if (reverse) {
+                    rtc_second_decrease();
+                } else {
+                    rtc_second_increase();
+                }
                 break;
             case RTC_AM_PM_TOGGLE:
                 rtc_am_pm_toggle();

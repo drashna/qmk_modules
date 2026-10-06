@@ -753,6 +753,11 @@ bool process_record_mouse_jiggler(uint16_t keycode, keyrecord_t *record) {
     // Delay the next jiggler tick to avoid simulated movement colliding with real input.
     jiggle_delay(jiggler_config.backoff);
     if (record->event.pressed) {
+        mod_t mods = {.raw = get_mods()};
+#ifndef NO_ONESHOT_MODS
+        mods.raw |= get_oneshot_mods();
+#endif
+        bool reverse = mods.left_shift || mods.right_shift;
         switch (keycode) {
             case COMMUNITY_MODULE_MOUSE_JIGGLER_TOGGLE:
                 jiggler_toggle();
@@ -763,32 +768,43 @@ bool process_record_mouse_jiggler(uint16_t keycode, keyrecord_t *record) {
             case COMMUNITY_MODULE_MOUSE_JIGGLER_OFF:
                 jiggler_disable();
                 break;
-            case COMMUNITY_MODULE_MOUSE_JIGGLER_PATTERN_NEXT:
-                jiggler_pattern_next();
+            case COMMUNITY_MODULE_MOUSE_JIGGLER_PATTERN_CYCLE:
+                if (reverse) {
+                    jiggler_pattern_prev();
+                } else {
+                    jiggler_pattern_next();
+                }
                 break;
-            case COMMUNITY_MODULE_MOUSE_JIGGLER_PATTERN_PREV:
-                jiggler_pattern_prev();
+            case COMMUNITY_MODULE_MOUSE_JIGGLER_INTRO_CYCLE:
+                if (reverse) {
+                    jiggler_pattern_intro_prev();
+                } else {
+                    jiggler_pattern_intro_next();
+                }
                 break;
-            case COMMUNITY_MODULE_MOUSE_JIGGLER_INTRO_NEXT:
-                jiggler_pattern_intro_next();
-                break;
-            case COMMUNITY_MODULE_MOUSE_JIGGLER_INTRO_PREV:
-                jiggler_pattern_intro_prev();
-                break;
-            case COMMUNITY_MODULE_MOUSE_JIGGLER_ENDING_NEXT:
-                jiggler_pattern_ending_next();
-                break;
-            case COMMUNITY_MODULE_MOUSE_JIGGLER_ENDING_PREV:
-                jiggler_pattern_ending_prev();
+            case COMMUNITY_MODULE_MOUSE_JIGGLER_ENDING_CYCLE:
+                if (reverse) {
+                    jiggler_pattern_ending_prev();
+                } else {
+                    jiggler_pattern_ending_next();
+                }
                 break;
             case COMMUNITY_MODULE_MOUSE_JIGGLER_AUTOSTOP:
                 jiggler_set_autostop(!jiggler_get_autostop());
                 break;
             case COMMUNITY_MODULE_MOUSE_JIGGLER_TIMEOUT_UP:
-                jiggler_backoff_increase();
+                if (reverse) {
+                    jiggler_backoff_decrease();
+                } else {
+                    jiggler_backoff_increase();
+                }
                 break;
             case COMMUNITY_MODULE_MOUSE_JIGGLER_TIMEOUT_DOWN:
-                jiggler_backoff_decrease();
+                if (reverse) {
+                    jiggler_backoff_increase();
+                } else {
+                    jiggler_backoff_decrease();
+                }
                 break;
             default:
                 if (jiggler_config.autostop && jiggler_get_state()) {

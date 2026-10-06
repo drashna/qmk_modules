@@ -257,12 +257,19 @@ void eeconfig_init_dynamic_debounce_datablock(void) {
 
 bool process_record_dynamic_debounce(uint16_t keycode, keyrecord_t *record) {
     if (record->event.pressed) {
+        mod_t mods = {.raw =get_mods()};
+#ifndef NO_ONESHOT_MODS
+        mods.raw |= get_oneshot_mods();
+#endif
+        bool reverse = mods.left_shift || mods.right_shift;
+
         switch (keycode) {
-            case CM_DYNAMIC_DEBOUNCE_NEXT:
-                dynamic_debounce_next_algorithm();
-                return false;
-            case CM_DYNAMIC_DEBOUNCE_PREV:
-                dynamic_debounce_previous_algorithm();
+            case CM_DYNAMIC_DEBOUNCE_CYCLE:
+                if (reverse) {
+                    dynamic_debounce_previous_algorithm();
+                } else {
+                    dynamic_debounce_next_algorithm();
+                }
                 return false;
             case CM_DYNAMIC_DEBOUNCE_TIME_UP:
                 dynamic_debounce_increase_time();

@@ -39,8 +39,7 @@ EEPROM data.
 
 | Keycode                         | Alias     | Description                     |
 |---------------------------------|-----------|---------------------------------|
-| `CM_DYNAMIC_DEBOUNCE_NEXT`      | `DD_NEXT` | Cycle to the next algorithm     |
-| `CM_DYNAMIC_DEBOUNCE_PREV`      | `DD_PREV` | Cycle to the previous algorithm |
+| `CM_DYNAMIC_DEBOUNCE_CYCLE`     | `DD_CYCL` | Cycle to the next algorithm     |
 | `CM_DYNAMIC_DEBOUNCE_TIME_UP`   | `DD_TUP`  | Increase the debounce time      |
 | `CM_DYNAMIC_DEBOUNCE_TIME_DOWN` | `DD_TDN`  | Decrease the debounce time      |
 

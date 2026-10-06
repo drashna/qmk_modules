@@ -1,15 +1,9 @@
 {
     "keycodes": [
         {
-            "key": "CM_DYNAMIC_DEBOUNCE_NEXT",
+            "key": "CM_DYNAMIC_DEBOUNCE_CYCLE",
             "aliases": [
-                "DD_NEXT"
-            ]
-        },
-        {
-            "key": "CM_DYNAMIC_DEBOUNCE_PREV",
-            "aliases": [
-                "DD_PREV"
+                "DD_CYCL"
             ]
         },
         {
