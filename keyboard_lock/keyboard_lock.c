@@ -11,15 +11,24 @@ static bool           host_driver_disabled = false;
 
 /**
  * @brief Mount/Umount the keyboard USB driver
+ *
+ * @param status true to lock the keyboard, false to unlock it
  */
 void set_keyboard_lock(bool status) {
-    if (!status && !host_get_driver()) {
+    if (!host_get_driver() && !host_driver) {
+        // No host driver is available, and no driver is stored, so perform a soft reset since the  keyboard is in a bad
+        // state and cannot be restored.
+        soft_reset_keyboard();
+    } else if (!status && !host_get_driver()) {
+        /// disable lock and restore the host driver
         host_set_driver(host_driver);
     } else if (status && host_get_driver()) {
+        // Store the current host driver and clear the keyboard before disabling the driver
         host_driver = host_get_driver();
         clear_keyboard();
         host_set_driver(0);
-    } else if (status) {
+    } else {
+        // The keyboard is already in the desired state, just clear it to ensure no keys are stuck
         clear_keyboard();
     }
 
