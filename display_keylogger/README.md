@@ -33,10 +33,10 @@ Add `drashna/display_keylogger` to the keymap's `modules` list in `keymap.json`:
 If the keymap already has a `modules` list, add the module name to that list
 rather than replacing the existing entries.
 
-The module tracks keys when `keylogger_process(keycode, record)` is called from
+The module tracks keys when `process_record_display_keylogger(keycode, record)` is called from
 the key-processing path. A display integration can retrieve the formatted log
-with `get_keylogger_str()` and render it when `is_keylogger_dirty()` returns
-true. After updating the display, call `keylogger_set_dirty(false)` to mark the
+with `get_display_keylogger_str()` and render it when `is_display_keylogger_dirty()` returns
+true. After updating the display, call `display_keylogger_set_dirty(false)` to mark the
 log as rendered. Include `display_keylogger.h` to use these functions.
 
 ## Configuration and API
@@ -45,9 +45,9 @@ Set `DISPLAY_KEYLOGGER_LENGTH` at build time to change the number of retained
 characters; it defaults to `25`. The module sizes its EEPROM allocation from
 this value.
 
-The public header also provides `get_keylogger_str_raw()` for the Unicode
-codepoint buffer, `keycode_repr()` for keycode-label formatting, and
-`keylog_shift_right()` for removing the newest entry. Split synchronization is
+The public header also provides `get_display_keylogger_str_raw()` for the Unicode
+codepoint buffer, `display_keylogger_keycode_sanitizer()` for keycode-label formatting, and
+`display_keylogger_shift_right()` for removing the newest entry. Split synchronization is
 handled by the module and normally does not need to be called by keymaps.
 
 This module is separate from the Drashna userspace OLED keylogger.

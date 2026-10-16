@@ -102,7 +102,7 @@ static void display_keylogger_sync_handler(uint8_t initiator2target_buffer_size,
     (void)target2initiator_buffer;
 
     if (initiator2target_buffer_size == sizeof(display_keylogger_config.string)) {
-        split_sync_keylogger_str(initiator2target_buffer, initiator2target_buffer_size / sizeof(int32_t));
+        split_sync_display_keylogger_str(initiator2target_buffer, initiator2target_buffer_size / sizeof(int32_t));
     }
 }
 #endif
@@ -369,7 +369,7 @@ static void maybe_symbol(const char **str, uint8_t mods) {
 
 // convert to lowercase based on shift/caps
 // overengineered so it can also work on strings and whatnot on future
-static void apply_casing(const char **str) {
+static void display_keylogger_apply_casing(const char **str) {
     // not a single char
     if (strlen(*str) > 1) {
         return;
@@ -398,7 +398,7 @@ static void apply_casing(const char **str) {
     *str = lowercase_letters[**str - 'A'];
 }
 
-static void keylog_clear(void) {
+static void display_keylogger_clear(void) {
     // spaces (not 0) so `qp_drawtext` actually renders something
     for (int i = 0; i < DISPLAY_KEYLOGGER_LENGTH; i++) {
         display_keylogger_config.string[i] = '_';
@@ -407,19 +407,19 @@ static void keylog_clear(void) {
     display_keylogger_save();
 }
 
-static void keylog_shift_right_one_char(void) {
+static void display_keylogger_shift_right_one_char(void) {
     memmove(display_keylogger_config.string + 1, display_keylogger_config.string,
             (DISPLAY_KEYLOGGER_LENGTH - 1) * sizeof(int32_t));
     display_keylogger_config.string[0] = '_';
 }
 
-void keylog_shift_right(void) {
+void display_keylogger_shift_right(void) {
     // With int32_t, each element is a complete character, so just shift one position
-    keylog_shift_right_one_char();
+    display_keylogger_shift_right_one_char();
     display_keylogger_save();
 }
 
-static void keylog_shift_left(uint8_t len) {
+static void display_keylogger_shift_left(uint8_t len) {
     memmove(display_keylogger_config.string, display_keylogger_config.string + len,
             (DISPLAY_KEYLOGGER_LENGTH - len) * sizeof(int32_t));
 
@@ -429,7 +429,7 @@ static void keylog_shift_left(uint8_t len) {
     }
 }
 
-static void keylog_append(const char *str) {
+void display_keylogger_append(const char *str) {
     // Convert UTF-8 string to Unicode code points
     uint8_t char_count = 0;
     int32_t unicode_chars[12]; // Temporary buffer for conversion
@@ -439,18 +439,18 @@ static void keylog_append(const char *str) {
         ptr = decode_utf8(ptr, &unicode_chars[char_count++]);
     }
 
-    keylog_shift_left(char_count);
+    display_keylogger_shift_left(char_count);
     for (uint8_t i = 0; i < char_count; i++) {
         display_keylogger_config.string[DISPLAY_KEYLOGGER_LENGTH - char_count + i] = unicode_chars[i];
     }
     display_keylogger_save();
 }
 
-bool is_keylogger_dirty(void) {
+bool is_display_keylogger_dirty(void) {
     return keylog_dirty;
 }
 
-void keylogger_set_dirty(bool dirty) {
+void display_keylogger_set_dirty(bool dirty) {
     keylog_dirty = dirty;
 }
 
@@ -477,7 +477,7 @@ void keylogger_set_dirty(bool dirty) {
  * @note Maximum output string length is DISPLAY_KEYLOGGER_LENGTH * 4 bytes
  *       plus null terminator.
  */
-const char *get_keylogger_str(void) {
+const char *get_display_keylogger_str(void) {
     // Convert int32_t Unicode code points back to UTF-8 char* for display
     static char converted_string[DISPLAY_KEYLOGGER_LENGTH * 4 + 1]; // Allow up to 4 bytes per Unicode character
     int         pos = 0;
@@ -513,12 +513,12 @@ const char *get_keylogger_str(void) {
     return converted_string;
 }
 
-const int32_t *get_keylogger_str_raw(void) {
+const int32_t *get_display_keylogger_str_raw(void) {
     // Return the raw int32_t array for direct access
     return display_keylogger_config.string;
 }
 
-void keycode_repr(const char **str, const uint8_t mods) {
+void display_keylogger_keycode_sanitizer(const char **str, const uint8_t mods) {
     skip_prefix(str);
     maybe_symbol(str, mods);
 }
@@ -564,11 +564,11 @@ bool process_record_display_keylogger(uint16_t code, keyrecord_t *record) {
     if (strstr(str, "BSPC") != NULL) {
         // ctrl + backspace clears whole log
         if (ctrl) {
-            keylog_clear();
+            display_keylogger_clear();
         }
         // backspace = remove last char
         else {
-            keylog_shift_right();
+            display_keylogger_shift_right();
         }
         return true;
     }
@@ -579,16 +579,16 @@ bool process_record_display_keylogger(uint16_t code, keyrecord_t *record) {
     }
 
     // convert string into symbols
-    keycode_repr(&str, mods);
+    display_keylogger_keycode_sanitizer(&str, mods);
 
     // casing is separate so that drawing keycodes on screen is always uppercase
-    apply_casing(&str);
+    display_keylogger_apply_casing(&str);
 
-    keylog_append(str);
+    display_keylogger_append(str);
     return true;
 }
 
-void split_sync_keylogger_str(const uint8_t *data, uint8_t size) {
+void split_sync_display_keylogger_str(const uint8_t *data, uint8_t size) {
     // Convert incoming data to int32_t
     if (memcmp(data, display_keylogger_config.string, size * sizeof(int32_t)) != 0) {
         memcpy(display_keylogger_config.string, data, sizeof(display_keylogger_config.string));
@@ -617,14 +617,14 @@ const char *get_keycode_character(uint16_t keycode, keypos_t *key) {
     maybe_symbol(&str, IS_QK_MODS(keycode) ? QK_MODS_GET_MODS(keycode) : 0);
     if (KC_A <= keycode && keycode <= KC_Z) {
         // converts uppercase to lowercase if not shifted
-        apply_casing(&str);
+        display_keylogger_apply_casing(&str);
     }
 
     return str;
 }
 
-void add_keycode_to_keylogger_str(uint8_t keycode, uint8_t mods) {
-    keylogger_set_dirty(true);
+void add_keycode_to_display_keylogger_str(uint8_t keycode, uint8_t mods) {
+    display_keylogger_set_dirty(true);
     const char *str = get_keycode_string(keycode);
     // unknown keycode, quit
     if (str == NULL) {
@@ -632,10 +632,10 @@ void add_keycode_to_keylogger_str(uint8_t keycode, uint8_t mods) {
     }
 
     // convert string into symbols
-    keycode_repr(&str, mods);
+    display_keylogger_keycode_sanitizer(&str, mods);
 
     // casing is separate so that drawing keycodes on screen is always uppercase
-    apply_casing(&str);
+    display_keylogger_apply_casing(&str);
 
-    keylog_append(str);
+    display_keylogger_append(str);
 }

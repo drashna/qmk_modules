@@ -16,29 +16,30 @@
 /**
  * Read the current state of the keylog.
  */
-const char *get_keylogger_str(void);
+const char *get_display_keylogger_str(void);
 
-const int32_t *get_keylogger_str_raw(void);
+const int32_t *get_display_keylogger_str_raw(void);
 
 /**
  * Whether anything has been written since keylog was last fetched.
  */
-bool is_keylogger_dirty(void);
+bool is_display_keylogger_dirty(void);
 
 /**
  * Set the keylog dirty state.
  *
  * This is used to force a redraw of the keylogger string.
  */
-void keylogger_set_dirty(bool dirty);
+void display_keylogger_set_dirty(bool dirty);
 
 /**
  * Takes a basic string representation of a keycode and
  * replace it with a prettier one. Eg: ``KC_A`` becomes ``A``
  */
-void keycode_repr(const char **str, const uint8_t mods);
+void display_keylogger_keycode_sanitizer(const char **str, const uint8_t mods);
 
-void        split_sync_keylogger_str(const uint8_t *data, uint8_t size);
+void        split_sync_display_keylogger_str(const uint8_t *data, uint8_t size);
 const char *get_keycode_character(uint16_t keycode, keypos_t *key);
-void        add_keycode_to_keylogger_str(uint8_t keycode, uint8_t mods);
-void        keylog_shift_right(void);
+void        add_keycode_to_display_keylogger_str(uint8_t keycode, uint8_t mods);
+void        display_keylogger_shift_right(void);
+void        display_keylogger_append(const char *str);
